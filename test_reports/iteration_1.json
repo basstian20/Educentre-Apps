@@ -1,0 +1,54 @@
+{
+  "summary": "First-pass full-stack testing of EduCentre. Backend: 31/33 pytest passed (2 skipped because educator role cannot see its own classes — root cause is a clear ID-mismatch bug in role-filter logic). Frontend: login page, all 4 demo accounts authenticate, all admin/student/parent pages render with seeded data, EN/ID toggle works. Educator dashboard shows 0 classes/0 students/'No classes today' due to the same backend bug.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "GET /api/classes, GET /api/dashboard/stats, GET /api/materials, GET /api/announcements, GET /api/students (educator role)",
+        "issue": "Educator-role filtering compares classes.educator_id against current['id'] (which is the USER id), but classes.educator_id stores the EDUCATOR record id. Result: any educator sees 0 classes, 0 students, 0 today_classes, 0 pending_assessments, no class-scoped materials/announcements. Confirmed in DB: classes[0].educator_id='4a8b280e-...' (educator.id) while logged-in user id='14ea205e-...' (user.id). Same pattern in server.py lines 353, 708, 743, 215, 785.",
+        "priority": "CRITICAL"
+      }
+    ],
+    "minor": [
+      {"endpoint": "POST /api/students, /educators, /parents, /classes", "issue": "Returns 200 instead of 201 for resource creation (REST best practice)."},
+      {"endpoint": "GET /api/invoices", "issue": "Mutates 'status' field in-memory to 'overdue' on read but never persists, so dashboard 'overdue_invoices' counter and DB stay inconsistent."},
+      {"endpoint": "POST /api/payments", "issue": "Allowed for ANY authenticated role (uses get_current_user, not require_roles('admin')). Students/parents could record their own payments — should be admin-only per spec."},
+      {"endpoint": "GET /api/enrollments", "issue": "No role-based filtering — any authenticated user can see all enrollments by passing arbitrary student_id/class_id."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Educator Dashboard", "issue": "Shows MY CLASSES=0 / ACTIVE STUDENTS=0 / 'No classes today' for fariz@educentre.id even though admin sees 2 classes assigned to him. Caused by backend educator_id bug above.", "selector": "Educator dashboard cards", "priority": "CRITICAL"},
+      {"component": "Timetable", "issue": "React warning: 'Each child in a list should have a unique key prop' from Timetable component.", "selector": "Timetable.jsx", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_educentre.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "FIX CRITICAL: In server.py, the educator role filter must use the educator record id, not user id. Either resolve via `edu = await db.educators.find_one({'user_id': current['id']})` then use `edu['id']`, OR change classes.educator_id to reference user_id consistently. Locations: list_classes (~L353), list_materials (~L708), list_announcements (~L743), list_students (~L215), dashboard_stats educator branch (~L785).",
+    "Fix /api/payments to require admin role (require_roles('admin')).",
+    "Add role filtering to /api/enrollments (educator: own classes; student/parent: own/children only).",
+    "Persist invoice status='overdue' on read OR move to a scheduled job.",
+    "Add unique key prop in Timetable list rendering."
+  ],
+  "critical_code_review_comments": [
+    "Critical mismatch between user.id and educator.id used as cross-collection FK breaks the entire educator UX.",
+    "/api/payments should be admin-only — currently any authenticated user can create payments against any invoice.",
+    "Endpoints return 200 instead of 201 for creation; not blocking but non-idiomatic.",
+    "Several role-checks rely on `current['id']` directly against domain ids; consider always resolving the domain entity once at login or via a helper.",
+    "JWT_SECRET committed to .env in repo — acceptable for demo, but flag for production."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_educentre.py"
+  ],
+  "success_rate": {"backend": "94% (31/33; 2 skipped due to educator data-link bug)", "frontend": "85% (admin/student/parent flows work; educator dashboard broken)"},
+  "test_credentials": "Per /app/memory/test_credentials.md — all 4 demo accounts confirmed working at /api/auth/login.",
+  "seed_data_creation": "Did not seed; backend startup seeds demo data automatically (2 students, 2 educators, 1 parent, 4 classes, 2 invoices, 1 assessment, attendance, 1 material, 1 announcement). Tests created TEST_-prefixed students+invoices for verification.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Re-run /app/backend/tests/test_educentre.py — the 2 currently-skipped tests (TestAttendance::test_mark_attendance_educator and TestAssessments::test_assessment_grade_publish_flow) WILL execute and assert real data once the educator_id bug is fixed; they currently skip with 'Educator has no classes'. Verify educator login UI shows non-zero MY CLASSES count for fariz@educentre.id after fix. RBAC fix on /api/payments should add a test asserting 403 for non-admin callers.",
+  "rca_of_the_issue": "Root cause: classes.educator_id is populated from educators._id-equivalent (educators.id, generated by new_id() in seed.py / POST /educators), while the educator-role filter in server.py compares it against current['id'] (the user document id from /auth/me). User and Educator are separate documents linked by educators.user_id. The two ids never match, so every educator-scoped query returns []. Reproduction: login as fariz@educentre.id → GET /api/classes returns []; admin GET /api/classes returns 4 classes whose educator_id values match db.educators.id, not db.users.id. Mitigation: at the start of each educator branch, resolve the educator record (`edu = await db.educators.find_one({'user_id': current['id']})`) and use `edu['id']` in all subsequent queries. Apply to list_classes, list_materials, list_announcements, list_students (educator branch), and dashboard_stats educator branch."
+}

@@ -1,34 +1,43 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* Component-specific styles & overrides */
+.timetable-cell {
+  height: 56px;
+  border-right: 1px solid #E2E8F0;
+  border-bottom: 1px solid #E2E8F0;
+  position: relative;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+.class-block {
+  position: absolute;
+  inset: 4px;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: "Outfit", sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid currentColor;
 }
+.class-block:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
-}
+.kpi-tile { transition: transform 0.2s, box-shadow 0.2s; }
+.kpi-tile:hover { transform: translateY(-2px); }
 
-.App-link {
-    color: #61dafb;
-}
+.row-hover:hover { background: #F8FAFC; }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.attendance-btn {
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  font-family: "Outfit", sans-serif;
+  transition: all 0.15s ease;
+  background: transparent;
+  color: #94A3B8;
 }
+.attendance-btn:hover { background: #F8FAFC; }
+.attendance-btn.active-present { border-color: var(--status-present); background: #D1FAE5; color: #047857; }
+.attendance-btn.active-late { border-color: var(--status-late); background: #FEF3C7; color: #B45309; }
+.attendance-btn.active-absent { border-color: var(--status-absent); background: #FEE2E2; color: #B91C1C; }
+.attendance-btn.active-excused { border-color: var(--status-excused); background: #F1F5F9; color: #475569; }
