@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, StatTile, Empty } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
@@ -27,13 +27,43 @@ export default function Reports() {
     });
   }, []);
 
-  // Status breakdown
-  const statusCount = invoices.reduce((acc, inv) => { acc[inv.status] = (acc[inv.status] || 0) + 1; return acc; }, {});
-  const statusData = Object.entries(statusCount).map(([k, v]) => ({ name: k, value: v }));
+  // Status breakdown — memoised
+  const statusData = useMemo(
+    () =>
+      Object.entries(
+        invoices.reduce((acc, inv) => {
+          acc[inv.status] = (acc[inv.status] || 0) + 1;
+          return acc;
+        }, {})
+      ).map(([k, v]) => ({ name: k, value: v })),
+    [invoices]
+  );
   const STATUS_COLORS = { paid: "#10B981", unpaid: "#F59E0B", overdue: "#EF4444", partial: "#3B82F6" };
 
-  // Class utilisation
-  const utilData = classes.map((c) => ({ name: c.subject_name?.slice(0, 14), enrolled: c.enrolled_count || 0, capacity: c.capacity }));
+  // Class utilisation — memoised
+  const utilData = useMemo(
+    () => classes.map((c) => ({ name: c.subject_name?.slice(0, 14), enrolled: c.enrolled_count || 0, capacity: c.capacity })),
+    [classes]
+  );
+
+  // Top classes by fee — memoised expensive sort
+  const topClassesByFee = useMemo(
+    () => classes.slice().sort((a, b) => (b.fee_amount || 0) - (a.fee_amount || 0)).slice(0, 6),
+    [classes]
+  );
+
+  // Quick stats — memoised aggregation
+  const quickMetrics = useMemo(
+    () => [
+      { label: "Total Students", value: students.length },
+      { label: "Total Classes", value: classes.length },
+      { label: "Total Invoices", value: invoices.length },
+      { label: "Paid Invoices", value: invoices.filter((i) => i.status === "paid").length },
+      { label: "Overdue", value: invoices.filter((i) => i.status === "overdue").length },
+      { label: "Total Revenue", value: fmtIDR(invoices.reduce((s, i) => s + (i.amount_paid || 0), 0)) },
+    ],
+    [students, classes, invoices]
+  );
 
   return (
     <Layout title={t.reports} subtitle="Business intelligence & operational metrics">
@@ -80,11 +110,7 @@ export default function Reports() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">
         <Card title="Top Classes by Fee" testid="report-fees">
           <div className="space-y-2">
-            {classes
-              .slice()
-              .sort((a, b) => (b.fee_amount || 0) - (a.fee_amount || 0))
-              .slice(0, 6)
-              .map((c) => (
+            {topClassesByFee.map((c) => (
                 <div key={c.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-100">
                   <div className="flex items-center gap-3">
                     <div className="w-1 h-8 rounded-full" style={{ background: c.color_hex }} />
@@ -100,14 +126,7 @@ export default function Reports() {
         </Card>
         <Card title="Quick Stats" testid="report-summary">
           <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: "Total Students", value: students.length },
-              { label: "Total Classes", value: classes.length },
-              { label: "Total Invoices", value: invoices.length },
-              { label: "Paid Invoices", value: invoices.filter((i) => i.status === "paid").length },
-              { label: "Overdue", value: invoices.filter((i) => i.status === "overdue").length },
-              { label: "Total Revenue", value: fmtIDR(invoices.reduce((s, i) => s + (i.amount_paid || 0), 0)) },
-            ].map((m) => (
+            {quickMetrics.map((m) => (
               <div key={m.label} className="p-4 rounded-lg bg-slate-50">
                 <div className="text-[11px] uppercase tracking-wider text-slate-500 font-outfit">{m.label}</div>
                 <div className="text-2xl font-outfit font-bold mt-1">{m.value}</div>

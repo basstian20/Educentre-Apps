@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { Card, Btn, Input, Select, StatusBadge, Modal, Empty } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
@@ -15,27 +15,27 @@ export default function Students() {
   const [statusFilter, setStatusFilter] = useState("");
   const [open, setOpen] = useState(false);
   const [parents, setParents] = useState([]);
-  const [form, setForm] = useState({ full_name: "", email: "", password: "student123", phone: "", school_year: "Year 5", school_name: "", dob: "", parent_id: "" });
+  const [form, setForm] = useState({ full_name: "", email: "", password: "", phone: "", school_year: "Year 5", school_name: "", dob: "", parent_id: "" });
   const isAdmin = user?.role === "admin";
 
-  const load = () => {
+  const load = useCallback(() => {
     const params = {};
     if (search) params.search = search;
     if (statusFilter) params.status = statusFilter;
     api.get("/students", { params }).then((r) => setStudents(r.data || []));
-  };
+  }, [search, statusFilter]);
 
   useEffect(() => {
     load();
     if (isAdmin) api.get("/users", { params: { role: "parent" } }).then((r) => setParents(r.data || []));
-  }, [search, statusFilter]);
+  }, [load, isAdmin]);
 
   const submit = async () => {
     try {
       await api.post("/students", form);
       toast.success("Student added");
       setOpen(false);
-      setForm({ full_name: "", email: "", password: "student123", phone: "", school_year: "Year 5", school_name: "", dob: "", parent_id: "" });
+      setForm({ full_name: "", email: "", password: "", phone: "", school_year: "Year 5", school_name: "", dob: "", parent_id: "" });
       load();
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail));

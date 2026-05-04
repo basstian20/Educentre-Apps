@@ -62,7 +62,9 @@ def _extract_token(request: Request) -> Optional[str]:
 
 async def get_current_user(request: Request):
     """Dependency that returns user dict (without password_hash)."""
-    from server import db  # late import to avoid circular
+    from database import get_db
+
+    db = get_db()
 
     token = _extract_token(request)
     if not token:

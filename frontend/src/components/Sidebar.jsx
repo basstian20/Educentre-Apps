@@ -152,8 +152,8 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
-        {sections.map((sec, si) => (
-          <div key={si} className="mb-5">
+        {sections.map((sec) => (
+          <div key={`sec-${sec.section}`} className="mb-5">
             <div className="text-[10px] font-outfit font-semibold uppercase tracking-widest text-slate-500 px-3 mb-2">
               {sec.section}
             </div>

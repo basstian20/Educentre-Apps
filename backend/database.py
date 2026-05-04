@@ -1,0 +1,22 @@
+"""Shared MongoDB connection — single source of truth, breaks circular imports."""
+import os
+from motor.motor_asyncio import AsyncIOMotorClient
+
+_client: AsyncIOMotorClient | None = None
+_db = None
+
+
+def get_db():
+    """Lazily initialise the shared db handle."""
+    global _client, _db
+    if _db is None:
+        _client = AsyncIOMotorClient(os.environ["MONGO_URL"])
+        _db = _client[os.environ["DB_NAME"]]
+    return _db
+
+
+def close_client():
+    global _client
+    if _client is not None:
+        _client.close()
+        _client = None

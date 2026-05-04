@@ -15,6 +15,7 @@ def _now():
 
 
 async def seed_all(db):
+    """Idempotent seed. db is passed in to avoid circular imports."""
     # ── Admin ──
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@educentre.id").lower()
     admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
@@ -221,10 +222,9 @@ async def seed_all(db):
     # ── Invoices (October billing for both students) ──
     today = date.today()
     due = (today + timedelta(days=10)).isoformat()
-    overdue_due = (today - timedelta(days=5)).isoformat()
 
     inv_count = 0
-    for s_idx, student in enumerate(students):
+    for student in students:
         inv_count += 1
         items = []
         s_class_ids = [pair[1] for pair in enroll_map if pair[0] == student["id"]]

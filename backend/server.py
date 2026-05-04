@@ -14,7 +14,7 @@ from typing import List, Optional
 from fastapi import FastAPI, APIRouter, Depends, HTTPException, Response, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient  # noqa: F401  (kept for type hints in tests)
 
 from auth import (
     hash_password,
@@ -24,6 +24,7 @@ from auth import (
     get_current_user,
     require_roles,
 )
+from database import get_db, close_client
 from models import (
     LoginInput,
     RegisterInput,
@@ -45,9 +46,7 @@ from models import (
 )
 
 # ── DB ──
-mongo_url = os.environ["MONGO_URL"]
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ["DB_NAME"]]
+db = get_db()
 
 # ── App ──
 app = FastAPI(title="EduCentre API")
@@ -648,14 +647,10 @@ async def save_grades(payload: GradeBulkSave, current=Depends(require_roles("adm
 def _letter_grade(pct: Optional[float]) -> Optional[str]:
     if pct is None:
         return None
-    if pct >= 90: return "A"
-    if pct >= 80: return "A-"
-    if pct >= 75: return "B+"
-    if pct >= 70: return "B"
-    if pct >= 65: return "B-"
-    if pct >= 60: return "C+"
-    if pct >= 50: return "C"
-    if pct >= 40: return "D"
+    thresholds = [(90, "A"), (80, "A-"), (75, "B+"), (70, "B"), (65, "B-"), (60, "C+"), (50, "C"), (40, "D")]
+    for cutoff, grade in thresholds:
+        if pct >= cutoff:
+            return grade
     return "F"
 
 
@@ -783,81 +778,99 @@ async def list_announcements(current=Depends(get_current_user)):
 
 
 # ── Dashboard stats ──
+async def _admin_stats(today: str) -> dict:
+    students_count = await db.students.count_documents({"status": "active"})
+    classes_count = await db.classes.count_documents({"is_active": True})
+    educators_count = await db.educators.count_documents({"status": "active"})
+    invoices = await db.invoices.find({}, {"_id": 0}).to_list(2000)
+    outstanding = sum(i.get("balance_due", 0) for i in invoices if i["status"] != "paid")
+    payments = await db.payments.find({}, {"_id": 0}).to_list(2000)
+    revenue_this_month = sum(p["amount"] for p in payments if (p.get("paid_at") or "")[:7] == today[:7])
+    overdue_count = sum(
+        1 for i in invoices
+        if i["status"] == "overdue" or (i["status"] in ("unpaid", "partial") and i["due_date"] < today)
+    )
+    return {
+        "active_students": students_count,
+        "active_classes": classes_count,
+        "active_educators": educators_count,
+        "outstanding_fees": outstanding,
+        "revenue_this_month": revenue_this_month,
+        "overdue_invoices": overdue_count,
+    }
+
+
+async def _educator_stats(user_id: str) -> dict:
+    edu_id = await _resolve_educator_id(user_id)
+    my_classes = await db.classes.find({"educator_id": edu_id, "is_active": True}, {"_id": 0}).to_list(50)
+    cids = [c["id"] for c in my_classes]
+    enrolls = await db.enrollments.count_documents({"class_id": {"$in": cids}, "status": "active"})
+    ass = await db.assessments.find({"class_id": {"$in": cids}, "is_published": False}, {"_id": 0}).to_list(50)
+    return {
+        "my_classes": len(my_classes),
+        "total_students": enrolls,
+        "pending_assessments": len(ass),
+        "today_classes": [c for c in my_classes if _today_dow() in (c.get("schedule_days") or [])],
+    }
+
+
+def _attendance_pct(att_records: list) -> float:
+    if not att_records:
+        return 100
+    present = sum(1 for a in att_records if a["status"] == "present")
+    return round(present / len(att_records) * 100, 1)
+
+
+async def _student_stats(user_id: str) -> dict:
+    s = await db.students.find_one({"user_id": user_id}, {"_id": 0})
+    if not s:
+        return {}
+    enrolls = await db.enrollments.find({"student_id": s["id"], "status": "active"}, {"_id": 0}).to_list(50)
+    cids = [e["class_id"] for e in enrolls]
+    my_classes = await db.classes.find({"id": {"$in": cids}}, {"_id": 0}).to_list(50)
+    invs = await db.invoices.find({"student_id": s["id"]}, {"_id": 0}).to_list(50)
+    outstanding = sum(i.get("balance_due", 0) for i in invs if i["status"] != "paid")
+    att = await db.attendance.find({"student_id": s["id"]}, {"_id": 0}).to_list(500)
+    return {
+        "active_classes": len(my_classes),
+        "today_classes": [c for c in my_classes if _today_dow() in (c.get("schedule_days") or [])],
+        "outstanding_fees": outstanding,
+        "attendance_pct": _attendance_pct(att),
+        "student": s,
+    }
+
+
+async def _parent_stats(user_id: str) -> dict:
+    kids = await db.students.find({"parent_id": user_id}, {"_id": 0}).to_list(20)
+    kid_ids = [k["id"] for k in kids]
+    enrolls = await db.enrollments.find({"student_id": {"$in": kid_ids}, "status": "active"}, {"_id": 0}).to_list(200)
+    cids = list({e["class_id"] for e in enrolls})
+    my_classes = await db.classes.find({"id": {"$in": cids}}, {"_id": 0}).to_list(50)
+    invs = await db.invoices.find({"student_id": {"$in": kid_ids}}, {"_id": 0}).to_list(200)
+    outstanding = sum(i.get("balance_due", 0) for i in invs if i["status"] != "paid")
+    att = await db.attendance.find({"student_id": {"$in": kid_ids}}, {"_id": 0}).to_list(500)
+    return {
+        "children_count": len(kids),
+        "children": kids,
+        "active_classes": len(my_classes),
+        "outstanding_fees": outstanding,
+        "attendance_pct": _attendance_pct(att),
+        "today_classes": [c for c in my_classes if _today_dow() in (c.get("schedule_days") or [])],
+    }
+
+
 @api.get("/dashboard/stats")
 async def dashboard_stats(current=Depends(get_current_user)):
     role = current["role"]
     today = date.today().isoformat()
-
     if role == "admin":
-        students_count = await db.students.count_documents({"status": "active"})
-        classes_count = await db.classes.count_documents({"is_active": True})
-        educators_count = await db.educators.count_documents({"status": "active"})
-        invoices = await db.invoices.find({}, {"_id": 0}).to_list(2000)
-        outstanding = sum(i.get("balance_due", 0) for i in invoices if i["status"] != "paid")
-        revenue_this_month = 0
-        ym = today[:7]
-        payments = await db.payments.find({}, {"_id": 0}).to_list(2000)
-        revenue_this_month = sum(p["amount"] for p in payments if (p.get("paid_at") or "")[:7] == ym)
-        overdue_count = sum(1 for i in invoices if i["status"] == "overdue" or (i["status"] in ("unpaid", "partial") and i["due_date"] < today))
-        return {
-            "active_students": students_count,
-            "active_classes": classes_count,
-            "active_educators": educators_count,
-            "outstanding_fees": outstanding,
-            "revenue_this_month": revenue_this_month,
-            "overdue_invoices": overdue_count,
-        }
-
+        return await _admin_stats(today)
     if role == "educator":
-        edu_id = await _resolve_educator_id(current["id"])
-        my_classes = await db.classes.find({"educator_id": edu_id, "is_active": True}, {"_id": 0}).to_list(50)
-        cids = [c["id"] for c in my_classes]
-        enrolls = await db.enrollments.count_documents({"class_id": {"$in": cids}, "status": "active"})
-        ass = await db.assessments.find({"class_id": {"$in": cids}, "is_published": False}, {"_id": 0}).to_list(50)
-        return {
-            "my_classes": len(my_classes),
-            "total_students": enrolls,
-            "pending_assessments": len(ass),
-            "today_classes": [c for c in my_classes if _today_dow() in (c.get("schedule_days") or [])],
-        }
-
+        return await _educator_stats(current["id"])
     if role == "student":
-        s = await db.students.find_one({"user_id": current["id"]}, {"_id": 0})
-        if not s:
-            return {}
-        enrolls = await db.enrollments.find({"student_id": s["id"], "status": "active"}, {"_id": 0}).to_list(50)
-        cids = [e["class_id"] for e in enrolls]
-        my_classes = await db.classes.find({"id": {"$in": cids}}, {"_id": 0}).to_list(50)
-        invs = await db.invoices.find({"student_id": s["id"]}, {"_id": 0}).to_list(50)
-        outstanding = sum(i.get("balance_due", 0) for i in invs if i["status"] != "paid")
-        att = await db.attendance.find({"student_id": s["id"]}, {"_id": 0}).to_list(500)
-        present = sum(1 for a in att if a["status"] == "present")
-        return {
-            "active_classes": len(my_classes),
-            "today_classes": [c for c in my_classes if _today_dow() in (c.get("schedule_days") or [])],
-            "outstanding_fees": outstanding,
-            "attendance_pct": round(present / len(att) * 100, 1) if att else 100,
-            "student": s,
-        }
-
+        return await _student_stats(current["id"])
     if role == "parent":
-        kids = await db.students.find({"parent_id": current["id"]}, {"_id": 0}).to_list(20)
-        kid_ids = [k["id"] for k in kids]
-        enrolls = await db.enrollments.find({"student_id": {"$in": kid_ids}, "status": "active"}, {"_id": 0}).to_list(200)
-        cids = list({e["class_id"] for e in enrolls})
-        my_classes = await db.classes.find({"id": {"$in": cids}}, {"_id": 0}).to_list(50)
-        invs = await db.invoices.find({"student_id": {"$in": kid_ids}}, {"_id": 0}).to_list(200)
-        outstanding = sum(i.get("balance_due", 0) for i in invs if i["status"] != "paid")
-        att = await db.attendance.find({"student_id": {"$in": kid_ids}}, {"_id": 0}).to_list(500)
-        present = sum(1 for a in att if a["status"] == "present")
-        return {
-            "children_count": len(kids),
-            "children": kids,
-            "active_classes": len(my_classes),
-            "outstanding_fees": outstanding,
-            "attendance_pct": round(present / len(att) * 100, 1) if att else 100,
-            "today_classes": [c for c in my_classes if _today_dow() in (c.get("schedule_days") or [])],
-        }
+        return await _parent_stats(current["id"])
     return {}
 
 
@@ -900,4 +913,4 @@ async def on_startup():
 
 @app.on_event("shutdown")
 async def on_shutdown():
-    client.close()
+    close_client()

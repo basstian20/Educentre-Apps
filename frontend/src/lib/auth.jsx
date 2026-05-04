@@ -29,7 +29,9 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await api.post("/auth/logout");
-    } catch {}
+    } catch (err) {
+      console.warn("Logout request failed (clearing client state anyway):", err?.message || err);
+    }
     localStorage.removeItem("ec_token");
     setUser(null);
   };

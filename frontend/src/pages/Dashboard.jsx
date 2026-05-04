@@ -30,7 +30,7 @@ export default function Dashboard() {
     if (user?.role === "student" || user?.role === "parent") {
       api.get("/grades").then((r) => setRecentGrades((r.data || []).slice(0, 5)));
     }
-  }, [user]);
+  }, [user?.role, user?.id]);
 
   const today = new Date();
   const greetSub = ROLE_GREETING[user?.role]?.[lang] || "";

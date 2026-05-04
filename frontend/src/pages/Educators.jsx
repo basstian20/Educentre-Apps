@@ -12,7 +12,7 @@ export default function Educators() {
   const { user } = useAuth();
   const [list, setList] = useState([]);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ full_name: "", email: "", password: "educator123", phone: "", subjects: "", employment_type: "full_time", qualifications: "" });
+  const [form, setForm] = useState({ full_name: "", email: "", password: "", phone: "", subjects: "", employment_type: "full_time", qualifications: "" });
   const isAdmin = user?.role === "admin";
 
   const load = () => api.get("/educators").then((r) => setList(r.data || []));
@@ -24,7 +24,7 @@ export default function Educators() {
       await api.post("/educators", payload);
       toast.success("Educator added");
       setOpen(false);
-      setForm({ full_name: "", email: "", password: "educator123", phone: "", subjects: "", employment_type: "full_time", qualifications: "" });
+      setForm({ full_name: "", email: "", password: "", phone: "", subjects: "", employment_type: "full_time", qualifications: "" });
       load();
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail));

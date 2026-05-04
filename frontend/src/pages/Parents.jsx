@@ -11,7 +11,7 @@ export default function Parents() {
   const [list, setList] = useState([]);
   const [students, setStudents] = useState([]);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ full_name: "", email: "", password: "parent123", phone: "", occupation: "", children_ids: [] });
+  const [form, setForm] = useState({ full_name: "", email: "", password: "", phone: "", occupation: "", children_ids: [] });
 
   const load = () => api.get("/parents").then((r) => setList(r.data || []));
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function Parents() {
       await api.post("/parents", form);
       toast.success("Parent added");
       setOpen(false);
-      setForm({ full_name: "", email: "", password: "parent123", phone: "", occupation: "", children_ids: [] });
+      setForm({ full_name: "", email: "", password: "", phone: "", occupation: "", children_ids: [] });
       load();
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail));
