@@ -1,0 +1,97 @@
+{
+  "theme": "Light with Dark Sidebar (Elevated Institutional)",
+  "archetype": "Archetype 4 (Swiss & High-Contrast) + Organic warmth for education",
+  "colors": {
+    "sidebar": "#0F172A",
+    "sidebar_text": "#94A3B8",
+    "sidebar_active_bg": "rgba(37, 99, 235, 0.1)",
+    "sidebar_active_text": "#3B82F6",
+    "background": "#FAFAFA",
+    "surface": "#FFFFFF",
+    "primary": "#2563EB",
+    "roles": {
+      "management": "#2563EB",
+      "educator": "#059669",
+      "student": "#D97706",
+      "parent": "#7C3AED"
+    },
+    "status": {
+      "present": "#10B981",
+      "late": "#F59E0B",
+      "absent": "#EF4444",
+      "excused": "#6B7280"
+    },
+    "border": "#E2E8F0"
+  },
+  "typography": {
+    "fonts": [
+      {
+        "family": "Outfit",
+        "usage": "Headings, numbers, distinct labels, dashboards metrics",
+        "url": "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+      },
+      {
+        "family": "Plus Jakarta Sans",
+        "usage": "Body, Data tables, general UI, Indonesian context readability",
+        "url": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      }
+    ],
+    "scales": {
+      "h1": "text-4xl tracking-tight font-outfit font-semibold text-slate-900",
+      "h2": "text-2xl tracking-tight font-outfit font-medium text-slate-800",
+      "h3": "text-lg tracking-tight font-outfit font-medium text-slate-800",
+      "body": "text-sm font-jakarta text-slate-600",
+      "data": "text-sm font-jakarta text-slate-900",
+      "metric": "text-3xl font-outfit font-bold text-slate-900"
+    }
+  },
+  "layout": {
+    "spacing": "Generous internally (p-6, p-8) for dashboard overview cards, compact in data tables (p-3, p-4)",
+    "borderRadius": "rounded-xl for cards, rounded-full for badges, rounded-lg for buttons",
+    "structure": {
+      "sidebar": "w-64 fixed inset-y-0 left-0 z-50 bg-[#0F172A] flex flex-col",
+      "topbar": "h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-40",
+      "main_content": "pl-64 min-h-screen bg-[#FAFAFA]"
+    }
+  },
+  "components": {
+    "cards": "bg-white border border-slate-200 shadow-sm rounded-xl hover:shadow-md transition-shadow duration-200",
+    "tables": "w-full text-left border-collapse. th: font-outfit font-medium text-slate-500 bg-slate-50/50 py-3 px-4 text-xs uppercase tracking-wider. td: border-b border-slate-100 py-3 px-4 font-jakarta text-sm",
+    "badges": "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium font-outfit",
+    "buttons": "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none hover:-translate-y-0.5 active:translate-y-0 shadow-sm",
+    "inputs": "flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+  },
+  "media": {
+    "images": [
+      {
+        "category": "hero_login",
+        "url": "https://images.pexels.com/photos/35865718/pexels-photo-35865718.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Indonesian students learning, use for login split screen background"
+      },
+      {
+        "category": "abstract_building",
+        "url": "https://images.pexels.com/photos/26319154/pexels-photo-26319154.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Modern building architecture, use for decorative elements or parent dashboard headers"
+      },
+      {
+        "category": "avatar_educator",
+        "url": "https://images.unsplash.com/photo-1746513399803-e988cc54e812?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2ODl8MHwxfHNlYXJjaHwxfHxzbWlsaW5nJTIwaW5kb25lc2lhbiUyMHRlYWNoZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3Nzc4NjY3OTB8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Educator profile picture"
+      },
+      {
+        "category": "avatar_student",
+        "url": "https://images.unsplash.com/photo-1664253965306-75a646fd20ac?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWFuJTIwc3R1ZGVudCUyMGxlYXJuaW5nfGVufDB8fHx8MTc3Nzg2Njc5MHww&ixlib=rb-4.1.0&q=85",
+        "description": "Student profile picture"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Strictly use the defined fonts: Outfit for Headings/Metrics, Plus Jakarta Sans for body text. Do not use generic Inter.",
+    "Implement the dark sidebar (#0F172A) with light content area (#FAFAFA). The sidebar must feel deeply anchored.",
+    "Use role-based color coding exactly as defined (Blue, Emerald, Amber, Purple) for badges, avatars, and dashboard accents to immediately distinguish context.",
+    "Data tables must be dense but highly legible. Use Archetype 4 principles: 1px border-slate-100, hover backgrounds on rows (hover:bg-slate-50).",
+    "Ensure the login screen has a bilingual EN/ID toggle and utilizes the provided hero_login image on a 50/50 split layout. Place an overlay (bg-slate-900/30) over the image.",
+    "All interactive elements MUST have a data-testid attribute in kebab-case for testing.",
+    "Avoid generic Shadcn 'card' looks by customizing the border radius to rounded-xl and using the specific shadow-sm."
+  ]
+}
