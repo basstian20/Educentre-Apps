@@ -178,14 +178,14 @@ function Timetable({ classes, t }) {
             </div>
           ))}
           {hours.map((h) => (
-            <>
-              <div key={`hour-${h}`} className="text-center text-[11px] text-slate-400 py-1 border-r border-b border-slate-200 font-jakarta" style={{ height: cellH }}>
+            <div key={`row-${h}`} className="contents">
+              <div className="text-center text-[11px] text-slate-400 py-1 border-r border-b border-slate-200 font-jakarta" style={{ height: cellH }}>
                 {h}:00
               </div>
               {days.map((d) => (
                 <div key={`cell-${h}-${d}`} className="timetable-cell" />
               ))}
-            </>
+            </div>
           ))}
         </div>
         {/* Render class blocks */}

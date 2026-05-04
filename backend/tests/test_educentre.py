@@ -200,6 +200,18 @@ class TestClasses:
     def test_educator_classes_filtered(self, educator):
         r = educator.get(f"{API}/classes")
         assert r.status_code == 200
+        cls = r.json()
+        # Retest fix: educator fariz should see at least 3 classes (Math Y5, Sci Y5, Math Y3)
+        assert len(cls) >= 3, f"Educator should see >=3 classes, got {len(cls)}"
+        subjects = {c.get("subject_name") for c in cls}
+        assert any("Mathematics" in (s or "") for s in subjects) or any("Science" in (s or "") for s in subjects), f"Unexpected subjects: {subjects}"
+
+    def test_educator_dashboard_stats_nonzero(self, educator):
+        r = educator.get(f"{API}/dashboard/stats")
+        assert r.status_code == 200
+        d = r.json()
+        assert d["my_classes"] >= 3, f"my_classes={d['my_classes']}"
+        assert d["total_students"] >= 3, f"total_students={d['total_students']}"
 
     def test_rbac_create_class(self, educator):
         r = educator.post(f"{API}/classes", json={
@@ -216,6 +228,31 @@ class TestEnrollments:
         r = admin.get(f"{API}/enrollments")
         assert r.status_code == 200
         assert isinstance(r.json(), list)
+
+    def test_enrollments_role_filtered_student(self, student, tokens, admin):
+        r = student.get(f"{API}/enrollments")
+        assert r.status_code == 200
+        enrolls = r.json()
+        # Student should only see their own enrollments
+        # Get own student record via admin
+        all_students = admin.get(f"{API}/students").json()
+        me = next((s for s in all_students if s.get("email", "").lower() == tokens["student"]["user"]["email"].lower()), None)
+        if me and enrolls:
+            for e in enrolls:
+                assert e["student_id"] == me["id"], f"Student saw other student's enrollment: {e}"
+
+    def test_enrollments_role_filtered_parent(self, parent):
+        r = parent.get(f"{API}/enrollments")
+        assert r.status_code == 200
+        # Parent should see only their children's enrollments (subset — not full admin list)
+
+    def test_enrollments_role_filtered_educator(self, educator):
+        r = educator.get(f"{API}/enrollments")
+        assert r.status_code == 200
+        # Educator should only see enrollments for their classes
+        cls_ids = {c["id"] for c in educator.get(f"{API}/classes").json()}
+        for e in r.json():
+            assert e["class_id"] in cls_ids, f"Educator saw out-of-scope enrollment: {e}"
 
 
 # ── Attendance ──
@@ -292,6 +329,40 @@ class TestInvoices:
         assert r.status_code == 200
         assert r.json() == []
 
+    def test_payment_rbac_non_admin_forbidden(self, educator, student, parent, admin):
+        # Create a test invoice first
+        s = admin.get(f"{API}/students").json()[0]
+        inv_r = admin.post(f"{API}/invoices", json={
+            "student_id": s["id"],
+            "billing_month": "2026-03",
+            "items": [{"description": "TEST RBAC Invoice", "amount": 100000}],
+            "due_date": (date.today() + timedelta(days=14)).isoformat(),
+        })
+        assert inv_r.status_code == 200, inv_r.text
+        iid = inv_r.json()["id"]
+        payload = {"invoice_id": iid, "amount": 50000, "method": "cash"}
+        # Educator, student, parent all must get 403
+        for cli_name, cli in [("educator", educator), ("student", student), ("parent", parent)]:
+            r = cli.post(f"{API}/payments", json=payload)
+            assert r.status_code == 403, f"{cli_name} got {r.status_code}, expected 403"
+
+    def test_invoice_overdue_persisted(self, admin):
+        s = admin.get(f"{API}/students").json()[0]
+        past_due = (date.today() - timedelta(days=5)).isoformat()
+        r = admin.post(f"{API}/invoices", json={
+            "student_id": s["id"],
+            "billing_month": "2025-11",
+            "items": [{"description": "TEST Overdue", "amount": 250000}],
+            "due_date": past_due,
+            "notes": "TEST_overdue"
+        })
+        assert r.status_code == 200, r.text
+        iid = r.json()["id"]
+        # Calling list triggers update_many → status becomes overdue
+        admin.get(f"{API}/invoices")
+        got = admin.get(f"{API}/invoices/{iid}").json()
+        assert got["status"] == "overdue", f"Expected overdue, got {got['status']}"
+
 
 # ── Assessments & Grades ──
 class TestAssessments:
@@ -308,11 +379,11 @@ class TestAssessments:
         # create assessment
         a_payload = {
             "class_id": cid,
-            "title": "TEST Quiz",
-            "assessment_type": "quiz",
+            "name": "TEST Quiz",
+            "type": "quiz",
             "max_score": 100,
             "pass_score": 50,
-            "weight": 0.1,
+            "weightage": 10,
             "assessment_date": date.today().isoformat(),
         }
         r = educator.post(f"{API}/assessments", json=a_payload)

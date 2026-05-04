@@ -91,6 +91,17 @@ async def _gen_invoice_number():
     return f"INV-{datetime.now().year}-{(count + 1):05d}"
 
 
+async def _resolve_educator_id(user_id: str) -> Optional[str]:
+    """Educator records have their own id; classes.educator_id references educators.id, not users.id."""
+    edu = await db.educators.find_one({"user_id": user_id}, {"_id": 0, "id": 1})
+    return edu["id"] if edu else None
+
+
+async def _resolve_student_id(user_id: str) -> Optional[str]:
+    s = await db.students.find_one({"user_id": user_id}, {"_id": 0, "id": 1})
+    return s["id"] if s else None
+
+
 # ── Health ──
 @api.get("/")
 async def root():
@@ -212,7 +223,8 @@ async def list_students(search: Optional[str] = None, status: Optional[str] = No
         q["parent_id"] = current["id"]
     elif role == "educator":
         # educators see students from their classes
-        my_classes = await db.classes.find({"educator_id": current["id"]}, {"_id": 0, "id": 1}).to_list(500)
+        edu_id = await _resolve_educator_id(current["id"])
+        my_classes = await db.classes.find({"educator_id": edu_id}, {"_id": 0, "id": 1}).to_list(500)
         class_ids = [c["id"] for c in my_classes]
         enrollments = await db.enrollments.find({"class_id": {"$in": class_ids}, "status": "active"}, {"_id": 0, "student_id": 1}).to_list(2000)
         student_ids = list({e["student_id"] for e in enrollments})
@@ -350,7 +362,8 @@ async def list_classes(current=Depends(get_current_user)):
     q = {"is_active": True}
     classes = await db.classes.find(q, {"_id": 0}).to_list(500)
     if role == "educator":
-        classes = [c for c in classes if c.get("educator_id") == current["id"]]
+        edu_id = await _resolve_educator_id(current["id"])
+        classes = [c for c in classes if c.get("educator_id") == edu_id]
     elif role == "student":
         student = await db.students.find_one({"user_id": current["id"]}, {"_id": 0, "id": 1})
         if not student:
@@ -424,9 +437,20 @@ async def create_enrollment(payload: EnrollmentCreate, current=Depends(require_r
 @api.get("/enrollments")
 async def list_enrollments(student_id: Optional[str] = None, class_id: Optional[str] = None, current=Depends(get_current_user)):
     q = {}
-    if student_id:
+    role = current["role"]
+    if role == "student":
+        sid = await _resolve_student_id(current["id"])
+        q["student_id"] = sid
+    elif role == "parent":
+        kids = await db.students.find({"parent_id": current["id"]}, {"_id": 0, "id": 1}).to_list(50)
+        q["student_id"] = {"$in": [k["id"] for k in kids]}
+    elif role == "educator":
+        edu_id = await _resolve_educator_id(current["id"])
+        my_cids = [c["id"] for c in await db.classes.find({"educator_id": edu_id}, {"_id": 0, "id": 1}).to_list(200)]
+        q["class_id"] = {"$in": my_cids}
+    if student_id and role == "admin":
         q["student_id"] = student_id
-    if class_id:
+    if class_id and role in ("admin", "educator"):
         q["class_id"] = class_id
     return await db.enrollments.find(q, {"_id": 0}).to_list(500)
 
@@ -518,12 +542,13 @@ async def list_invoices(student_id: Optional[str] = None, status: Optional[str] 
         q["student_id"] = student_id
     if status:
         q["status"] = status
-    invoices = await db.invoices.find(q, {"_id": 0}).sort("created_at", -1).to_list(500)
-    # auto-update overdue
     today = date.today().isoformat()
-    for inv in invoices:
-        if inv["status"] in ("unpaid", "partial") and inv["due_date"] < today:
-            inv["status"] = "overdue"
+    # Persist overdue status
+    await db.invoices.update_many(
+        {"status": {"$in": ["unpaid", "partial"]}, "due_date": {"$lt": today}},
+        {"$set": {"status": "overdue"}},
+    )
+    invoices = await db.invoices.find(q, {"_id": 0}).sort("created_at", -1).to_list(500)
     return invoices
 
 
@@ -536,7 +561,7 @@ async def get_invoice(iid: str, current=Depends(get_current_user)):
 
 
 @api.post("/payments")
-async def record_payment(payload: PaymentRecord, current=Depends(get_current_user)):
+async def record_payment(payload: PaymentRecord, current=Depends(require_roles("admin"))):
     inv = await db.invoices.find_one({"id": payload.invoice_id})
     if not inv:
         raise HTTPException(404, "Invoice not found")
@@ -705,7 +730,8 @@ async def list_materials(class_id: Optional[str] = None, current=Depends(get_cur
         enrolls = await db.enrollments.find({"student_id": {"$in": [k["id"] for k in kids]}, "status": "active"}, {"_id": 0, "class_id": 1}).to_list(200)
         q["class_id"] = {"$in": list({e["class_id"] for e in enrolls})}
     elif role == "educator":
-        my_classes = await db.classes.find({"educator_id": current["id"]}, {"_id": 0, "id": 1}).to_list(50)
+        edu_id = await _resolve_educator_id(current["id"])
+        my_classes = await db.classes.find({"educator_id": edu_id}, {"_id": 0, "id": 1}).to_list(50)
         q["class_id"] = {"$in": [c["id"] for c in my_classes]}
     return await db.materials.find(q, {"_id": 0}).sort("created_at", -1).to_list(500)
 
@@ -740,7 +766,8 @@ async def list_announcements(current=Depends(get_current_user)):
         # find class ids the user has access to
         class_ids = set()
         if role == "educator":
-            cs = await db.classes.find({"educator_id": current["id"]}, {"_id": 0, "id": 1}).to_list(50)
+            edu_id = await _resolve_educator_id(current["id"])
+            cs = await db.classes.find({"educator_id": edu_id}, {"_id": 0, "id": 1}).to_list(50)
             class_ids = {c["id"] for c in cs}
         elif role == "student":
             s = await db.students.find_one({"user_id": current["id"]}, {"_id": 0, "id": 1})
@@ -782,7 +809,8 @@ async def dashboard_stats(current=Depends(get_current_user)):
         }
 
     if role == "educator":
-        my_classes = await db.classes.find({"educator_id": current["id"], "is_active": True}, {"_id": 0}).to_list(50)
+        edu_id = await _resolve_educator_id(current["id"])
+        my_classes = await db.classes.find({"educator_id": edu_id, "is_active": True}, {"_id": 0}).to_list(50)
         cids = [c["id"] for c in my_classes]
         enrolls = await db.enrollments.count_documents({"class_id": {"$in": cids}, "status": "active"})
         ass = await db.assessments.find({"class_id": {"$in": cids}, "is_published": False}, {"_id": 0}).to_list(50)

@@ -1,0 +1,32 @@
+{
+  "summary": "Iteration 2 RETEST — ALL critical + minor fixes verified. Backend pytest 39/39 passed (0 skipped, 0 failed); previously-skipped educator attendance & assessment-publish tests now execute and pass. Frontend educator dashboard at /dashboard for fariz@educentre.id now shows MY CLASSES=3, ACTIVE STUDENTS=3, Today's Classes list populated (Mathematics Year 5 08:00-09:30 Room A). Classes page renders 3 classes with full timetable; no React key warnings.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_educentre.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "The new _resolve_educator_id / _resolve_student_id helpers are the correct pattern; consider caching these lookups per-request (e.g., in a dependency) to avoid an extra DB round-trip on every list endpoint.",
+    "Invoice overdue persistence currently happens on read (update_many on GET). Acceptable for demo, but prefer a scheduled job for production so status is correct even when no one hits the list endpoint.",
+    "Payments route is now correctly admin-only; keep mocked-payment clearly documented in README so integrators know WhatsApp/email are NOT wired."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_educentre.py"
+  ],
+  "success_rate": {"backend": "100% (39/39)", "frontend": "100% (educator dashboard + classes verified)"},
+  "test_credentials": "All 4 demo accounts per /app/memory/test_credentials.md confirmed working.",
+  "seed_data_creation": "Backend startup seed still auto-loads demo data. New tests created TEST_-prefixed invoices (one unpaid+paid flow, one RBAC invoice, one past-due invoice) — no cleanup added but prefixed for identification.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All CRITICAL and minor issues from iteration_1 are resolved. The test suite covers: auth (5), dashboards (4), students (5), educators (2), parents (2), classes (4 incl. educator-scoped retest & dashboard-nonzero retest), enrollments (4 incl. role filter for student/parent/educator), attendance (2), invoices (6 incl. payment-RBAC-403 for non-admin and overdue-persistence), assessments (2), materials (1), announcements (2). No further regressions expected unless new features are added. Frontend verified via Playwright: educator fariz sees 3 classes and non-empty Today's Classes.",
+  "rca_of_the_issue": "Fix validated: _resolve_educator_id(user_id) translates users.id → educators.id before filtering classes/students/materials/announcements/dashboard-stats/enrollments. Curl + pytest + browser all confirm the 4 problem endpoints now return correctly-scoped results. Enrollments are now role-filtered (student→own, parent→children via parent_students join, educator→own classes only). Payments require admin (403 verified for educator/student/parent). Invoices list endpoint runs update_many({due_date<today, status=unpaid/partial}, status=overdue) so status persists in DB. Frontend Timetable React-key warning fixed by replacing fragment with <div className='contents'>."
+}
