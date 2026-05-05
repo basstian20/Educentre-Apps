@@ -66,8 +66,8 @@ def new_id() -> str:
 
 
 def _set_auth_cookies(response: Response, access: str, refresh: str):
-    response.set_cookie("access_token", access, httponly=True, secure=False, samesite="lax", max_age=12 * 3600, path="/")
-    response.set_cookie("refresh_token", refresh, httponly=True, secure=False, samesite="lax", max_age=7 * 86400, path="/")
+    response.set_cookie("access_token", access, httponly=True, secure=True, samesite="none", max_age=12 * 3600, path="/")
+    response.set_cookie("refresh_token", refresh, httponly=True, secure=True, samesite="none", max_age=7 * 86400, path="/")
 
 
 def _clear_cookies(response: Response):
@@ -889,6 +889,7 @@ app.add_middleware(
         "http://localhost:3001",
         "https://noble-flow.railway.app",
         "https://educentre-apps.vercel.app",
+        "https://railway.com",
     ],
     allow_credentials=True,
     allow_methods=["*"],
