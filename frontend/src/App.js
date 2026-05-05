@@ -34,6 +34,7 @@ function Protected({ children }) {
 
 function PublicOnly({ children }) {
   const { user, loading } = useAuth();
+  console.log("USER VALUE:", user);
   if (loading) return null;
   if (user) return <Navigate to="/dashboard" replace />;
   return children;
