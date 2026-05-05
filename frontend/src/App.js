@@ -54,7 +54,7 @@ export default function App() {
           <Toaster richColors position="top-right" />
           <Routes>
             <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<PublicOnly><Login /></PublicOnly>} />
             <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
             <Route path="/students" element={<Protected><Students /></Protected>} />
             <Route path="/educators" element={<Protected><Educators /></Protected>} />
