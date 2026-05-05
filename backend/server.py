@@ -880,8 +880,6 @@ def _today_dow():
 
 
 # ── Mount router ──
-app.include_router(api)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -893,6 +891,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(api)
 
 
 @app.on_event("startup")
