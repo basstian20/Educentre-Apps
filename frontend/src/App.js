@@ -50,6 +50,8 @@ export default function App() {
   return (
     <LangProvider>
       <AuthProvider>
+        console.log("AUTH INIT RUNNING");
+        console.log("SETTING USER:", user);
         <BrowserRouter>
           <Toaster richColors position="top-right" />
           <Routes>
