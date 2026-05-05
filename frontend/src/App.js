@@ -35,7 +35,13 @@ function Protected({ children }) {
 function PublicOnly({ children }) {
   const { user, loading } = useAuth();
   console.log("USER VALUE:", user);
-  if (loading) return null;
+  if (loading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Loading...
+    </div>
+  );
+}
   if (user) return <Navigate to="/dashboard" replace />;
   return children;
 }
@@ -62,7 +68,7 @@ export default function App() {
             <Route path="/invoices" element={<Protected><Invoices /></Protected>} />
             <Route path="/announcements" element={<Protected><Announcements /></Protected>} />
             <Route path="/reports" element={<Protected><Reports /></Protected>} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
