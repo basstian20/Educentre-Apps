@@ -887,7 +887,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://localhost:3001",
-        "https://noble-flow.vercel.app"
+        "https://noble-flow.vercel.app",
+        "https://educentre-apps.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
