@@ -71,8 +71,8 @@ def _set_auth_cookies(response: Response, access: str, refresh: str):
 
 
 def _clear_cookies(response: Response):
-    response.delete_cookie("access_token", path="/")
-    response.delete_cookie("refresh_token", path="/")
+    response.delete_cookie("access_token",  path="/", httponly=True, secure=True, samesite="none")
+    response.delete_cookie("refresh_token", path="/", httponly=True, secure=True, samesite="none")
 
 
 async def _gen_student_code():
