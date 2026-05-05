@@ -882,14 +882,16 @@ def _today_dow():
 # ── Mount router ──
 app.include_router(api)
 
-_origin_regex = r"https?://(localhost(:\d+)?|.*\.preview\.emergentagent\.com)"
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=_origin_regex,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "https://noble-flow.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
 
 
 @app.on_event("startup")
