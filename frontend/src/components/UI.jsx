@@ -171,7 +171,7 @@ export function Modal({ open, onClose, title, children, testid, footer, size = "
   const widths = { sm: "max-w-md", md: "max-w-lg", lg: "max-w-2xl", xl: "max-w-4xl" };
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-24 p-4"
       data-testid={testid}
       style={{ background: "rgba(15, 23, 42, 0.5)" }}
       onClick={onClose}
