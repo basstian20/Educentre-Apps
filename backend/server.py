@@ -493,7 +493,24 @@ async def list_attendance(class_id: Optional[str] = None, student_id: Optional[s
         q["student_id"] = student_id
     if session_date:
         q["session_date"] = session_date
-    return await db.attendance.find(q, {"_id": 0}).sort("session_date", -1).to_list(2000)
+    records = await db.attendance.find(q, {"_id": 0}).sort("session_date", -1).to_list(2000)
+    
+    # 🔥 ambil semua student_id unik
+    student_ids = list({r["student_id"] for r in records})
+
+    # 🔥 ambil nama student dari collection students
+    students = await db.students.find(
+        {"id": {"$in": student_ids}},
+        {"_id": 0, "id": 1, "full_name": 1}
+    ).to_list(500)
+
+    student_map = {s["id"]: s["full_name"] for s in students}
+
+    # 🔥 tambahkan student_name ke setiap record
+    for r in records:
+        r["student_name"] = student_map.get(r["student_id"], "—")
+
+    return records
 
 
 # ── Invoices ──

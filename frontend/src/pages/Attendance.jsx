@@ -149,7 +149,7 @@ export default function Attendance() {
                 {history.slice(0, 30).map((h) => (
                   <tr key={h.id} className="border-t border-slate-100">
                     <td className="px-5 py-3 text-sm font-jakarta">{fmtDate(h.session_date)}</td>
-                    <td className="px-5 py-3 text-sm font-jakarta">{h.student_id?.slice(0, 8)}…</td>
+                    <td className="px-5 py-3 text-sm font-jakarta">{h.student_name}</td>
                     <td className="px-5 py-3"><StatusBadge status={h.status} label={t[`status${h.status?.charAt(0).toUpperCase()}${h.status?.slice(1)}`] || h.status} /></td>
                   </tr>
                 ))}
