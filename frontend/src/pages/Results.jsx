@@ -30,8 +30,8 @@ export default function Results() {
     <Layout title={t.myResults} subtitle="Published assessments only">
       <Card>
         {enriched.length === 0 ? <Empty message={t.noData} /> : (
-          <div className="overflow-x-auto -mx-5">
-            <table className="w-full">
+          <div className="overflow-x-auto -mx-4 sm:-mx-5">
+            <table className="w-full min-w-[760px]">
               <thead>
                 <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
                   <th className="text-left px-5 py-3">{t.subject}</th>

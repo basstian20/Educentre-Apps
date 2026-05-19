@@ -57,8 +57,8 @@ export default function Invoices() {
     >
       <Card>
         {list.length === 0 ? <Empty message={t.noData} /> : (
-          <div className="overflow-x-auto -mx-5">
-            <table className="w-full">
+          <div className="overflow-x-auto -mx-4 sm:-mx-5">
+            <table className="w-full min-w-[860px]">
               <thead>
                 <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
                   <th className="text-left px-5 py-3">{t.invoiceNumber}</th>
@@ -97,13 +97,13 @@ export default function Invoices() {
       <Modal open={open} onClose={() => setOpen(false)} title={t.invoices}
         footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t.cancel}</Btn><Btn onClick={create} testid="submit-invoice">{t.save}</Btn></>}
       >
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Select label={t.student} value={form.student_id} onChange={(e) => setForm({ ...form, student_id: e.target.value })} testid="inv-student"
-            options={[{ value: "", label: "—" }, ...students.map((s) => ({ value: s.id, label: s.full_name }))]} className="col-span-2" />
+            options={[{ value: "", label: "—" }, ...students.map((s) => ({ value: s.id, label: s.full_name }))]} className="sm:col-span-2" />
           <Input label={t.billingMonth} type="month" value={form.billing_month} onChange={(e) => setForm({ ...form, billing_month: e.target.value })} />
           <Input label={t.dueDate} type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} />
-          <Input label={t.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="col-span-2" testid="inv-desc" />
-          <Input label="Amount (IDR)" type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="col-span-2" testid="inv-amount" />
+          <Input label={t.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="sm:col-span-2" testid="inv-desc" />
+          <Input label="Amount (IDR)" type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="sm:col-span-2" testid="inv-amount" />
         </div>
       </Modal>
 

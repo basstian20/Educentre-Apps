@@ -95,7 +95,7 @@ export default function Reports() {
             <div style={{ width: "100%", height: 280 }}>
               <ResponsiveContainer>
                 <PieChart>
-                  <Pie data={statusData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} dataKey="value" label>
+                  <Pie data={statusData} cx="50%" cy="50%" innerRadius="42%" outerRadius="68%" dataKey="value" labelLine={false}>
                     {statusData.map((s, i) => <Cell key={i} fill={STATUS_COLORS[s.name] || "#94A3B8"} />)}
                   </Pie>
                   <Tooltip />
@@ -111,10 +111,10 @@ export default function Reports() {
         <Card title="Top Classes by Fee" testid="report-fees">
           <div className="space-y-2">
             {topClassesByFee.map((c) => (
-                <div key={c.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-100">
-                  <div className="flex items-center gap-3">
+                <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-slate-100">
+                  <div className="flex min-w-0 items-center gap-3">
                     <div className="w-1 h-8 rounded-full" style={{ background: c.color_hex }} />
-                    <div>
+                    <div className="min-w-0">
                       <div className="font-outfit font-semibold text-sm">{c.subject_name}</div>
                       <div className="text-xs text-slate-500 font-jakarta">{c.educator_name}</div>
                     </div>
@@ -125,7 +125,7 @@ export default function Reports() {
           </div>
         </Card>
         <Card title="Quick Stats" testid="report-summary">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {quickMetrics.map((m) => (
               <div key={m.label} className="p-4 rounded-lg bg-slate-50">
                 <div className="text-[11px] uppercase tracking-wider text-slate-500 font-outfit">{m.label}</div>

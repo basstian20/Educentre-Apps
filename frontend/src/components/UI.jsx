@@ -4,15 +4,15 @@ export function StatTile({ label, value, sub, icon: Icon, color = "#2563EB", tes
       className="kpi-tile bg-white border border-slate-200 rounded-xl p-5 shadow-card relative overflow-hidden"
       data-testid={testid}
     >
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <div className="min-w-0">
           <div className="text-xs font-medium text-slate-500 uppercase tracking-wider font-outfit">{label}</div>
-          <div className="text-3xl font-outfit font-bold text-slate-900 mt-2 leading-none">{value}</div>
+          <div className="break-words text-2xl font-outfit font-bold text-slate-900 mt-2 leading-none sm:text-3xl">{value}</div>
           {sub && <div className="text-xs text-slate-500 mt-2 font-jakarta">{sub}</div>}
         </div>
         {Icon && (
           <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center"
+            className="w-10 h-10 rounded-lg flex flex-shrink-0 items-center justify-center"
             style={{ background: `${color}15`, color }}
           >
             <Icon className="w-5 h-5" strokeWidth={2.2} />
@@ -31,12 +31,12 @@ export function Card({ title, action, children, testid, className = "" }) {
   return (
     <div className={`bg-white border border-slate-200 rounded-xl shadow-card ${className}`} data-testid={testid}>
       {(title || action) && (
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          {title && <h3 className="font-outfit font-semibold text-slate-900 text-base">{title}</h3>}
-          {action}
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 border-b border-slate-100 sm:px-5">
+          {title && <h3 className="min-w-0 font-outfit font-semibold text-slate-900 text-base">{title}</h3>}
+          {action && <div className="flex min-w-0 flex-wrap items-center gap-2">{action}</div>}
         </div>
       )}
-      <div className="p-5">{children}</div>
+      <div className="p-4 sm:p-5">{children}</div>
     </div>
   );
 }
@@ -106,7 +106,7 @@ export function Btn({ children, onClick, variant = "primary", size = "md", disab
       onClick={onClick}
       disabled={disabled}
       data-testid={testid}
-      className={`inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none font-outfit ${sizes[size]} ${variants[variant]} ${className}`}
+      className={`inline-flex max-w-full items-center justify-center gap-2 rounded-lg text-center font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none font-outfit ${sizes[size]} ${variants[variant]} ${className}`}
     >
       {children}
     </button>
@@ -171,23 +171,23 @@ export function Modal({ open, onClose, title, children, testid, footer, size = "
   const widths = { sm: "max-w-md", md: "max-w-lg", lg: "max-w-2xl", xl: "max-w-4xl" };
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-18 p-4"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-3 pt-16 sm:p-4"
       data-testid={testid}
       style={{ background: "rgba(15, 23, 42, 0.5)" }}
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-2xl w-full ${widths[size]} shadow-2xl animate-fadeUp`}
+        className={`bg-white rounded-xl sm:rounded-2xl w-full ${widths[size]} shadow-2xl animate-fadeUp`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="font-outfit font-semibold text-lg text-slate-900">{title}</h2>
+        <div className="px-4 py-4 border-b border-slate-100 flex items-center justify-between gap-3 sm:px-6">
+          <h2 className="min-w-0 font-outfit font-semibold text-base text-slate-900 sm:text-lg">{title}</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl leading-none" data-testid="modal-close">
             ×
           </button>
         </div>
-        <div className="px-6 py-5 max-h-[70vh] overflow-y-auto">{children}</div>
-        {footer && <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">{footer}</div>}
+        <div className="px-4 py-5 max-h-[70vh] overflow-y-auto sm:px-6">{children}</div>
+        {footer && <div className="px-4 py-4 border-t border-slate-100 flex flex-wrap justify-end gap-2 sm:px-6">{footer}</div>}
       </div>
     </div>
   );

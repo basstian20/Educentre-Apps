@@ -103,7 +103,7 @@ export default function Grades() {
           testid="grade-table"
           action={
             isAdminOrEdu && (
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <StatusBadge status={ass.is_published ? "published" : "unpublished"} label={ass.is_published ? t.published : t.unpublished} />
                 <Btn onClick={saveGrades} size="sm" testid="save-grades">{t.saveAll}</Btn>
                 {!ass.is_published && <Btn onClick={publish} size="sm" variant="success" testid="publish-grades">{t.publish}</Btn>}
@@ -112,8 +112,8 @@ export default function Grades() {
           }
         >
           {students.length === 0 ? <Empty message={t.noData} /> : (
-            <div className="overflow-x-auto -mx-5">
-              <table className="w-full">
+            <div className="overflow-x-auto -mx-4 sm:-mx-5">
+              <table className="w-full min-w-[640px]">
                 <thead>
                   <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
                     <th className="text-left px-5 py-3">{t.student}</th>
@@ -160,8 +160,8 @@ export default function Grades() {
       <Modal open={open} onClose={() => setOpen(false)} title="New Assessment"
         footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t.cancel}</Btn><Btn onClick={create} testid="submit-assessment">{t.save}</Btn></>}
       >
-        <div className="grid grid-cols-2 gap-3">
-          <Input label={t.assessmentName} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="col-span-2" testid="ass-name" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Input label={t.assessmentName} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="sm:col-span-2" testid="ass-name" />
           <Select label="Type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
             options={[{ value: "quiz", label: "Quiz" }, { value: "test", label: "Test" }, { value: "assignment", label: "Assignment" }, { value: "project", label: "Project" }]} />
           <Input label={t.dueDate} type="date" value={form.assessment_date} onChange={(e) => setForm({ ...form, assessment_date: e.target.value })} />

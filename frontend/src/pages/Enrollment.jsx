@@ -44,10 +44,10 @@ export default function Enrollment() {
     <Layout title={t.enrollment} subtitle="4-step wizard">
       {/* Stepper */}
       <Card className="mb-5" testid="enrollment-stepper">
-        <div className="flex items-center justify-between">
+        <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:justify-between">
           {steps.map((label, i) => (
-            <div key={label} className="flex items-center flex-1">
-              <div className="flex items-center gap-2">
+            <div key={label} className="flex items-center sm:flex-1">
+              <div className="flex min-w-0 items-center gap-2">
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold font-outfit ${
                     step > i + 1
@@ -59,10 +59,10 @@ export default function Enrollment() {
                 >
                   {step > i + 1 ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
                 </div>
-                <span className={`text-xs font-medium font-outfit ${step >= i + 1 ? "text-slate-900" : "text-slate-400"}`}>{label}</span>
+                <span className={`min-w-0 text-xs font-medium font-outfit ${step >= i + 1 ? "text-slate-900" : "text-slate-400"}`}>{label}</span>
               </div>
               {i < steps.length - 1 && (
-                <div className={`flex-1 h-px mx-3 ${step > i + 1 ? "bg-blue-600" : "bg-slate-200"}`} />
+                <div className={`hidden flex-1 h-px mx-3 sm:block ${step > i + 1 ? "bg-blue-600" : "bg-slate-200"}`} />
               )}
             </div>
           ))}
@@ -101,21 +101,21 @@ export default function Enrollment() {
                     checked ? "border-blue-600 bg-blue-50/40" : "border-slate-200 hover:border-slate-300"
                   }`}
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
                       <div className="font-outfit font-semibold text-sm">{c.subject_name}</div>
                       <div className="text-xs text-slate-500 font-jakarta mt-0.5">{c.educator_name} · {c.room}</div>
                       <div className="text-xs text-slate-500 font-jakarta mt-1">
                         {(c.schedule_days || []).map((d) => t.days[d]).join(", ")} · {c.time_start}–{c.time_end}
                       </div>
                     </div>
-                    <div className="text-sm font-outfit font-bold">{fmtIDR(c.fee_amount)}</div>
+                    <div className="text-sm font-outfit font-bold sm:text-right">{fmtIDR(c.fee_amount)}</div>
                   </div>
                 </button>
               );
             })}
           </div>
-          <div className="mt-5 flex justify-between">
+          <div className="mt-5 flex flex-wrap justify-between gap-2">
             <Btn variant="ghost" onClick={() => setStep(1)}>{t.back}</Btn>
             <Btn disabled={selectedClasses.length === 0} onClick={() => setStep(3)} testid="enroll-next-2">{t.next}</Btn>
           </div>
@@ -128,18 +128,18 @@ export default function Enrollment() {
             {selectedClasses.map((cid) => {
               const c = classes.find((x) => x.id === cid);
               return (
-                <div key={cid} className="flex justify-between p-3 rounded-lg border border-slate-200">
+                <div key={cid} className="flex flex-wrap justify-between gap-2 p-3 rounded-lg border border-slate-200">
                   <span className="text-sm font-jakarta">{c?.subject_name}</span>
                   <span className="text-sm font-outfit font-semibold">{fmtIDR(c?.fee_amount)}</span>
                 </div>
               );
             })}
-            <div className="flex justify-between p-3 rounded-lg bg-slate-50 mt-3">
+            <div className="flex flex-wrap justify-between gap-2 p-3 rounded-lg bg-slate-50 mt-3">
               <span className="font-outfit font-semibold">{t.totalPerMonth}</span>
               <span className="font-outfit font-bold text-lg">{fmtIDR(totalFee)}</span>
             </div>
           </div>
-          <div className="mt-5 flex justify-between">
+          <div className="mt-5 flex flex-wrap justify-between gap-2">
             <Btn variant="ghost" onClick={() => setStep(2)}>{t.back}</Btn>
             <Btn onClick={() => setStep(4)} testid="enroll-next-3">{t.next}</Btn>
           </div>
@@ -149,11 +149,11 @@ export default function Enrollment() {
       {step === 4 && (
         <Card title={t.confirmStep} testid="enroll-confirm">
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-slate-500">{t.student}</span><span className="font-outfit font-semibold">{students.find((s) => s.id === studentId)?.full_name}</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">{t.classes}</span><span className="font-outfit font-semibold text-right">{selectedClasses.map((cid) => classes.find((c) => c.id === cid)?.subject_name).join(", ")}</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">{t.totalPerMonth}</span><span className="font-outfit font-bold">{fmtIDR(totalFee)}</span></div>
+            <div className="flex flex-wrap justify-between gap-2"><span className="text-slate-500">{t.student}</span><span className="font-outfit font-semibold">{students.find((s) => s.id === studentId)?.full_name}</span></div>
+            <div className="flex flex-wrap justify-between gap-2"><span className="text-slate-500">{t.classes}</span><span className="font-outfit font-semibold text-right">{selectedClasses.map((cid) => classes.find((c) => c.id === cid)?.subject_name).join(", ")}</span></div>
+            <div className="flex flex-wrap justify-between gap-2"><span className="text-slate-500">{t.totalPerMonth}</span><span className="font-outfit font-bold">{fmtIDR(totalFee)}</span></div>
           </div>
-          <div className="mt-5 flex justify-between">
+          <div className="mt-5 flex flex-wrap justify-between gap-2">
             <Btn variant="ghost" onClick={() => setStep(3)}>{t.back}</Btn>
             <Btn variant="success" onClick={submit} testid="enroll-submit">{t.confirm}</Btn>
           </div>

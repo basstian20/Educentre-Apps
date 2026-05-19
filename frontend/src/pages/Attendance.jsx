@@ -105,23 +105,23 @@ export default function Attendance() {
           {students.length === 0 ? <Empty message={t.noData} /> : (
             <div className="space-y-2">
               {students.map((s) => (
-                <div key={s.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-100" data-testid={`att-row-${s.id}`}>
-                  <div className="flex items-center gap-3">
+                <div key={s.id} className="flex flex-col gap-3 p-3 rounded-lg border border-slate-100 sm:flex-row sm:items-center sm:justify-between" data-testid={`att-row-${s.id}`}>
+                  <div className="flex min-w-0 items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-outfit font-semibold">
                       {s.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <div className="font-outfit font-semibold text-sm">{s.full_name}</div>
                       <div className="text-xs text-slate-500 font-jakarta">{s.student_code}</div>
                     </div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="grid grid-cols-2 gap-1 sm:flex sm:flex-wrap sm:justify-end">
                     {STATUSES.map((st) => (
                       <button
                         key={st.key}
                         data-testid={`att-${s.id}-${st.key}`}
                         onClick={() => setMarks({ ...marks, [s.id]: st.key })}
-                        className={`attendance-btn ${marks[s.id] === st.key ? `active-${st.color}` : ""}`}
+                        className={`attendance-btn w-full sm:w-auto ${marks[s.id] === st.key ? `active-${st.color}` : ""}`}
                       >
                         {t[`status${st.key.charAt(0).toUpperCase()}${st.key.slice(1)}`]}
                       </button>
@@ -136,8 +136,8 @@ export default function Attendance() {
 
       <Card title={`Recent records (${history.length})`} className="mt-5" testid="att-history">
         {history.length === 0 ? <Empty message={t.noData} /> : (
-          <div className="overflow-x-auto -mx-5">
-            <table className="w-full">
+          <div className="overflow-x-auto -mx-4 sm:-mx-5">
+            <table className="w-full min-w-[560px]">
               <thead>
                 <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
                   <th className="text-left px-5 py-3">{t.dueDate}</th>

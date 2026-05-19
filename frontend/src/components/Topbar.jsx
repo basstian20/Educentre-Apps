@@ -1,6 +1,6 @@
 import { useLang } from "../lib/i18n";
 import { useAuth } from "../lib/auth";
-import { Bell } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 
 const ROLE_COLORS = {
   admin: "#2563EB",
@@ -16,7 +16,7 @@ const ROLE_LABELS = {
   parent: "role_parent",
 };
 
-export default function Topbar({ title, subtitle, actions }) {
+export default function Topbar({ title, subtitle, actions, onMenuClick }) {
   const { lang, setLang, t } = useLang();
   const { user } = useAuth();
   const roleColor = user ? ROLE_COLORS[user.role] : "#2563EB";
@@ -24,20 +24,30 @@ export default function Topbar({ title, subtitle, actions }) {
 
   return (
     <header
-      className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6"
+      className="sticky top-0 z-30 min-h-16 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6"
       data-testid="topbar"
     >
-      <div className="min-w-0">
-        <h1 className="text-xl font-outfit font-semibold text-slate-900 leading-tight truncate" data-testid="page-title">
-          {title}
-        </h1>
-        {subtitle && (
-          <div className="text-xs text-slate-500 mt-0.5 truncate font-jakarta">{subtitle}</div>
-        )}
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 md:hidden"
+          aria-label="Open navigation"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <div className="min-w-0">
+          <h1 className="truncate text-lg font-outfit font-semibold leading-tight text-slate-900 sm:text-xl" data-testid="page-title">
+            {title}
+          </h1>
+          {subtitle && (
+            <div className="mt-0.5 truncate text-xs text-slate-500 font-jakarta">{subtitle}</div>
+          )}
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        {actions}
+      <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
+        {actions && <div className="flex min-w-0 flex-wrap justify-end gap-2">{actions}</div>}
 
         {/* Role pill */}
         {user && (

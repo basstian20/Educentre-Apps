@@ -46,8 +46,8 @@ export default function Parents() {
         {list.length === 0 ? (
           <Empty message={t.noData} />
         ) : (
-          <div className="overflow-x-auto -mx-5">
-            <table className="w-full">
+          <div className="overflow-x-auto -mx-4 sm:-mx-5">
+            <table className="w-full min-w-[640px]">
               <thead>
                 <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
                   <th className="text-left px-5 py-3">{t.name}</th>
@@ -89,13 +89,13 @@ export default function Parents() {
           </>
         }
       >
-        <div className="grid grid-cols-2 gap-3">
-          <Input label={t.fullName} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className="col-span-2" testid="parent-form-name" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Input label={t.fullName} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className="sm:col-span-2" testid="parent-form-name" />
           <Input label={t.email} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} testid="parent-form-email" />
           <Input label={t.password} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           <Input label={t.phone} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input label="Occupation" value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} />
-          <div className="col-span-2">
+          <div className="sm:col-span-2">
             <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.childrenLinked}</span>
             <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border border-slate-200 rounded-lg">
               {students.map((s) => (

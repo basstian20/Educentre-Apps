@@ -61,7 +61,7 @@ function AdminDash({ stats, announcements, t }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-5">
         <Card title={t.activeEducators} testid="card-educators" className="lg:col-span-1">
-          <div className="text-3xl font-outfit font-bold text-slate-900">{stats.active_educators ?? 0}</div>
+          <div className="text-2xl font-outfit font-bold text-slate-900 sm:text-3xl">{stats.active_educators ?? 0}</div>
           <div className="text-xs text-slate-500 mt-1 font-jakarta">{t.appName} faculty</div>
         </Card>
         <Card title={t.announcements} testid="card-announcements" className="lg:col-span-2">
@@ -161,7 +161,7 @@ function StudentDash({ stats, invoices, grades, announcements, t }) {
           {grades.length === 0 ? <Empty message={t.noData} /> : (
             <div className="space-y-2">
               {grades.map((g) => (
-                <div key={g.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-100">
+                <div key={g.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-slate-100">
                   <div className="flex-1">
                     <div className="font-outfit font-semibold text-sm">{g.letter_grade || "—"}</div>
                     <div className="text-xs text-slate-500 font-jakarta">{g.score}/{g.max_score} · {g.percentage?.toFixed(0)}%</div>
@@ -179,7 +179,7 @@ function StudentDash({ stats, invoices, grades, announcements, t }) {
 function ParentDash({ stats, invoices, grades, announcements, t }) {
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatTile testid="stat-children" label={t.children} value={stats.children_count ?? 0} icon={Users} color="#7C3AED" />
         <StatTile testid="stat-classes" label={t.activeClasses} value={stats.active_classes ?? 0} icon={BookOpen} color="#2563EB" />
         <StatTile testid="stat-attendance" label={t.attendanceRate} value={`${stats.attendance_pct ?? 100}%`} icon={CheckCircle} color="#059669" />
@@ -190,7 +190,7 @@ function ParentDash({ stats, invoices, grades, announcements, t }) {
           {(stats.children || []).length === 0 ? <Empty message={t.noData} /> : (
             <div className="space-y-2">
               {(stats.children || []).map((s) => (
-                <div key={s.id} className="flex items-center gap-3 p-3 rounded-lg border border-slate-100">
+                <div key={s.id} className="flex flex-wrap items-center gap-3 p-3 rounded-lg border border-slate-100">
                   <div className="w-9 h-9 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-outfit font-semibold text-xs">
                     {s.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
                   </div>

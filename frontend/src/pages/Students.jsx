@@ -84,8 +84,8 @@ export default function Students() {
         {students.length === 0 ? (
           <Empty message={t.noData} />
         ) : (
-          <div className="overflow-x-auto -mx-5">
-            <table className="w-full text-left">
+          <div className="overflow-x-auto -mx-4 sm:-mx-5">
+            <table className="w-full min-w-[680px] text-left">
               <thead>
                 <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
                   <th className="px-5 py-3">{t.name}</th>
@@ -135,8 +135,8 @@ export default function Students() {
           </>
         }
       >
-        <div className="grid grid-cols-2 gap-3">
-          <Input label={t.fullName} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} testid="form-name" className="col-span-2" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Input label={t.fullName} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} testid="form-name" className="sm:col-span-2" />
           <Input label={t.email} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} testid="form-email" />
           <Input label={t.password} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} testid="form-password" />
           <Input label={t.phone} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} testid="form-phone" />
@@ -149,7 +149,7 @@ export default function Students() {
             onChange={(e) => setForm({ ...form, parent_id: e.target.value })}
             testid="form-parent"
             options={[{ value: "", label: "— None —" }, ...parents.map((p) => ({ value: p.id, label: p.full_name }))]}
-            className="col-span-2"
+            className="sm:col-span-2"
           />
         </div>
       </Modal>

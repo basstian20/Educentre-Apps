@@ -124,7 +124,7 @@ export default function Login() {
             <div className="text-[11px] uppercase tracking-widest text-slate-400 font-outfit font-semibold mb-3">
               {lang === "id" ? "Akun Demo" : "Demo Accounts"}
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {[
                 { role: t.role_admin, em: "admin@educentre.id", pw: "admin123", color: "#2563EB" },
                 { role: t.role_educator, em: "fariz@educentre.id", pw: "educator123", color: "#059669" },

@@ -63,7 +63,7 @@ export default function Materials() {
                   </div>
                 </div>
                 {m.description && <div className="text-xs text-slate-600 mt-3 font-jakarta line-clamp-2">{m.description}</div>}
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-slate-100">
                   <span className="text-[10px] text-slate-400 font-jakarta">{fmtDate(m.created_at)} · {m.uploader_name || "—"}</span>
                   {(m.external_url || m.file_url) && (
                     <a href={m.external_url || m.file_url} target="_blank" rel="noreferrer" className="text-xs font-outfit font-semibold text-blue-600 hover:underline" data-testid={`material-open-${m.id}`}>
@@ -80,14 +80,14 @@ export default function Materials() {
       <Modal open={open} onClose={() => setOpen(false)} title={t.addMaterial}
         footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t.cancel}</Btn><Btn onClick={submit} testid="submit-material">{t.save}</Btn></>}
       >
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Select label={t.classes} value={form.class_id} onChange={(e) => setForm({ ...form, class_id: e.target.value })} testid="mat-class"
-            options={[{ value: "", label: "—" }, ...classes.map((c) => ({ value: c.id, label: c.subject_name }))]} className="col-span-2" />
-          <Input label={t.materialTitle} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="col-span-2" testid="mat-title" />
+            options={[{ value: "", label: "—" }, ...classes.map((c) => ({ value: c.id, label: c.subject_name }))]} className="sm:col-span-2" />
+          <Input label={t.materialTitle} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="sm:col-span-2" testid="mat-title" />
           <Select label="Type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
             options={[{ value: "link", label: "Link" }, { value: "file", label: "File" }, { value: "video", label: "Video" }]} />
           <Input label={t.materialUrl} value={form.external_url} onChange={(e) => setForm({ ...form, external_url: e.target.value })} testid="mat-url" />
-          <Input label={t.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="col-span-2" />
+          <Input label={t.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="sm:col-span-2" />
         </div>
       </Modal>
     </Layout>

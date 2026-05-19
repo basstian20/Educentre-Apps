@@ -15,6 +15,7 @@ import {
   BarChart3,
   Settings as SettingsIcon,
   LogOut,
+  X,
   User as UserIcon,
   BookOpen,
   Heart,
@@ -114,7 +115,7 @@ function getNav(role, t) {
   return [];
 }
 
-export default function Sidebar() {
+export default function Sidebar({ open = false, onClose }) {
   const { t } = useLang();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -131,11 +132,21 @@ export default function Sidebar() {
     .toUpperCase();
 
   return (
-    <aside
-      className="fixed inset-y-0 left-0 z-40 w-64 flex flex-col"
-      style={{ background: "var(--sidebar-bg)" }}
-      data-testid="sidebar"
-    >
+    <>
+      <div
+        className={`fixed inset-0 z-40 bg-slate-950/50 transition-opacity md:hidden ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 max-w-[82vw] flex flex-col transition-transform duration-200 md:translate-x-0 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={{ background: "var(--sidebar-bg)" }}
+        data-testid="sidebar"
+      >
       <div className="px-5 pt-6 pb-4 border-b border-white/5 grain">
         <div className="flex items-center gap-3 relative z-10">
           <div
@@ -148,6 +159,14 @@ export default function Sidebar() {
             <div className="font-outfit font-semibold text-white text-base leading-tight">{t.appName}</div>
             <div className="text-[11px] text-slate-400 leading-tight mt-0.5">{t.appSubtitle}</div>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="ml-auto rounded-lg p-2 text-slate-400 transition hover:bg-white/5 hover:text-white md:hidden"
+            aria-label="Close navigation"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
@@ -164,6 +183,7 @@ export default function Sidebar() {
                   key={it.to + it.label}
                   to={it.to}
                   data-testid={it.testid}
+                  onClick={onClose}
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium mb-0.5 transition-all ${
                       isActive
@@ -207,6 +227,7 @@ export default function Sidebar() {
           </button>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

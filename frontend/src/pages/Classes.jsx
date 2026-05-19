@@ -75,7 +75,7 @@ export default function Classes() {
               className="bg-white border border-slate-200 rounded-xl p-5 shadow-card hover:-translate-y-0.5 transition-transform"
               data-testid={`class-card-${c.id}`}
             >
-              <div className="flex items-start justify-between mb-2">
+              <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="w-1 self-stretch rounded-full mr-3" style={{ background: c.color_hex }} />
                 <div className="flex-1">
                   <div className="font-outfit font-semibold text-slate-900">{c.subject_name}</div>
@@ -87,7 +87,7 @@ export default function Classes() {
                 <div className="mt-1">🕐 {c.time_start} – {c.time_end}</div>
                 <div className="mt-1">📅 {(c.schedule_days || []).map((d) => t.days[d]).join(", ")}</div>
               </div>
-              <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-3 mt-3 border-t border-slate-100">
                 <span className="text-xs text-slate-500 font-jakarta">{c.enrolled_count}/{c.capacity} {t.enrolled.toLowerCase()}</span>
                 <span className="text-xs font-outfit font-semibold text-slate-900">{fmtIDR(c.fee_amount)}</span>
               </div>
@@ -108,8 +108,8 @@ export default function Classes() {
           </>
         }
       >
-        <div className="grid grid-cols-2 gap-3">
-          <Input label={t.subject} value={form.subject_name} onChange={(e) => setForm({ ...form, subject_name: e.target.value })} className="col-span-2" testid="class-subject" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Input label={t.subject} value={form.subject_name} onChange={(e) => setForm({ ...form, subject_name: e.target.value })} className="sm:col-span-2" testid="class-subject" />
           <Input label={t.level} value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })} />
           <Select
             label={t.educator}
@@ -124,9 +124,9 @@ export default function Classes() {
           <Input label="Color" type="color" value={form.color_hex} onChange={(e) => setForm({ ...form, color_hex: e.target.value })} />
           <Input label="Start" type="time" value={form.time_start} onChange={(e) => setForm({ ...form, time_start: e.target.value })} />
           <Input label="End" type="time" value={form.time_end} onChange={(e) => setForm({ ...form, time_end: e.target.value })} />
-          <div className="col-span-2">
+          <div className="sm:col-span-2">
             <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.schedule_days}</span>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {DAYS.map((d) => (
                 <button
                   key={d}
@@ -166,10 +166,38 @@ function Timetable({ classes, t }) {
     return (h - startHour) * 60 + m;
   };
   const cellH = 56;
+  const classesForDay = (day) =>
+    classes
+      .filter((c) => (c.schedule_days || []).includes(day))
+      .sort((a, b) => (a.time_start || "").localeCompare(b.time_start || ""));
 
   return (
-    <div className="overflow-x-auto">
-      <div className="min-w-[760px] relative">
+    <>
+      <div className="space-y-3 md:hidden">
+        {days.map((d) => (
+          <div key={d} className="rounded-lg border border-slate-200">
+            <div className="border-b border-slate-100 bg-slate-50 px-3 py-2 text-xs font-outfit font-semibold text-slate-600">
+              {t.days[d]}
+            </div>
+            <div className="space-y-2 p-3">
+              {classesForDay(d).length === 0 ? (
+                <div className="text-xs text-slate-400 font-jakarta">{t.noClasses}</div>
+              ) : (
+                classesForDay(d).map((c) => (
+                  <div key={`${c.id}-mobile-${d}`} className="rounded-lg border-l-4 bg-slate-50 p-3" style={{ borderColor: c.color_hex }}>
+                    <div className="font-outfit text-sm font-semibold text-slate-900">{c.subject_name}</div>
+                    <div className="mt-1 text-xs text-slate-500 font-jakarta">
+                      {c.time_start}-{c.time_end} - {c.room}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto md:block">
+        <div className="min-w-[760px] relative">
         <div className="grid border-l border-t border-slate-200" style={{ gridTemplateColumns: `60px repeat(7, 1fr)` }}>
           <div className="bg-slate-50 border-r border-b border-slate-200" />
           {days.map((d) => (
@@ -218,7 +246,8 @@ function Timetable({ classes, t }) {
             );
           })
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

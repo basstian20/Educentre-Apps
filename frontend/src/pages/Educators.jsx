@@ -46,8 +46,8 @@ export default function Educators() {
         {list.length === 0 ? (
           <Empty message={t.noData} />
         ) : (
-          <div className="overflow-x-auto -mx-5">
-            <table className="w-full">
+          <div className="overflow-x-auto -mx-4 sm:-mx-5">
+            <table className="w-full min-w-[720px]">
               <thead>
                 <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
                   <th className="text-left px-5 py-3">{t.name}</th>
@@ -100,13 +100,13 @@ export default function Educators() {
           </>
         }
       >
-        <div className="grid grid-cols-2 gap-3">
-          <Input label={t.fullName} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className="col-span-2" testid="edu-form-name" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Input label={t.fullName} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className="sm:col-span-2" testid="edu-form-name" />
           <Input label={t.email} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} testid="edu-form-email" />
           <Input label={t.password} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           <Input label={t.phone} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input label="Subjects (comma)" value={form.subjects} onChange={(e) => setForm({ ...form, subjects: e.target.value })} testid="edu-form-subjects" />
-          <Input label="Qualifications" value={form.qualifications} onChange={(e) => setForm({ ...form, qualifications: e.target.value })} className="col-span-2" />
+          <Input label="Qualifications" value={form.qualifications} onChange={(e) => setForm({ ...form, qualifications: e.target.value })} className="sm:col-span-2" />
         </div>
       </Modal>
     </Layout>
