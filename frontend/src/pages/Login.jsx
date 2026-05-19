@@ -88,6 +88,16 @@ export default function Login() {
             </div>
           </div>
 
+          <div className="mb-6 flex items-center gap-3 md:hidden">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-sm">
+              <GraduationCap className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="font-outfit text-lg font-bold leading-tight text-slate-950">{t.appName}</div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Bimbel OS</div>
+            </div>
+          </div>
+
           <h1 className="text-3xl font-outfit font-semibold text-slate-900 tracking-tight">{t.welcomeBack}</h1>
           <p className="text-sm text-slate-500 mt-2 font-jakarta">{t.loginSubtitle}</p>
 

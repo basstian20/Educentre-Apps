@@ -150,14 +150,15 @@ export default function Sidebar({ open = false, onClose }) {
       <div className="px-5 pt-6 pb-4 border-b border-white/5 grain">
         <div className="flex items-center gap-3 relative z-10">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center font-outfit font-bold text-white text-lg"
+            className="relative w-11 h-11 rounded-2xl flex items-center justify-center font-outfit font-bold text-white text-lg shadow-lg ring-1 ring-white/15"
             style={{ background: `linear-gradient(135deg, ${roleColor}, ${roleColor}cc)` }}
           >
             E
+            <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-slate-900 bg-white" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="font-outfit font-semibold text-white text-base leading-tight">{t.appName}</div>
-            <div className="text-[11px] text-slate-400 leading-tight mt-0.5">{t.appSubtitle}</div>
+            <div className="text-[10px] text-slate-500 leading-tight mt-1 uppercase tracking-[0.18em]">Bimbel OS</div>
           </div>
           <button
             type="button"
@@ -185,9 +186,9 @@ export default function Sidebar({ open = false, onClose }) {
                   data-testid={it.testid}
                   onClick={onClose}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium mb-0.5 transition-all ${
+                    `relative flex items-center gap-3 overflow-hidden px-3 py-2 rounded-lg text-sm font-medium mb-0.5 transition-all ${
                       isActive
-                        ? "text-white bg-blue-600/15"
+                        ? "text-white bg-white/8 shadow-[inset_3px_0_0_#3B82F6]"
                         : "text-slate-400 hover:text-white hover:bg-white/5"
                     }`
                   }

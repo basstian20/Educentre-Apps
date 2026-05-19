@@ -1,3 +1,5 @@
+import { ArrowRight, Sparkles } from "lucide-react";
+
 export function StatTile({ label, value, sub, icon: Icon, color = "#2563EB", testid }) {
   return (
     <div
@@ -80,8 +82,85 @@ export function StatusBadge({ status, label, testid }) {
 export function Empty({ message, action }) {
   return (
     <div className="text-center py-12">
-      <div className="text-sm text-slate-400 font-jakarta">{message}</div>
+      <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400">
+        <Sparkles className="h-5 w-5" strokeWidth={1.8} />
+      </div>
+      <div className="text-sm text-slate-500 font-jakarta">{message}</div>
       {action && <div className="mt-4">{action}</div>}
+    </div>
+  );
+}
+
+export function RoleHero({ eyebrow, title, subtitle, color = "#2563EB", icon: Icon, children, testid }) {
+  return (
+    <section
+      className="relative mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-card sm:p-6"
+      data-testid={testid}
+    >
+      <div className="absolute inset-y-0 right-0 hidden w-1/2 sm:block" style={{ background: `linear-gradient(90deg, transparent, ${color}10)` }} />
+      <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex min-w-0 items-start gap-4">
+          {Icon && (
+            <div
+              className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl text-white shadow-sm"
+              style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}
+            >
+              <Icon className="h-6 w-6" strokeWidth={2.1} />
+            </div>
+          )}
+          <div className="min-w-0">
+            {eyebrow && (
+              <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400 font-outfit">{eyebrow}</div>
+            )}
+            <h2 className="text-2xl font-outfit font-semibold tracking-tight text-slate-950 sm:text-3xl">{title}</h2>
+            {subtitle && <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 font-jakarta">{subtitle}</p>}
+          </div>
+        </div>
+        {children && <div className="relative min-w-0 lg:max-w-md">{children}</div>}
+      </div>
+    </section>
+  );
+}
+
+export function ActionPanel({ title, subtitle, color = "#2563EB", icon: Icon, actionLabel, onAction, children, testid }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4" data-testid={testid}>
+      <div className="flex items-start gap-3">
+        {Icon && (
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-white shadow-sm" style={{ color }}>
+            <Icon className="h-5 w-5" strokeWidth={2.1} />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="font-outfit text-sm font-semibold text-slate-950">{title}</div>
+          {subtitle && <div className="mt-1 text-xs leading-5 text-slate-500 font-jakarta">{subtitle}</div>}
+          {children && <div className="mt-3">{children}</div>}
+        </div>
+      </div>
+      {actionLabel && (
+        <button
+          type="button"
+          onClick={onAction}
+          className="mt-4 inline-flex items-center gap-2 text-xs font-semibold font-outfit"
+          style={{ color }}
+        >
+          {actionLabel}
+          <ArrowRight className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function InsightCard({ label, value, detail, color = "#2563EB", testid }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-card" data-testid={testid}>
+      <div className="flex items-center gap-2">
+        <span className="h-2 w-2 rounded-full" style={{ background: color }} />
+        <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-outfit">{label}</div>
+      </div>
+      <div className="mt-2 break-words text-xl font-bold text-slate-950 font-outfit">{value}</div>
+      {detail && <div className="mt-1 text-xs leading-5 text-slate-500 font-jakarta">{detail}</div>}
     </div>
   );
 }

@@ -24,7 +24,7 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
 
   return (
     <header
-      className="sticky top-0 z-30 min-h-16 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6"
+      className="sticky top-0 z-30 min-h-16 bg-white/95 backdrop-blur border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6"
       data-testid="topbar"
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">

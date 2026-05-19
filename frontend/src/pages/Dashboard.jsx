@@ -1,16 +1,59 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
-import { StatTile, Card, Empty, StatusBadge } from "@/components/UI";
+import { ActionPanel, Card, Empty, RoleHero, StatTile, StatusBadge } from "@/components/UI";
 import { useAuth } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { api, fmtIDR } from "@/lib/api";
-import { Users, GraduationCap, BookOpen, Receipt, AlertTriangle, TrendingUp, CheckCircle, Megaphone } from "lucide-react";
+import { Users, GraduationCap, BookOpen, Receipt, AlertTriangle, TrendingUp, CheckCircle, Megaphone, Award, CalendarDays, Heart } from "lucide-react";
 
 const ROLE_GREETING = {
   admin: { en: "Centre overview", id: "Ikhtisar pusat" },
   educator: { en: "Today's teaching plan", id: "Rencana mengajar hari ini" },
   student: { en: "Your learning today", id: "Pembelajaran hari ini" },
   parent: { en: "Your children's progress", id: "Progres anak Anda" },
+};
+
+const ROLE_META = {
+  admin: {
+    color: "#2563EB",
+    icon: TrendingUp,
+    eyebrow: { en: "Operations command", id: "Pusat operasional" },
+    title: { en: "Keep the centre moving with fewer surprises.", id: "Pantau operasional bimbel tanpa kejutan." },
+    subtitle: {
+      en: "Fees, classes, people, and announcements are grouped into one daily operating view.",
+      id: "Tagihan, kelas, orang, dan pengumuman diringkas dalam satu tampilan kerja harian.",
+    },
+  },
+  educator: {
+    color: "#059669",
+    icon: GraduationCap,
+    eyebrow: { en: "Teaching desk", id: "Ruang mengajar" },
+    title: { en: "A cleaner path from class prep to attendance.", id: "Alur mengajar lebih ringkas dari persiapan sampai presensi." },
+    subtitle: {
+      en: "Focus on today's sessions, pending assessments, and the students who need attention.",
+      id: "Fokus pada sesi hari ini, penilaian tertunda, dan siswa yang perlu perhatian.",
+    },
+  },
+  student: {
+    color: "#D97706",
+    icon: Award,
+    eyebrow: { en: "Learning cockpit", id: "Ruang belajar" },
+    title: { en: "Know what is next, what changed, and what is due.", id: "Lihat jadwal berikutnya, hasil terbaru, dan tagihan aktif." },
+    subtitle: {
+      en: "Schedule, materials, attendance, grades, and fees stay visible without digging through menus.",
+      id: "Jadwal, materi, presensi, nilai, dan biaya tetap terlihat tanpa harus banyak mencari.",
+    },
+  },
+  parent: {
+    color: "#7C3AED",
+    icon: Heart,
+    eyebrow: { en: "Family view", id: "Pantauan keluarga" },
+    title: { en: "A calm view of progress, attendance, and payments.", id: "Pantau progres, presensi, dan pembayaran dengan lebih tenang." },
+    subtitle: {
+      en: "Important updates about your children are grouped into one readable parent workspace.",
+      id: "Update penting anak dirangkum dalam ruang pantau orang tua yang mudah dibaca.",
+    },
+  },
 };
 
 export default function Dashboard() {
@@ -35,12 +78,55 @@ export default function Dashboard() {
   const today = new Date();
   const greetSub = ROLE_GREETING[user?.role]?.[lang] || "";
   const greetName = (user?.full_name || "").split(" ")[0];
+  const roleMeta = ROLE_META[user?.role] || ROLE_META.admin;
+  const HeroIcon = roleMeta.icon;
 
   return (
     <Layout
       title={`${t.welcome}, ${greetName}`}
       subtitle={`${greetSub} · ${today.toLocaleDateString(lang === "id" ? "id-ID" : "en-GB", { weekday: "long", day: "numeric", month: "long" })}`}
     >
+      <RoleHero
+        eyebrow={roleMeta.eyebrow[lang]}
+        title={roleMeta.title[lang]}
+        subtitle={roleMeta.subtitle[lang]}
+        color={roleMeta.color}
+        icon={HeroIcon}
+        testid="dashboard-role-hero"
+      >
+        {user?.role === "admin" && (
+          <ActionPanel
+            title={lang === "id" ? "Prioritas hari ini" : "Today priority"}
+            subtitle={`${stats.overdue_invoices ?? 0} ${t.overdueInvoices.toLowerCase()} - ${fmtIDR(stats.outstanding_fees)} ${lang === "id" ? "belum lunas" : "outstanding"}`}
+            color={roleMeta.color}
+            icon={AlertTriangle}
+          />
+        )}
+        {user?.role === "educator" && (
+          <ActionPanel
+            title={lang === "id" ? "Kelas berikutnya" : "Next class"}
+            subtitle={(stats.today_classes || [])[0] ? `${(stats.today_classes || [])[0].subject_name} - ${(stats.today_classes || [])[0].time_start}` : t.noClasses}
+            color={roleMeta.color}
+            icon={CalendarDays}
+          />
+        )}
+        {user?.role === "student" && (
+          <ActionPanel
+            title={lang === "id" ? "Progress belajar" : "Learning progress"}
+            subtitle={`${t.attendanceRate}: ${stats.attendance_pct ?? 100}% - ${t.activeClasses}: ${stats.active_classes ?? 0}`}
+            color={roleMeta.color}
+            icon={CheckCircle}
+          />
+        )}
+        {user?.role === "parent" && (
+          <ActionPanel
+            title={lang === "id" ? "Ringkasan anak" : "Children snapshot"}
+            subtitle={`${stats.children_count ?? 0} ${t.children.toLowerCase()} - ${fmtIDR(stats.outstanding_fees)} ${lang === "id" ? "tagihan aktif" : "active fees"}`}
+            color={roleMeta.color}
+            icon={Users}
+          />
+        )}
+      </RoleHero>
       {user?.role === "admin" && <AdminDash stats={stats} announcements={announcements} t={t} />}
       {user?.role === "educator" && <EducatorDash stats={stats} announcements={announcements} t={t} />}
       {user?.role === "student" && <StudentDash stats={stats} invoices={recentInvoices} grades={recentGrades} announcements={announcements} t={t} />}
