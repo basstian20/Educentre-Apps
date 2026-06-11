@@ -19,6 +19,7 @@ import Materials from "@/pages/Materials";
 import Invoices from "@/pages/Invoices";
 import Announcements from "@/pages/Announcements";
 import Reports from "@/pages/Reports";
+import DeveloperCredit from "@/components/DeveloperCredit";
 
 function Protected({ children }) {
   const { user, loading } = useAuth();
@@ -70,6 +71,7 @@ export default function App() {
             <Route path="/reports" element={<Protected><Reports /></Protected>} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
+          <DeveloperCredit />
         </BrowserRouter>
       </AuthProvider>
     </LangProvider>

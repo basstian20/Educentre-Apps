@@ -1230,6 +1230,93 @@ body {
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
 }
 
+.developer-credit {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 2147483647;
+  isolation: isolate;
+  display: inline-flex;
+  min-width: 218px;
+  height: 46px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 13px 7px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-radius: 999px;
+  background:
+    linear-gradient(120deg, rgba(255, 252, 243, 0.96), rgba(239, 244, 248, 0.96));
+  box-shadow:
+    0 12px 28px rgba(8, 36, 82, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  color: #0a2d61;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: auto;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.developer-credit:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 34px rgba(8, 36, 82, 0.27),
+    0 0 0 2px rgba(241, 184, 48, 0.2);
+}
+
+.developer-credit:focus-visible {
+  outline: 3px solid rgba(239, 183, 132, 0.55);
+  outline-offset: 3px;
+}
+
+.developer-credit-label {
+  flex: 0 0 auto;
+  color: #536579;
+  text-transform: uppercase;
+}
+
+.developer-credit-logo {
+  display: block;
+  width: 112px;
+  max-width: 112px;
+  height: 28px;
+  flex: 0 0 112px;
+  object-fit: contain;
+  object-position: center;
+}
+
+@media (max-width: 520px) {
+  .developer-credit {
+    right: auto;
+    left: 50%;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    width: 176px;
+    min-width: 176px;
+    max-width: calc(100vw - 20px);
+    height: 40px;
+    gap: 7px;
+    padding: 6px 10px 6px 12px;
+    font-size: 7px;
+    transform: translateX(-50%);
+  }
+
+  .developer-credit:hover {
+    transform: translate(-50%, -2px);
+  }
+
+  .developer-credit-logo {
+    width: 86px;
+    max-width: 86px;
+    height: 24px;
+    flex-basis: 86px;
+  }
+}
+
 /* Subtle grain texture overlay (used on sidebar header card etc) */
 .grain {
   position: relative;
