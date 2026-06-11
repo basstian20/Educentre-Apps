@@ -1,308 +1,419 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { ActionPanel, Card, Empty, RoleHero, StatTile, StatusBadge } from "@/components/UI";
 import { useAuth } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { api, fmtIDR } from "@/lib/api";
-import { Users, GraduationCap, BookOpen, Receipt, AlertTriangle, TrendingUp, CheckCircle, Megaphone, Award, CalendarDays, Heart } from "lucide-react";
+import {
+  ArrowRight,
+  Award,
+  BookOpen,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  GraduationCap,
+  Megaphone,
+  Receipt,
+  Sparkles,
+  TrendingUp,
+  UserRound,
+  Users,
+} from "lucide-react";
 
-const ROLE_GREETING = {
+const ROLE_COPY = {
   admin: { en: "Centre overview", id: "Ikhtisar pusat" },
-  educator: { en: "Today's teaching plan", id: "Rencana mengajar hari ini" },
-  student: { en: "Your learning today", id: "Pembelajaran hari ini" },
-  parent: { en: "Your children's progress", id: "Progres anak Anda" },
+  educator: { en: "Teaching overview", id: "Ikhtisar mengajar" },
+  student: { en: "Learning overview", id: "Ikhtisar belajar" },
+  parent: { en: "Family overview", id: "Ikhtisar keluarga" },
 };
 
-const ROLE_META = {
-  admin: {
-    color: "#2563EB",
-    icon: TrendingUp,
-    eyebrow: { en: "Operations command", id: "Pusat operasional" },
-    title: { en: "Keep the centre moving with fewer surprises.", id: "Pantau operasional bimbel tanpa kejutan." },
-    subtitle: {
-      en: "Fees, classes, people, and announcements are grouped into one daily operating view.",
-      id: "Tagihan, kelas, orang, dan pengumuman diringkas dalam satu tampilan kerja harian.",
-    },
-  },
-  educator: {
-    color: "#059669",
-    icon: GraduationCap,
-    eyebrow: { en: "Teaching desk", id: "Ruang mengajar" },
-    title: { en: "A cleaner path from class prep to attendance.", id: "Alur mengajar lebih ringkas dari persiapan sampai presensi." },
-    subtitle: {
-      en: "Focus on today's sessions, pending assessments, and the students who need attention.",
-      id: "Fokus pada sesi hari ini, penilaian tertunda, dan siswa yang perlu perhatian.",
-    },
-  },
-  student: {
-    color: "#D97706",
-    icon: Award,
-    eyebrow: { en: "Learning cockpit", id: "Ruang belajar" },
-    title: { en: "Know what is next, what changed, and what is due.", id: "Lihat jadwal berikutnya, hasil terbaru, dan tagihan aktif." },
-    subtitle: {
-      en: "Schedule, materials, attendance, grades, and fees stay visible without digging through menus.",
-      id: "Jadwal, materi, presensi, nilai, dan biaya tetap terlihat tanpa harus banyak mencari.",
-    },
-  },
-  parent: {
-    color: "#7C3AED",
-    icon: Heart,
-    eyebrow: { en: "Family view", id: "Pantauan keluarga" },
-    title: { en: "A calm view of progress, attendance, and payments.", id: "Pantau progres, presensi, dan pembayaran dengan lebih tenang." },
-    subtitle: {
-      en: "Important updates about your children are grouped into one readable parent workspace.",
-      id: "Update penting anak dirangkum dalam ruang pantau orang tua yang mudah dibaca.",
-    },
-  },
-};
+const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { t, lang } = useLang();
   const [stats, setStats] = useState({});
   const [announcements, setAnnouncements] = useState([]);
-  const [recentInvoices, setRecentInvoices] = useState([]);
-  const [recentGrades, setRecentGrades] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [grades, setGrades] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/dashboard/stats").then((r) => setStats(r.data || {}));
-    api.get("/announcements").then((r) => setAnnouncements(r.data || []));
-    if (user?.role === "admin" || user?.role === "student" || user?.role === "parent") {
-      api.get("/invoices").then((r) => setRecentInvoices((r.data || []).slice(0, 5)));
-    }
-    if (user?.role === "student" || user?.role === "parent") {
-      api.get("/grades").then((r) => setRecentGrades((r.data || []).slice(0, 5)));
-    }
-  }, [user?.role, user?.id]);
+    let active = true;
+    setLoading(true);
 
-  const today = new Date();
-  const greetSub = ROLE_GREETING[user?.role]?.[lang] || "";
-  const greetName = (user?.full_name || "").split(" ")[0];
-  const roleMeta = ROLE_META[user?.role] || ROLE_META.admin;
-  const HeroIcon = roleMeta.icon;
+    const requests = [
+      api.get("/dashboard/stats"),
+      api.get("/announcements"),
+    ];
+
+    if (user?.role === "admin") {
+      requests.push(api.get("/students"), api.get("/invoices"));
+    } else if (user?.role === "student" || user?.role === "parent") {
+      requests.push(api.get("/invoices"), api.get("/grades"));
+    }
+
+    Promise.allSettled(requests).then((results) => {
+      if (!active) return;
+      setStats(results[0].status === "fulfilled" ? results[0].value.data || {} : {});
+      setAnnouncements(results[1].status === "fulfilled" ? results[1].value.data || [] : []);
+
+      if (user?.role === "admin") {
+        setStudents(results[2]?.status === "fulfilled" ? results[2].value.data || [] : []);
+        setInvoices(results[3]?.status === "fulfilled" ? results[3].value.data || [] : []);
+      } else if (user?.role === "student" || user?.role === "parent") {
+        setInvoices(results[2]?.status === "fulfilled" ? results[2].value.data || [] : []);
+        setGrades(results[3]?.status === "fulfilled" ? results[3].value.data || [] : []);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [user?.id, user?.role]);
+
+  const firstName = (user?.full_name || "").split(" ")[0];
+  const dateLabel = new Intl.DateTimeFormat(lang === "id" ? "id-ID" : "en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(new Date());
 
   return (
     <Layout
-      title={`${t.welcome}, ${greetName}`}
-      subtitle={`${greetSub} · ${today.toLocaleDateString(lang === "id" ? "id-ID" : "en-GB", { weekday: "long", day: "numeric", month: "long" })}`}
+      title="Dashboard"
+      subtitle={`${t.welcome}, ${firstName} · ${ROLE_COPY[user?.role]?.[lang] || dateLabel}`}
     >
-      <RoleHero
-        eyebrow={roleMeta.eyebrow[lang]}
-        title={roleMeta.title[lang]}
-        subtitle={roleMeta.subtitle[lang]}
-        color={roleMeta.color}
-        icon={HeroIcon}
-        testid="dashboard-role-hero"
-      >
-        {user?.role === "admin" && (
-          <ActionPanel
-            title={lang === "id" ? "Prioritas hari ini" : "Today priority"}
-            subtitle={`${stats.overdue_invoices ?? 0} ${t.overdueInvoices.toLowerCase()} - ${fmtIDR(stats.outstanding_fees)} ${lang === "id" ? "belum lunas" : "outstanding"}`}
-            color={roleMeta.color}
-            icon={AlertTriangle}
+      <div className="dashboard-grid" data-testid="dashboard-overview">
+        <div className="space-y-4">
+          <NextClassCard stats={stats} loading={loading} lang={lang} />
+          <OverviewTable
+            role={user?.role}
+            students={students}
+            invoices={invoices}
+            grades={grades}
+            stats={stats}
+            loading={loading}
+            lang={lang}
           />
-        )}
-        {user?.role === "educator" && (
-          <ActionPanel
-            title={lang === "id" ? "Kelas berikutnya" : "Next class"}
-            subtitle={(stats.today_classes || [])[0] ? `${(stats.today_classes || [])[0].subject_name} - ${(stats.today_classes || [])[0].time_start}` : t.noClasses}
-            color={roleMeta.color}
-            icon={CalendarDays}
-          />
-        )}
-        {user?.role === "student" && (
-          <ActionPanel
-            title={lang === "id" ? "Progress belajar" : "Learning progress"}
-            subtitle={`${t.attendanceRate}: ${stats.attendance_pct ?? 100}% - ${t.activeClasses}: ${stats.active_classes ?? 0}`}
-            color={roleMeta.color}
-            icon={CheckCircle}
-          />
-        )}
-        {user?.role === "parent" && (
-          <ActionPanel
-            title={lang === "id" ? "Ringkasan anak" : "Children snapshot"}
-            subtitle={`${stats.children_count ?? 0} ${t.children.toLowerCase()} - ${fmtIDR(stats.outstanding_fees)} ${lang === "id" ? "tagihan aktif" : "active fees"}`}
-            color={roleMeta.color}
-            icon={Users}
-          />
-        )}
-      </RoleHero>
-      {user?.role === "admin" && <AdminDash stats={stats} announcements={announcements} t={t} />}
-      {user?.role === "educator" && <EducatorDash stats={stats} announcements={announcements} t={t} />}
-      {user?.role === "student" && <StudentDash stats={stats} invoices={recentInvoices} grades={recentGrades} announcements={announcements} t={t} />}
-      {user?.role === "parent" && <ParentDash stats={stats} invoices={recentInvoices} grades={recentGrades} announcements={announcements} t={t} />}
+        </div>
+
+        <div className="space-y-4">
+          <LearningStatsCard role={user?.role} stats={stats} loading={loading} lang={lang} />
+          <MetricGrid role={user?.role} stats={stats} loading={loading} lang={lang} />
+          <ReminderCard announcements={announcements} lang={lang} />
+        </div>
+      </div>
     </Layout>
   );
 }
 
-function AdminDash({ stats, announcements, t }) {
+function GlassCard({ children, className = "", testid }) {
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatTile testid="stat-students" label={t.activeStudents} value={stats.active_students ?? 0} icon={Users} color="#2563EB" />
-        <StatTile testid="stat-classes" label={t.activeClasses} value={stats.active_classes ?? 0} icon={BookOpen} color="#059669" />
-        <StatTile testid="stat-revenue" label={t.revenueThisMonth} value={fmtIDR(stats.revenue_this_month)} icon={TrendingUp} color="#D97706" />
-        <StatTile testid="stat-outstanding" label={t.outstandingFees} value={fmtIDR(stats.outstanding_fees)} sub={`${stats.overdue_invoices ?? 0} ${t.overdueInvoices.toLowerCase()}`} icon={AlertTriangle} color="#DC2626" />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-5">
-        <Card title={t.activeEducators} testid="card-educators" className="lg:col-span-1">
-          <div className="text-2xl font-outfit font-bold text-slate-900 sm:text-3xl">{stats.active_educators ?? 0}</div>
-          <div className="text-xs text-slate-500 mt-1 font-jakarta">{t.appName} faculty</div>
-        </Card>
-        <Card title={t.announcements} testid="card-announcements" className="lg:col-span-2">
-          {announcements.length === 0 ? (
-            <Empty message={t.noData} />
-          ) : (
-            <div className="space-y-3">
-              {announcements.slice(0, 3).map((a) => (
-                <div key={a.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
-                    <Megaphone className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-outfit font-semibold text-sm text-slate-900">{a.title}</div>
-                    <div className="text-xs text-slate-500 mt-0.5 font-jakarta line-clamp-2">{a.body}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-      </div>
-    </>
+    <section className={`dashboard-card ${className}`} data-testid={testid}>
+      {children}
+    </section>
   );
 }
 
-function EducatorDash({ stats, announcements, t }) {
+function CardHeader({ title, to, action, lang }) {
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatTile testid="stat-myclasses" label={t.myClasses} value={stats.my_classes ?? 0} icon={BookOpen} color="#059669" />
-        <StatTile testid="stat-mystudents" label={t.activeStudents} value={stats.total_students ?? 0} icon={Users} color="#2563EB" />
-        <StatTile testid="stat-pending" label={t.pendingTasks} value={stats.pending_assessments ?? 0} icon={CheckCircle} color="#D97706" />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">
-        <Card title={t.todaysClasses} testid="card-today">
-          {(stats.today_classes || []).length === 0 ? (
-            <Empty message={t.noClasses} />
-          ) : (
-            <div className="space-y-2">
-              {(stats.today_classes || []).map((c) => (
-                <div key={c.id} className="flex items-center gap-4 p-3 rounded-lg border border-slate-100 hover:border-slate-200 hover:bg-slate-50">
-                  <div className="w-1 h-10 rounded-full" style={{ background: c.color_hex || "#3B82F6" }} />
-                  <div className="flex-1">
-                    <div className="font-outfit font-semibold text-sm text-slate-900">{c.subject_name}</div>
-                    <div className="text-xs text-slate-500 font-jakarta">{c.time_start} – {c.time_end} · {c.room}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-        <Card title={t.announcements} testid="card-announcements">
-          {announcements.length === 0 ? (
-            <Empty message={t.noData} />
-          ) : (
-            <div className="space-y-2">
-              {announcements.slice(0, 4).map((a) => (
-                <div key={a.id} className="p-3 rounded-lg hover:bg-slate-50">
-                  <div className="font-outfit font-semibold text-sm text-slate-900">{a.title}</div>
-                  <div className="text-xs text-slate-500 mt-0.5 font-jakarta line-clamp-2">{a.body}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-      </div>
-    </>
+    <div className="mb-5 flex items-center justify-between gap-3">
+      <h2 className="text-sm font-semibold text-[#294a55] font-outfit">{title}</h2>
+      {to && (
+        <Link className="dashboard-link" to={to}>
+          {action || (lang === "id" ? "Lihat semua" : "View all")}
+        </Link>
+      )}
+    </div>
   );
 }
 
-function StudentDash({ stats, invoices, grades, announcements, t }) {
+function NextClassCard({ stats, loading, lang }) {
+  const nextClass = (stats.today_classes || [])[0];
+
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatTile testid="stat-classes" label={t.activeClasses} value={stats.active_classes ?? 0} icon={BookOpen} color="#D97706" />
-        <StatTile testid="stat-attendance" label={t.attendanceRate} value={`${stats.attendance_pct ?? 100}%`} icon={CheckCircle} color="#059669" />
-        <StatTile testid="stat-fees" label={t.outstandingFees} value={fmtIDR(stats.outstanding_fees)} icon={Receipt} color="#DC2626" />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">
-        <Card title={t.todaysClasses} testid="card-today">
-          {(stats.today_classes || []).length === 0 ? <Empty message={t.noClasses} /> : (
-            <div className="space-y-2">
-              {(stats.today_classes || []).map((c) => (
-                <div key={c.id} className="flex items-center gap-4 p-3 rounded-lg border border-slate-100">
-                  <div className="w-1 h-10 rounded-full" style={{ background: c.color_hex || "#D97706" }} />
-                  <div className="flex-1">
-                    <div className="font-outfit font-semibold text-sm">{c.subject_name}</div>
-                    <div className="text-xs text-slate-500 font-jakarta">{c.time_start} – {c.time_end} · {c.room}</div>
-                  </div>
-                </div>
-              ))}
+    <GlassCard testid="card-next-class">
+      <CardHeader
+        title={lang === "id" ? "Kelas Berikutnya" : "Next Class"}
+        to="/classes"
+        action={lang === "id" ? "Lihat jadwal" : "View schedule"}
+        lang={lang}
+      />
+      {loading ? (
+        <CardSkeleton />
+      ) : nextClass ? (
+        <div className="next-class-layout">
+          <div className="class-symbol">
+            <BookOpen className="h-7 w-7" />
+          </div>
+          <div className="min-w-0 text-center">
+            <div className="truncate text-base font-semibold text-[#294a55] font-outfit">{nextClass.subject_name}</div>
+            <div className="mt-1 text-[11px] text-[#6f8987]">{nextClass.educator_name || (lang === "id" ? "Pengajar" : "Educator")}</div>
+          </div>
+          <div className="time-badge">
+            <Clock3 className="h-3.5 w-3.5" />
+            <span>{nextClass.time_start || "--:--"}</span>
+          </div>
+          <div className="class-symbol class-symbol-alt">
+            <GraduationCap className="h-7 w-7" />
+          </div>
+          <div className="min-w-0">
+            <div className="truncate text-sm font-semibold text-[#294a55] font-outfit">{nextClass.room || (lang === "id" ? "Ruang belum ditentukan" : "Room to be confirmed")}</div>
+            <div className="mt-1 flex items-center gap-1.5 text-[11px] text-[#6f8987]">
+              <CalendarDays className="h-3.5 w-3.5" />
+              {DAYS[new Date().getDay()]}
             </div>
-          )}
-        </Card>
-        <Card title={t.myResults} testid="card-results">
-          {grades.length === 0 ? <Empty message={t.noData} /> : (
-            <div className="space-y-2">
-              {grades.map((g) => (
-                <div key={g.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-slate-100">
-                  <div className="flex-1">
-                    <div className="font-outfit font-semibold text-sm">{g.letter_grade || "—"}</div>
-                    <div className="text-xs text-slate-500 font-jakarta">{g.score}/{g.max_score} · {g.percentage?.toFixed(0)}%</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-      </div>
-    </>
+          </div>
+        </div>
+      ) : (
+        <EmptyState
+          icon={CalendarDays}
+          title={lang === "id" ? "Tidak ada kelas hari ini" : "No classes today"}
+          text={lang === "id" ? "Jadwal berikutnya akan muncul di sini." : "Your next scheduled class will appear here."}
+        />
+      )}
+    </GlassCard>
   );
 }
 
-function ParentDash({ stats, invoices, grades, announcements, t }) {
+function LearningStatsCard({ role, stats, loading, lang }) {
+  const attendance = Number(stats.attendance_pct ?? (role === "admin" ? 100 : 0));
+  const progress = Math.max(0, Math.min(100, attendance));
+  const values = role === "admin"
+    ? [
+        [lang === "id" ? "Siswa aktif" : "Active students", stats.active_students ?? 0],
+        [lang === "id" ? "Kelas aktif" : "Active classes", stats.active_classes ?? 0],
+        [lang === "id" ? "Pengajar" : "Educators", stats.active_educators ?? 0],
+        [lang === "id" ? "Terlambat" : "Overdue", stats.overdue_invoices ?? 0],
+      ]
+    : [
+        [lang === "id" ? "Kehadiran" : "Attendance", `${attendance}%`],
+        [lang === "id" ? "Kelas aktif" : "Active classes", stats.active_classes ?? stats.my_classes ?? 0],
+        [lang === "id" ? "Hari ini" : "Today", (stats.today_classes || []).length],
+        [lang === "id" ? "Tertunda" : "Pending", stats.pending_assessments ?? 0],
+      ];
+
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatTile testid="stat-children" label={t.children} value={stats.children_count ?? 0} icon={Users} color="#7C3AED" />
-        <StatTile testid="stat-classes" label={t.activeClasses} value={stats.active_classes ?? 0} icon={BookOpen} color="#2563EB" />
-        <StatTile testid="stat-attendance" label={t.attendanceRate} value={`${stats.attendance_pct ?? 100}%`} icon={CheckCircle} color="#059669" />
-        <StatTile testid="stat-fees" label={t.outstandingFees} value={fmtIDR(stats.outstanding_fees)} icon={Receipt} color="#DC2626" />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">
-        <Card title={t.children} testid="card-children">
-          {(stats.children || []).length === 0 ? <Empty message={t.noData} /> : (
-            <div className="space-y-2">
-              {(stats.children || []).map((s) => (
-                <div key={s.id} className="flex flex-wrap items-center gap-3 p-3 rounded-lg border border-slate-100">
-                  <div className="w-9 h-9 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-outfit font-semibold text-xs">
-                    {s.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-outfit font-semibold text-sm">{s.full_name}</div>
-                    <div className="text-xs text-slate-500 font-jakarta">{s.student_code} · {s.school_year}</div>
-                  </div>
-                  <StatusBadge status={s.status} label={t.statusActive} />
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-        <Card title={t.announcements} testid="card-announcements">
-          {announcements.length === 0 ? <Empty message={t.noData} /> : (
-            <div className="space-y-2">
-              {announcements.slice(0, 4).map((a) => (
-                <div key={a.id} className="p-3 rounded-lg hover:bg-slate-50">
-                  <div className="font-outfit font-semibold text-sm">{a.title}</div>
-                  <div className="text-xs text-slate-500 mt-0.5 font-jakarta line-clamp-2">{a.body}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-      </div>
-    </>
+    <GlassCard testid="card-learning-statistics">
+      <CardHeader title={lang === "id" ? "Statistik Pembelajaran" : "Learning Statistics"} to="/reports" lang={lang} />
+      {loading ? <CardSkeleton /> : (
+        <>
+          <div className="progress-track" aria-label={`${progress}%`}>
+            <span style={{ width: `${progress}%` }} />
+            <i />
+          </div>
+          <div className="mt-5 grid grid-cols-4 gap-2">
+            {values.map(([label, value]) => (
+              <div key={label} className="stat-mini">
+                <div>{label}</div>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </GlassCard>
   );
+}
+
+function MetricGrid({ role, stats, loading, lang }) {
+  const metrics = getMetrics(role, stats, lang);
+
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" data-testid="metric-grid">
+      {metrics.map(({ label, value, icon: Icon, tone, testid }) => (
+        <GlassCard className="metric-card" testid={testid} key={label}>
+          {loading ? <CardSkeleton compact /> : (
+            <div className="flex items-center gap-3">
+              <div className={`metric-icon ${tone}`}><Icon className="h-5 w-5" /></div>
+              <div className="min-w-0">
+                <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#78908f]">{label}</div>
+                <div className="mt-1 truncate text-xl font-semibold text-[#294a55] font-outfit">{value}</div>
+              </div>
+            </div>
+          )}
+        </GlassCard>
+      ))}
+    </div>
+  );
+}
+
+function getMetrics(role, stats, lang) {
+  if (role === "admin") {
+    return [
+      { label: lang === "id" ? "Total Siswa" : "Total Students", value: stats.active_students ?? 0, icon: Users, tone: "teal", testid: "stat-students" },
+      { label: lang === "id" ? "Kelas Aktif" : "Active Classes", value: stats.active_classes ?? 0, icon: BookOpen, tone: "purple", testid: "stat-classes" },
+      { label: lang === "id" ? "Pendapatan Bulan Ini" : "Monthly Revenue", value: fmtIDR(stats.revenue_this_month), icon: TrendingUp, tone: "pink", testid: "stat-revenue" },
+      { label: lang === "id" ? "Pengajar Aktif" : "Active Educators", value: stats.active_educators ?? 0, icon: GraduationCap, tone: "orange", testid: "stat-educators" },
+    ];
+  }
+  if (role === "educator") {
+    return [
+      { label: lang === "id" ? "Kelas Saya" : "My Classes", value: stats.my_classes ?? 0, icon: BookOpen, tone: "teal", testid: "stat-myclasses" },
+      { label: lang === "id" ? "Total Siswa" : "Total Students", value: stats.total_students ?? 0, icon: Users, tone: "purple", testid: "stat-mystudents" },
+      { label: lang === "id" ? "Kelas Hari Ini" : "Classes Today", value: (stats.today_classes || []).length, icon: CalendarDays, tone: "pink", testid: "stat-today" },
+      { label: lang === "id" ? "Penilaian Tertunda" : "Pending Assessments", value: stats.pending_assessments ?? 0, icon: Award, tone: "orange", testid: "stat-pending" },
+    ];
+  }
+  return [
+    { label: lang === "id" ? "Kelas Aktif" : "Active Classes", value: stats.active_classes ?? 0, icon: BookOpen, tone: "teal", testid: "stat-classes" },
+    { label: lang === "id" ? "Kehadiran" : "Attendance Rate", value: `${stats.attendance_pct ?? 100}%`, icon: CheckCircle2, tone: "purple", testid: "stat-attendance" },
+    { label: lang === "id" ? "Tagihan Aktif" : "Outstanding Fees", value: fmtIDR(stats.outstanding_fees), icon: Receipt, tone: "pink", testid: "stat-fees" },
+    { label: lang === "id" ? "Kelas Hari Ini" : "Classes Today", value: (stats.today_classes || []).length, icon: CalendarDays, tone: "orange", testid: "stat-today" },
+  ];
+}
+
+function OverviewTable({ role, students, invoices, grades, stats, loading, lang }) {
+  const rows = useMemo(() => {
+    if (role === "admin") {
+      return students.slice(0, 6).map((student) => {
+        const studentInvoices = invoices.filter((invoice) => invoice.student_id === student.id);
+        const hasDue = studentInvoices.some((invoice) => invoice.status !== "paid");
+        return {
+          id: student.id,
+          name: student.full_name,
+          meta: student.student_code || student.school_year || "Student",
+          status: student.status || "active",
+          detail: hasDue ? (lang === "id" ? "Belum lunas" : "Payment due") : (lang === "id" ? "Lunas" : "Clear"),
+          tone: hasDue ? "warning" : "success",
+        };
+      });
+    }
+    if (role === "parent") {
+      return (stats.children || []).slice(0, 6).map((student) => ({
+        id: student.id,
+        name: student.full_name,
+        meta: student.student_code || student.school_year || "Student",
+        status: student.status || "active",
+        detail: `${stats.attendance_pct ?? 100}% ${lang === "id" ? "hadir" : "attendance"}`,
+        tone: "success",
+      }));
+    }
+    if (role === "student") {
+      return grades.slice(0, 6).map((grade) => ({
+        id: grade.id,
+        name: grade.assessment_name || grade.letter_grade || (lang === "id" ? "Hasil belajar" : "Learning result"),
+        meta: grade.letter_grade || `${grade.score ?? 0}/${grade.max_score ?? 0}`,
+        status: lang === "id" ? "Selesai" : "Completed",
+        detail: `${Number(grade.percentage || 0).toFixed(0)}%`,
+        tone: "success",
+      }));
+    }
+    return (stats.today_classes || []).slice(0, 6).map((item) => ({
+      id: item.id,
+      name: item.subject_name,
+      meta: item.room || (lang === "id" ? "Ruang belum ada" : "Room pending"),
+      status: lang === "id" ? "Hari ini" : "Today",
+      detail: `${item.time_start || "--:--"} - ${item.time_end || "--:--"}`,
+      tone: "success",
+    }));
+  }, [grades, invoices, lang, role, stats, students]);
+
+  const title = role === "admin"
+    ? (lang === "id" ? "Ringkasan Siswa" : "Student Overview")
+    : role === "student"
+      ? (lang === "id" ? "Hasil Terbaru" : "Recent Results")
+      : role === "parent"
+        ? (lang === "id" ? "Ringkasan Anak" : "Children Overview")
+        : (lang === "id" ? "Jadwal Hari Ini" : "Today's Schedule");
+  const target = role === "student" ? "/results" : role === "educator" ? "/classes" : "/students";
+
+  return (
+    <GlassCard testid="card-overview-table">
+      <CardHeader title={title} to={target} lang={lang} />
+      {loading ? <CardSkeleton /> : rows.length ? (
+        <div className="overflow-x-auto">
+          <table className="overview-table">
+            <thead>
+              <tr>
+                <th>{role === "educator" ? (lang === "id" ? "Kelas" : "Class") : (lang === "id" ? "Nama" : "Name")}</th>
+                <th>{lang === "id" ? "Detail" : "Details"}</th>
+                <th>{lang === "id" ? "Status" : "Status"}</th>
+                <th>{role === "admin" ? (lang === "id" ? "Pembayaran" : "Payment") : (lang === "id" ? "Ringkasan" : "Summary")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, index) => (
+                <tr key={row.id || index}>
+                  <td>
+                    <div className="flex items-center gap-2.5">
+                      <span className="student-avatar">{initials(row.name)}</span>
+                      <span className="font-semibold text-[#294a55] font-outfit">{row.name}</span>
+                    </div>
+                  </td>
+                  <td>{row.meta}</td>
+                  <td><span className="status-pill">{row.status}</span></td>
+                  <td><span className={`payment-state ${row.tone}`}>{row.detail}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <EmptyState
+          icon={UserRound}
+          title={lang === "id" ? "Belum ada data" : "No data yet"}
+          text={lang === "id" ? "Data terbaru akan tampil di sini." : "Recent activity will appear here."}
+        />
+      )}
+    </GlassCard>
+  );
+}
+
+function ReminderCard({ announcements, lang }) {
+  const latest = announcements[0];
+  return (
+    <section className="reminder-card" data-testid="card-announcements">
+      <div className="relative z-10 max-w-[70%]">
+        <div className="mb-2 text-[9px] font-bold uppercase tracking-[0.14em] text-white/70">
+          {latest ? (lang === "id" ? "Pengumuman terbaru" : "Latest announcement") : (lang === "id" ? "Jangan lupa" : "Don't forget")}
+        </div>
+        <h2 className="text-xl font-semibold leading-tight text-white font-outfit">
+          {latest?.title || (lang === "id" ? "Siapkan materi untuk kelas mendatang" : "Prepare materials for upcoming classes")}
+        </h2>
+        <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/75">
+          {latest?.body || (lang === "id" ? "Pastikan materi pembelajaran siap sebelum sesi dimulai." : "Keep lesson resources ready before the next session begins.")}
+        </p>
+        <Link className="reminder-button" to={latest ? "/announcements" : "/materials"}>
+          {latest ? (lang === "id" ? "Lihat pengumuman" : "View announcement") : (lang === "id" ? "Lihat materi" : "View materials")}
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+      <div className="reminder-art" aria-hidden="true">
+        <span className="art-orb" />
+        <span className="art-book"><BookOpen /></span>
+        <span className="art-spark"><Sparkles /></span>
+        <span className="art-message"><Megaphone /></span>
+      </div>
+    </section>
+  );
+}
+
+function CardSkeleton({ compact = false }) {
+  return (
+    <div className={`skeleton-stack ${compact ? "py-1" : "py-4"}`} aria-label="Loading">
+      <span />
+      <span />
+      {!compact && <span />}
+    </div>
+  );
+}
+
+function EmptyState({ icon: Icon, title, text }) {
+  return (
+    <div className="flex min-h-28 flex-col items-center justify-center text-center">
+      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/55 text-[#356f83]">
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="text-sm font-semibold text-[#294a55] font-outfit">{title}</div>
+      <div className="mt-1 text-[11px] text-[#78908f]">{text}</div>
+    </div>
+  );
+}
+
+function initials(value = "") {
+  return value.split(" ").filter(Boolean).map((word) => word[0]).slice(0, 2).join("").toUpperCase() || "EC";
 }

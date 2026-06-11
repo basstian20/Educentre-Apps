@@ -3,8 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { formatApiError } from "@/lib/api";
-import { Btn, Input } from "@/components/UI";
-import { GraduationCap } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  BookOpen,
+  CheckCircle2,
+  GraduationCap,
+  LockKeyhole,
+  Mail,
+  Sparkles,
+  Users,
+} from "lucide-react";
+
+const DEMO_ACCOUNTS = [
+  { roleKey: "role_admin", email: "admin@educentre.id", password: "admin123", icon: BarChart3, tone: "teal" },
+  { roleKey: "role_educator", email: "fariz@educentre.id", password: "educator123", icon: GraduationCap, tone: "purple" },
+  { roleKey: "role_student", email: "aiman@educentre.id", password: "student123", icon: BookOpen, tone: "orange" },
+  { roleKey: "role_parent", email: "ibu.nur@educentre.id", password: "parent123", icon: Users, tone: "pink" },
+];
 
 export default function Login() {
   const { login } = useAuth();
@@ -15,8 +31,8 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (event) => {
+    event.preventDefault();
     setError("");
     setLoading(true);
     try {
@@ -29,135 +45,192 @@ export default function Login() {
     }
   };
 
-  const quickFill = (em, pw) => {
-    setEmail(em);
-    setPassword(pw);
-  };
-
   return (
-    <div className="min-h-screen flex" data-testid="login-page">
-      {/* Left: image side */}
-      <div
-        className="hidden md:block md:w-1/2 relative bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url(https://images.pexels.com/photos/35865718/pexels-photo-35865718.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900&w=1200)",
-        }}
-      >
-        <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(15,23,42,0.65), rgba(37,99,235,0.55))" }} />
-        <div className="relative h-full flex flex-col justify-between p-10 text-white">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center">
-              <GraduationCap className="w-6 h-6" />
+    <main className="login-canvas" data-testid="login-page">
+      <div className="login-shell">
+        <section className="login-story" aria-label={t.appName}>
+          <Brand t={t} />
+
+          <div className="login-story-copy">
+            <div className="login-eyebrow">
+              <Sparkles className="h-3.5 w-3.5" />
+              {lang === "id" ? "Ruang belajar yang lebih terhubung" : "A more connected learning space"}
             </div>
-            <div>
-              <div className="font-outfit font-bold text-xl">{t.appName}</div>
-              <div className="text-xs text-white/70">{t.appSubtitle}</div>
-            </div>
-          </div>
-          <div>
-            <h2 className="text-4xl font-outfit font-semibold leading-tight">
-              {lang === "id" ? "Bimbel modern, dikelola dengan elegan." : "Modern tuition centres, run with elegance."}
-            </h2>
-            <p className="text-white/80 mt-3 text-sm font-jakarta max-w-md">
+            <h1>
               {lang === "id"
-                ? "Satu sistem untuk manajemen, pengajar, siswa, dan orang tua. Otomatiskan tagihan, kehadiran, dan progres akademik."
-                : "One system for management, educators, students, and parents. Automate billing, attendance, and academic progress."}
+                ? "Kelola setiap langkah pembelajaran dengan tenang."
+                : "Manage every step of learning with clarity."}
+            </h1>
+            <p>
+              {lang === "id"
+                ? "Satu ruang kerja untuk manajemen, pengajar, siswa, dan orang tua. Semua informasi penting tetap dekat dan mudah dipahami."
+                : "One calm workspace for management, educators, students, and parents. Everything important stays close and easy to understand."}
             </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Right: form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
-        <div className="w-full max-w-md">
-          <div className="flex justify-end mb-8">
-            <div className="flex bg-slate-100 rounded-lg p-0.5" data-testid="login-lang">
-              {["en", "id"].map((l) => (
-                <button
-                  key={l}
-                  onClick={() => setLang(l)}
-                  data-testid={`login-lang-${l}`}
-                  className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md transition ${
-                    lang === l ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
-                  }`}
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-6 flex items-center gap-3 md:hidden">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-sm">
-              <GraduationCap className="h-6 w-6" />
-            </div>
-            <div>
-              <div className="font-outfit text-lg font-bold leading-tight text-slate-950">{t.appName}</div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Bimbel OS</div>
-            </div>
-          </div>
-
-          <h1 className="text-3xl font-outfit font-semibold text-slate-900 tracking-tight">{t.welcomeBack}</h1>
-          <p className="text-sm text-slate-500 mt-2 font-jakarta">{t.loginSubtitle}</p>
-
-          <form className="mt-8 space-y-4" onSubmit={onSubmit}>
-            <Input
-              label={t.email}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              testid="login-email"
-              required
-              autoComplete="email"
-            />
-            <Input
-              label={t.password}
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              testid="login-password"
-              required
-              autoComplete="current-password"
-            />
-            {error && (
-              <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 font-jakarta" data-testid="login-error">
-                {error}
-              </div>
-            )}
-            <Btn type="submit" testid="login-submit" disabled={loading} className="w-full" size="lg">
-              {loading ? t.signingIn : t.signIn}
-            </Btn>
-          </form>
-
-          <div className="mt-8 pt-6 border-t border-slate-100">
-            <div className="text-[11px] uppercase tracking-widest text-slate-400 font-outfit font-semibold mb-3">
-              {lang === "id" ? "Akun Demo" : "Demo Accounts"}
-            </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="login-benefits">
               {[
-                { role: t.role_admin, em: "admin@educentre.id", pw: "admin123", color: "#2563EB" },
-                { role: t.role_educator, em: "fariz@educentre.id", pw: "educator123", color: "#059669" },
-                { role: t.role_student, em: "aiman@educentre.id", pw: "student123", color: "#D97706" },
-                { role: t.role_parent, em: "ibu.nur@educentre.id", pw: "parent123", color: "#7C3AED" },
-              ].map((a) => (
-                <button
-                  key={a.em}
-                  type="button"
-                  onClick={() => quickFill(a.em, a.pw)}
-                  data-testid={`demo-${a.em}`}
-                  className="text-left p-2.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition"
-                >
-                  <div className="text-[10px] font-bold uppercase tracking-wider font-outfit" style={{ color: a.color }}>
-                    {a.role}
-                  </div>
-                  <div className="text-[11px] text-slate-500 truncate font-jakarta">{a.em}</div>
-                </button>
+                lang === "id" ? "Jadwal dan kehadiran terpusat" : "Centralized schedules and attendance",
+                lang === "id" ? "Progres akademik yang jelas" : "Clear academic progress",
+                lang === "id" ? "Tagihan dan komunikasi terpadu" : "Connected billing and communication",
+              ].map((item) => (
+                <div key={item}>
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span>{item}</span>
+                </div>
               ))}
             </div>
           </div>
-        </div>
+
+          <LearningIllustration />
+          <div className="login-story-footer">
+            <span>{lang === "id" ? "Dipercaya untuk pembelajaran sehari-hari" : "Built for everyday learning"}</span>
+            <span className="login-live-dot" />
+            <strong>EduCentre OS</strong>
+          </div>
+        </section>
+
+        <section className="login-form-side">
+          <div className="login-mobile-head">
+            <Brand t={t} compact />
+            <LanguageSwitch lang={lang} setLang={setLang} />
+          </div>
+
+          <div className="login-form-card">
+            <div className="hidden justify-end md:flex">
+              <LanguageSwitch lang={lang} setLang={setLang} />
+            </div>
+
+            <div className="login-form-heading">
+              <div className="login-welcome-icon"><GraduationCap className="h-5 w-5" /></div>
+              <div>
+                <div className="login-kicker">{lang === "id" ? "Selamat datang kembali" : "Welcome back"}</div>
+                <h2>{t.welcomeBack}</h2>
+              </div>
+            </div>
+            <p className="login-subtitle">{t.loginSubtitle}</p>
+
+            <form className="mt-7 space-y-4" onSubmit={onSubmit}>
+              <LoginField
+                label={t.email}
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                testid="login-email"
+                autoComplete="email"
+                icon={Mail}
+              />
+              <LoginField
+                label={t.password}
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                testid="login-password"
+                autoComplete="current-password"
+                icon={LockKeyhole}
+              />
+              {error && (
+                <div className="login-error" data-testid="login-error" role="alert">
+                  {error}
+                </div>
+              )}
+              <button className="login-submit" type="submit" data-testid="login-submit" disabled={loading}>
+                <span>{loading ? t.signingIn : t.signIn}</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </form>
+
+            <div className="login-divider">
+              <span>{lang === "id" ? "atau gunakan akun demo" : "or use a demo account"}</span>
+            </div>
+
+            <div className="login-demo-grid">
+              {DEMO_ACCOUNTS.map((account) => {
+                const Icon = account.icon;
+                return (
+                  <button
+                    key={account.email}
+                    type="button"
+                    onClick={() => {
+                      setEmail(account.email);
+                      setPassword(account.password);
+                      setError("");
+                    }}
+                    data-testid={`demo-${account.email}`}
+                    className="login-demo-card"
+                  >
+                    <span className={`login-demo-icon ${account.tone}`}><Icon className="h-4 w-4" /></span>
+                    <span className="min-w-0">
+                      <strong>{t[account.roleKey]}</strong>
+                      <small>{account.email}</small>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
       </div>
+    </main>
+  );
+}
+
+function Brand({ t, compact = false }) {
+  return (
+    <div className={`login-brand ${compact ? "compact" : ""}`}>
+      <div className="login-brand-mark">E<span /></div>
+      <div>
+        <div className="login-brand-name">{t.appName}</div>
+        <div className="login-brand-subtitle">Learning OS</div>
+      </div>
+    </div>
+  );
+}
+
+function LanguageSwitch({ lang, setLang }) {
+  return (
+    <div className="login-language" data-testid="login-lang">
+      {["en", "id"].map((item) => (
+        <button
+          key={item}
+          type="button"
+          onClick={() => setLang(item)}
+          data-testid={`login-lang-${item}`}
+          className={lang === item ? "active" : ""}
+        >
+          {item}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function LoginField({ label, icon: Icon, testid, ...props }) {
+  return (
+    <label className="login-field">
+      <span>{label}</span>
+      <div>
+        <Icon className="h-4 w-4" />
+        <input data-testid={testid} required {...props} />
+      </div>
+    </label>
+  );
+}
+
+function LearningIllustration() {
+  return (
+    <div className="login-illustration" aria-hidden="true">
+      <div className="login-orbit orbit-one" />
+      <div className="login-orbit orbit-two" />
+      <div className="login-illustration-card">
+        <div className="illustration-card-top">
+          <span><BookOpen /></span>
+          <i />
+        </div>
+        <div className="illustration-lines"><span /><span /><span /></div>
+        <div className="illustration-progress"><span /></div>
+      </div>
+      <div className="login-floating-icon icon-users"><Users /></div>
+      <div className="login-floating-icon icon-cap"><GraduationCap /></div>
+      <div className="login-floating-icon icon-chart"><BarChart3 /></div>
     </div>
   );
 }
