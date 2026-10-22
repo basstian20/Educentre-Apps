@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "@/components/Layout";
-import { Card, StatTile, Empty } from "@/components/UI";
+import { Card, StatTile, Empty, ErrorState, SkeletonCards, SkeletonRows } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
+import { useLoadState } from "@/lib/useLoadState";
 import { api, fmtIDR } from "@/lib/api";
 import { TrendingUp, Users, BookOpen, AlertTriangle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
@@ -13,19 +14,25 @@ export default function Reports() {
   const [classes, setClasses] = useState([]);
   const [students, setStudents] = useState([]);
 
-  useEffect(() => {
-    Promise.all([
-      api.get("/dashboard/stats"),
-      api.get("/invoices"),
-      api.get("/classes"),
-      api.get("/students"),
-    ]).then(([s, i, c, st]) => {
-      setStats(s.data || {});
-      setInvoices(i.data || []);
-      setClasses(c.data || []);
-      setStudents(st.data || []);
-    });
-  }, []);
+  const [state, track] = useLoadState();
+  const load = useCallback(
+    () =>
+      track(
+        Promise.all([
+          api.get("/dashboard/stats"),
+          api.get("/invoices"),
+          api.get("/classes"),
+          api.get("/students"),
+        ]).then(([s, i, c, st]) => {
+          setStats(s.data || {});
+          setInvoices(i.data || []);
+          setClasses(c.data || []);
+          setStudents(st.data || []);
+        })
+      ),
+    [track]
+  );
+  useEffect(() => { load(); }, [load]);
 
   // Status breakdown — memoised
   const statusData = useMemo(
@@ -67,6 +74,15 @@ export default function Reports() {
 
   return (
     <Layout title={t.reports} subtitle="Business intelligence & operational metrics">
+      {state.loading ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"><SkeletonCards count={4} /></div>
+          <Card className="mt-5"><SkeletonRows rows={4} /></Card>
+        </>
+      ) : state.error ? (
+        <Card><ErrorState onRetry={load} /></Card>
+      ) : (
+      <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatTile label={t.activeStudents} value={stats.active_students ?? 0} icon={Users} color="#2563EB" />
         <StatTile label={t.activeClasses} value={stats.active_classes ?? 0} icon={BookOpen} color="#059669" />
@@ -135,6 +151,8 @@ export default function Reports() {
           </div>
         </Card>
       </div>
+      </>
+      )}
     </Layout>
   );
 }

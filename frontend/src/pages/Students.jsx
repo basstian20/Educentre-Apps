@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
 import Layout from "@/components/Layout";
-import { Card, Btn, Input, Select, StatusBadge, Modal, Empty } from "@/components/UI";
+import { Card, Btn, Input, Select, StatusBadge, Modal, Empty, ErrorState, SkeletonRows } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import { useLoadState } from "@/lib/useLoadState";
 import { api, formatApiError } from "@/lib/api";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Users } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Students() {
@@ -17,13 +18,14 @@ export default function Students() {
   const [parents, setParents] = useState([]);
   const [form, setForm] = useState({ full_name: "", email: "", password: "", phone: "", school_year: "Year 5", school_name: "", dob: "", parent_id: "" });
   const isAdmin = user?.role === "admin";
+  const [state, track] = useLoadState();
 
   const load = useCallback(() => {
     const params = {};
     if (search) params.search = search;
     if (statusFilter) params.status = statusFilter;
-    api.get("/students", { params }).then((r) => setStudents(r.data || []));
-  }, [search, statusFilter]);
+    return track(api.get("/students", { params }).then((r) => setStudents(r.data || [])));
+  }, [search, statusFilter, track]);
 
   useEffect(() => {
     load();
@@ -58,7 +60,7 @@ export default function Students() {
       <Card testid="students-card">
         <div className="flex flex-col md:flex-row gap-3 mb-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input
               type="text"
               value={search}
@@ -81,8 +83,12 @@ export default function Students() {
           />
         </div>
 
-        {students.length === 0 ? (
-          <Empty message={t.noData} />
+        {state.loading ? <SkeletonRows /> : state.error ? <ErrorState onRetry={load} /> : students.length === 0 ? (
+          <Empty
+            message={t.noData}
+            icon={Users}
+            action={isAdmin && !search && !statusFilter && <Btn size="sm" onClick={() => setOpen(true)}><Plus className="w-4 h-4" />{t.addStudent}</Btn>}
+          />
         ) : (
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
             <table className="w-full min-w-[680px] text-left">

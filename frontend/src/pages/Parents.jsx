@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
-import { Card, Btn, Input, Modal, Empty } from "@/components/UI";
+import { Card, Btn, Input, Modal, Empty, ErrorState, SkeletonRows } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
+import { useLoadState } from "@/lib/useLoadState";
 import { api, formatApiError } from "@/lib/api";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Parents() {
@@ -13,7 +14,8 @@ export default function Parents() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ full_name: "", email: "", password: "", phone: "", occupation: "", children_ids: [] });
 
-  const load = () => api.get("/parents").then((r) => setList(r.data || []));
+  const [state, track] = useLoadState();
+  const load = () => track(api.get("/parents").then((r) => setList(r.data || [])));
   useEffect(() => {
     load();
     api.get("/students").then((r) => setStudents(r.data || []));
@@ -43,8 +45,8 @@ export default function Parents() {
       }
     >
       <Card>
-        {list.length === 0 ? (
-          <Empty message={t.noData} />
+        {state.loading ? <SkeletonRows /> : state.error ? <ErrorState onRetry={load} /> : list.length === 0 ? (
+          <Empty message={t.noData} icon={Users} action={<Btn size="sm" onClick={() => setOpen(true)}><Plus className="w-4 h-4" />{t.parents}</Btn>} />
         ) : (
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
             <table className="w-full min-w-[640px]">

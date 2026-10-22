@@ -548,6 +548,16 @@ body {
 .skeleton-stack span:nth-child(2) { width: 72%; }
 .skeleton-stack span:nth-child(3) { width: 48%; }
 
+.sk {
+  background: linear-gradient(90deg, #cbd5e1, #e2e8f0, #cbd5e1);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk { animation: none; }
+}
+
 @keyframes skeletonShimmer {
   to { background-position: -200% 0; }
 }

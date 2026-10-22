@@ -1,4 +1,5 @@
-import { ArrowRight, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowRight, RefreshCw, Sparkles } from "lucide-react";
+import { useLang } from "@/lib/i18n";
 
 export function StatTile({ label, value, sub, icon: Icon, color = "#2563EB", testid }) {
   return (
@@ -79,14 +80,69 @@ export function StatusBadge({ status, label, testid }) {
   );
 }
 
-export function Empty({ message, action }) {
+export function Empty({ message, hint, icon: Icon = Sparkles, action }) {
+  const { t } = useLang();
   return (
-    <div className="text-center py-12">
-      <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400">
-        <Sparkles className="h-5 w-5" strokeWidth={1.8} />
+    <div className="text-center py-12" data-testid="empty-state">
+      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-teal-100 bg-teal-50 text-teal-700">
+        <Icon className="h-5 w-5" strokeWidth={1.8} />
       </div>
-      <div className="text-sm text-slate-500 font-jakarta">{message}</div>
+      <div className="text-sm font-semibold text-slate-700 font-outfit">{message}</div>
+      <div className="mx-auto mt-1 max-w-xs text-xs leading-5 text-slate-600 font-jakarta">{hint || t.emptyHint}</div>
       {action && <div className="mt-4">{action}</div>}
+    </div>
+  );
+}
+
+export function ErrorState({ onRetry }) {
+  const { t } = useLang();
+  return (
+    <div className="text-center py-12" role="alert" data-testid="error-state">
+      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-red-100 bg-red-50 text-red-600">
+        <AlertTriangle className="h-5 w-5" strokeWidth={1.8} />
+      </div>
+      <div className="text-sm font-semibold text-slate-700 font-outfit">{t.loadFailed}</div>
+      <div className="mx-auto mt-1 max-w-xs text-xs leading-5 text-slate-600 font-jakarta">{t.loadFailedHint}</div>
+      {onRetry && (
+        <div className="mt-4">
+          <Btn variant="outline" size="sm" onClick={onRetry} testid="retry-btn">
+            <RefreshCw className="h-3.5 w-3.5" />
+            {t.retry}
+          </Btn>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Placeholder shapes shown while a list loads.
+export function SkeletonRows({ rows = 5 }) {
+  return (
+    <div className="space-y-3 py-1" role="status" aria-label="Loading" data-testid="loading-skeleton">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3">
+          <span className="sk h-9 w-9 flex-shrink-0 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <span className="sk block h-3 w-1/3 rounded-full" />
+            <span className="sk block h-2.5 w-1/2 rounded-full" />
+          </div>
+          <span className="sk hidden h-5 w-16 rounded-full sm:block" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function SkeletonCards({ count = 6 }) {
+  return (
+    <div className="contents" role="status" aria-label="Loading" data-testid="loading-skeleton">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="rounded-xl border border-slate-200 bg-white p-5 shadow-card">
+          <span className="sk mb-3 block h-4 w-2/5 rounded-full" />
+          <span className="sk mb-2 block h-3 w-4/5 rounded-full" />
+          <span className="sk block h-3 w-3/5 rounded-full" />
+        </div>
+      ))}
     </div>
   );
 }
@@ -110,7 +166,7 @@ export function RoleHero({ eyebrow, title, subtitle, color = "#2563EB", icon: Ic
           )}
           <div className="min-w-0">
             {eyebrow && (
-              <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400 font-outfit">{eyebrow}</div>
+              <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 font-outfit">{eyebrow}</div>
             )}
             <h2 className="text-2xl font-outfit font-semibold tracking-tight text-slate-950 sm:text-3xl">{title}</h2>
             {subtitle && <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 font-jakarta">{subtitle}</p>}
@@ -157,7 +213,7 @@ export function InsightCard({ label, value, detail, color = "#2563EB", testid })
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-card" data-testid={testid}>
       <div className="flex items-center gap-2">
         <span className="h-2 w-2 rounded-full" style={{ background: color }} />
-        <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-outfit">{label}</div>
+        <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 font-outfit">{label}</div>
       </div>
       <div className="mt-2 break-words text-xl font-bold text-slate-950 font-outfit">{value}</div>
       {detail && <div className="mt-1 text-xs leading-5 text-slate-500 font-jakarta">{detail}</div>}
@@ -202,7 +258,7 @@ export function Input({ label, type = "text", value, onChange, placeholder, test
         onChange={onChange}
         placeholder={placeholder}
         data-testid={testid}
-        className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-jakarta"
+        className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-jakarta"
         {...rest}
       />
     </label>
@@ -239,7 +295,7 @@ export function Textarea({ label, value, onChange, rows = 3, testid, placeholder
         rows={rows}
         placeholder={placeholder}
         data-testid={testid}
-        className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-jakarta resize-y"
+        className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-jakarta resize-y"
       />
     </label>
   );
@@ -261,7 +317,7 @@ export function Modal({ open, onClose, title, children, testid, footer, size = "
       >
         <div className="px-4 py-4 border-b border-slate-100 flex items-center justify-between gap-3 sm:px-6">
           <h2 className="min-w-0 font-outfit font-semibold text-base text-slate-900 sm:text-lg">{title}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl leading-none" data-testid="modal-close">
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-600 text-xl leading-none" data-testid="modal-close">
             ×
           </button>
         </div>

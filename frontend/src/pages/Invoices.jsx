@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
-import { Card, Btn, Input, Select, Modal, Empty, StatusBadge } from "@/components/UI";
+import { Card, Btn, Input, Select, Modal, Empty, ErrorState, SkeletonRows, StatusBadge } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import { useLoadState } from "@/lib/useLoadState";
 import { api, fmtIDR, fmtDate, formatApiError } from "@/lib/api";
-import { Plus } from "lucide-react";
+import { Plus, Receipt } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Invoices() {
@@ -18,7 +19,8 @@ export default function Invoices() {
   const [payForm, setPayForm] = useState({ amount: 0, method: "cash" });
   const isAdmin = user?.role === "admin";
 
-  const load = () => api.get("/invoices").then((r) => setList(r.data || []));
+  const [state, track] = useLoadState();
+  const load = () => track(api.get("/invoices").then((r) => setList(r.data || [])));
   useEffect(() => {
     load();
     if (isAdmin) api.get("/students").then((r) => setStudents(r.data || []));
@@ -56,7 +58,9 @@ export default function Invoices() {
       actions={isAdmin && <Btn onClick={() => setOpen(true)} size="sm" testid="new-invoice-btn"><Plus className="w-4 h-4" />{t.invoices}</Btn>}
     >
       <Card>
-        {list.length === 0 ? <Empty message={t.noData} /> : (
+        {state.loading ? <SkeletonRows /> : state.error ? <ErrorState onRetry={load} /> : list.length === 0 ? (
+          <Empty message={t.noData} icon={Receipt} action={isAdmin && <Btn size="sm" onClick={() => setOpen(true)}><Plus className="w-4 h-4" />{t.invoices}</Btn>} />
+        ) : (
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
             <table className="w-full min-w-[860px]">
               <thead>

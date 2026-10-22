@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
-import { Card, Btn, Input, Select, Modal, Empty } from "@/components/UI";
+import { Card, Btn, Input, Select, Modal, Empty, ErrorState, SkeletonCards } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import { useLoadState } from "@/lib/useLoadState";
 import { api, formatApiError, fmtIDR } from "@/lib/api";
-import { Plus } from "lucide-react";
+import { Plus, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 
 const DAYS = [1, 2, 3, 4, 5, 6, 7];
@@ -29,7 +30,8 @@ export default function Classes() {
     time_end: "09:30",
   });
 
-  const load = () => api.get("/classes").then((r) => setClasses(r.data || []));
+  const [state, track] = useLoadState();
+  const load = () => track(api.get("/classes").then((r) => setClasses(r.data || [])));
   useEffect(() => {
     load();
     api.get("/educators").then((r) => setEducators(r.data || []));
@@ -66,8 +68,10 @@ export default function Classes() {
 
       {/* Class list */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {classes.length === 0 ? (
-          <div className="col-span-3"><Empty message={t.noData} /></div>
+        {state.loading ? <SkeletonCards /> : state.error ? (
+          <div className="col-span-full"><Card><ErrorState onRetry={load} /></Card></div>
+        ) : classes.length === 0 ? (
+          <div className="col-span-full"><Card><Empty message={t.noData} icon={BookOpen} action={isAdmin && <Btn size="sm" onClick={() => setOpen(true)}><Plus className="w-4 h-4" />{t.addClass}</Btn>} /></Card></div>
         ) : (
           classes.map((c) => (
             <div
@@ -181,7 +185,7 @@ function Timetable({ classes, t }) {
             </div>
             <div className="space-y-2 p-3">
               {classesForDay(d).length === 0 ? (
-                <div className="text-xs text-slate-400 font-jakarta">{t.noClasses}</div>
+                <div className="text-xs text-slate-500 font-jakarta">{t.noClasses}</div>
               ) : (
                 classesForDay(d).map((c) => (
                   <div key={`${c.id}-mobile-${d}`} className="rounded-lg border-l-4 bg-slate-50 p-3" style={{ borderColor: c.color_hex }}>
@@ -207,7 +211,7 @@ function Timetable({ classes, t }) {
           ))}
           {hours.map((h) => (
             <div key={`row-${h}`} className="contents">
-              <div className="text-center text-[11px] text-slate-400 py-1 border-r border-b border-slate-200 font-jakarta" style={{ height: cellH }}>
+              <div className="text-center text-[11px] text-slate-500 py-1 border-r border-b border-slate-200 font-jakarta" style={{ height: cellH }}>
                 {h}:00
               </div>
               {days.map((d) => (

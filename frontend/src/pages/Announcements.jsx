@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
-import { Card, Btn, Input, Select, Textarea, Modal, Empty } from "@/components/UI";
+import { Card, Btn, Input, Select, Textarea, Modal, Empty, ErrorState, SkeletonRows } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import { useLoadState } from "@/lib/useLoadState";
 import { api, fmtDate, formatApiError } from "@/lib/api";
 import { Plus, Megaphone } from "lucide-react";
 import { toast } from "sonner";
@@ -15,7 +16,8 @@ export default function Announcements() {
   const [form, setForm] = useState({ title: "", body: "", audience: "all" });
   const canPost = user?.role === "admin" || user?.role === "educator";
 
-  const load = () => api.get("/announcements").then((r) => setList(r.data || []));
+  const [state, track] = useLoadState();
+  const load = () => track(api.get("/announcements").then((r) => setList(r.data || [])));
   useEffect(() => { load(); }, []);
 
   const submit = async () => {
@@ -34,7 +36,9 @@ export default function Announcements() {
     <Layout title={t.announcements} subtitle={`${list.length} posts`}
       actions={canPost && <Btn onClick={() => setOpen(true)} size="sm" testid="new-announce-btn"><Plus className="w-4 h-4" />{t.new}</Btn>}
     >
-      {list.length === 0 ? <Empty message={t.noData} /> : (
+      {state.loading ? <Card><SkeletonRows rows={3} /></Card> : state.error ? <Card><ErrorState onRetry={load} /></Card> : list.length === 0 ? (
+        <Card><Empty message={t.noData} icon={Megaphone} action={canPost && <Btn size="sm" onClick={() => setOpen(true)}><Plus className="w-4 h-4" />{t.new}</Btn>} /></Card>
+      ) : (
         <div className="space-y-3">
           {list.map((a) => (
             <div key={a.id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-card" data-testid={`announce-${a.id}`}>

@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { ClipboardList } from "lucide-react";
 import Layout from "@/components/Layout";
-import { Card, Empty } from "@/components/UI";
+import { Card, Empty, ErrorState, SkeletonRows } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
+import { useLoadState } from "@/lib/useLoadState";
 import { api, fmtDate } from "@/lib/api";
 
 export default function Results() {
@@ -10,13 +12,19 @@ export default function Results() {
   const [assessments, setAssessments] = useState([]);
   const [classes, setClasses] = useState([]);
 
-  useEffect(() => {
-    Promise.all([api.get("/grades"), api.get("/assessments"), api.get("/classes")]).then(([g, a, c]) => {
-      setGrades(g.data || []);
-      setAssessments(a.data || []);
-      setClasses(c.data || []);
-    });
-  }, []);
+  const [state, track] = useLoadState();
+  const load = useCallback(
+    () =>
+      track(
+        Promise.all([api.get("/grades"), api.get("/assessments"), api.get("/classes")]).then(([g, a, c]) => {
+          setGrades(g.data || []);
+          setAssessments(a.data || []);
+          setClasses(c.data || []);
+        })
+      ),
+    [track]
+  );
+  useEffect(() => { load(); }, [load]);
 
   const enriched = grades
     .map((g) => {
@@ -29,7 +37,7 @@ export default function Results() {
   return (
     <Layout title={t.myResults} subtitle="Published assessments only">
       <Card>
-        {enriched.length === 0 ? <Empty message={t.noData} /> : (
+        {state.loading ? <SkeletonRows /> : state.error ? <ErrorState onRetry={load} /> : enriched.length === 0 ? <Empty message={t.noData} icon={ClipboardList} /> : (
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
             <table className="w-full min-w-[760px]">
               <thead>

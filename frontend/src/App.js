@@ -21,28 +21,25 @@ import Announcements from "@/pages/Announcements";
 import Reports from "@/pages/Reports";
 import DeveloperCredit from "@/components/DeveloperCredit";
 
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: "var(--bg)" }} role="status">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-teal-100 border-t-teal-600" />
+      <div className="text-sm text-slate-600 font-jakarta">Loading…</div>
+    </div>
+  );
+}
+
 function Protected({ children }) {
   const { user, loading } = useAuth();
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
-        <div className="text-sm text-slate-500 font-jakarta">Loading…</div>
-      </div>
-    );
+  if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
   return children;
 }
 
 function PublicOnly({ children }) {
   const { user, loading } = useAuth();
-  console.log("USER VALUE:", user);
-  if (loading) {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      Loading...
-    </div>
-  );
-}
+  if (loading) return <LoadingScreen />;
   if (user) return <Navigate to="/dashboard" replace />;
   return children;
 }

@@ -54,12 +54,12 @@ export default function Enrollment() {
                       ? "bg-blue-600 text-white"
                       : step === i + 1
                       ? "bg-blue-600 text-white"
-                      : "bg-slate-100 text-slate-400"
+                      : "bg-slate-100 text-slate-500"
                   }`}
                 >
                   {step > i + 1 ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
                 </div>
-                <span className={`min-w-0 text-xs font-medium font-outfit ${step >= i + 1 ? "text-slate-900" : "text-slate-400"}`}>{label}</span>
+                <span className={`min-w-0 text-xs font-medium font-outfit ${step >= i + 1 ? "text-slate-900" : "text-slate-500"}`}>{label}</span>
               </div>
               {i < steps.length - 1 && (
                 <div className={`hidden flex-1 h-px mx-3 sm:block ${step > i + 1 ? "bg-blue-600" : "bg-slate-200"}`} />

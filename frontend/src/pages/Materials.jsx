@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
-import { Card, Btn, Input, Select, Modal, Empty } from "@/components/UI";
+import { Card, Btn, Input, Select, Modal, Empty, ErrorState, SkeletonCards } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import { useLoadState } from "@/lib/useLoadState";
 import { api, fmtDate, formatApiError } from "@/lib/api";
 import { Plus, FileText, Link2, Video } from "lucide-react";
 import { toast } from "sonner";
@@ -18,7 +19,8 @@ export default function Materials() {
   const [form, setForm] = useState({ class_id: "", title: "", type: "link", external_url: "", description: "" });
   const canUpload = user?.role === "admin" || user?.role === "educator";
 
-  const load = () => api.get("/materials").then((r) => setList(r.data || []));
+  const [state, track] = useLoadState();
+  const load = () => track(api.get("/materials").then((r) => setList(r.data || [])));
   useEffect(() => {
     load();
     api.get("/classes").then((r) => setClasses(r.data || []));
@@ -45,8 +47,10 @@ export default function Materials() {
       )}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {list.length === 0 ? (
-          <div className="col-span-3"><Empty message={t.noData} /></div>
+        {state.loading ? <SkeletonCards /> : state.error ? (
+          <div className="col-span-full"><Card><ErrorState onRetry={load} /></Card></div>
+        ) : list.length === 0 ? (
+          <div className="col-span-full"><Card><Empty message={t.noData} icon={FileText} action={canUpload && <Btn size="sm" onClick={() => setOpen(true)}><Plus className="w-4 h-4" />{t.addMaterial}</Btn>} /></Card></div>
         ) : (
           list.map((m) => {
             const Icon = ICON[m.type] || FileText;
@@ -64,7 +68,7 @@ export default function Materials() {
                 </div>
                 {m.description && <div className="text-xs text-slate-600 mt-3 font-jakarta line-clamp-2">{m.description}</div>}
                 <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-slate-100">
-                  <span className="text-[10px] text-slate-400 font-jakarta">{fmtDate(m.created_at)} · {m.uploader_name || "—"}</span>
+                  <span className="text-[10px] text-slate-500 font-jakarta">{fmtDate(m.created_at)} · {m.uploader_name || "—"}</span>
                   {(m.external_url || m.file_url) && (
                     <a href={m.external_url || m.file_url} target="_blank" rel="noreferrer" className="text-xs font-outfit font-semibold text-blue-600 hover:underline" data-testid={`material-open-${m.id}`}>
                       Open →
