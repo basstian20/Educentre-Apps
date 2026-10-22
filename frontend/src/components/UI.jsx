@@ -258,22 +258,23 @@ export function Input({ label, type = "text", value, onChange, placeholder, test
         onChange={onChange}
         placeholder={placeholder}
         data-testid={testid}
-        className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-jakarta"
+        className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-jakarta disabled:bg-slate-50 disabled:text-slate-500"
         {...rest}
       />
     </label>
   );
 }
 
-export function Select({ label, value, onChange, options, testid, className = "" }) {
+export function Select({ label, value, onChange, options, testid, className = "", disabled }) {
   return (
     <label className={`block ${className}`}>
       {label && <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{label}</span>}
       <select
         value={value}
         onChange={onChange}
+        disabled={disabled}
         data-testid={testid}
-        className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-jakarta"
+        className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-jakarta disabled:bg-slate-50 disabled:text-slate-500"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, Btn, Input, Select, Modal, Empty, ErrorState, SkeletonRows, StatusBadge } from "@/components/UI";
+import { ConfirmModal, NoMatches, Pagination, RowActions, SearchBox, SortTh, useTable } from "@/components/TableTools";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useLoadState } from "@/lib/useLoadState";
@@ -15,7 +16,11 @@ export default function Invoices() {
   const [students, setStudents] = useState([]);
   const [open, setOpen] = useState(false);
   const [payOpen, setPayOpen] = useState(null);
-  const [form, setForm] = useState({ student_id: "", billing_month: new Date().toISOString().slice(0, 7), description: "Monthly tuition", amount: 0, due_date: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10) });
+  const [editing, setEditing] = useState(null);
+  const [removing, setRemoving] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("");
+  const blankForm = () => ({ student_id: "", billing_month: new Date().toISOString().slice(0, 7), description: "Monthly tuition", amount: 0, due_date: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10) });
+  const [form, setForm] = useState(blankForm);
   const [payForm, setPayForm] = useState({ amount: 0, method: "cash" });
   const isAdmin = user?.role === "admin";
 
@@ -26,10 +31,52 @@ export default function Invoices() {
     if (isAdmin) api.get("/students").then((r) => setStudents(r.data || []));
   }, [isAdmin]);
 
+  const studentName = (sid) => students.find((s) => s.id === sid)?.full_name || sid?.slice(0, 8);
+
+  const table = useTable(list, {
+    searchKeys: ["invoice_number", (i) => studentName(i.student_id), (i) => (i.items || []).map((x) => x.description).join(" ")],
+    sorters: {
+      number: (i) => i.invoice_number,
+      student: (i) => studentName(i.student_id),
+      amount: (i) => i.total_amount,
+      due: (i) => i.due_date,
+      status: (i) => i.status,
+    },
+    defaultSort: "due",
+    filter: useCallback((i) => !statusFilter || i.status === statusFilter, [statusFilter]),
+  });
+
+  // Amounts are locked once money was received, or when the invoice has several line items.
+  const amountLocked = !!editing && (editing.amount_paid > 0 || (editing.items || []).length !== 1);
+
+  const openAdd = () => {
+    setEditing(null);
+    setForm(blankForm());
+    setOpen(true);
+  };
+  const openEdit = (inv) => {
+    setEditing(inv);
+    setForm({
+      student_id: inv.student_id,
+      billing_month: inv.billing_month || "",
+      description: (inv.items || []).map((i) => i.description).join(", "),
+      amount: inv.total_amount,
+      due_date: inv.due_date || "",
+    });
+    setOpen(true);
+  };
+
   const create = async () => {
     try {
-      await api.post("/invoices", { student_id: form.student_id, billing_month: form.billing_month, items: [{ description: form.description, amount: parseFloat(form.amount) }], due_date: form.due_date });
-      toast.success("Invoice created");
+      if (editing) {
+        const body = { billing_month: form.billing_month, due_date: form.due_date };
+        if (!amountLocked) body.items = [{ description: form.description, amount: parseFloat(form.amount) }];
+        await api.patch(`/invoices/${editing.id}`, body);
+        toast.success(t.saved);
+      } else {
+        await api.post("/invoices", { student_id: form.student_id, billing_month: form.billing_month, items: [{ description: form.description, amount: parseFloat(form.amount) }], due_date: form.due_date });
+        toast.success("Invoice created");
+      }
       setOpen(false);
       load();
     } catch (e) {
@@ -49,33 +96,61 @@ export default function Invoices() {
     }
   };
 
-  const studentName = (sid) => students.find((s) => s.id === sid)?.full_name || sid?.slice(0, 8);
+  const remove = async () => {
+    try {
+      await api.delete(`/invoices/${removing.id}`);
+      toast.success(t.removed);
+      setRemoving(null);
+      load();
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail));
+    }
+  };
 
   return (
     <Layout
       title={user?.role === "parent" ? t.fees : t.invoices}
       subtitle={`${list.length} invoices`}
-      actions={isAdmin && <Btn onClick={() => setOpen(true)} size="sm" testid="new-invoice-btn"><Plus className="w-4 h-4" />{t.invoices}</Btn>}
+      actions={isAdmin && <Btn onClick={openAdd} size="sm" testid="new-invoice-btn"><Plus className="w-4 h-4" />{t.invoices}</Btn>}
     >
       <Card>
+        <div className="flex flex-col md:flex-row gap-3 mb-4">
+          <SearchBox value={table.query} onChange={table.setQuery} testid="invoice-search" />
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            testid="invoice-status-filter"
+            options={[
+              { value: "", label: t.allStatuses },
+              { value: "unpaid", label: t.statusUnpaid || "Unpaid" },
+              { value: "partial", label: t.statusPartial || "Partial" },
+              { value: "paid", label: t.statusPaid || "Paid" },
+              { value: "overdue", label: t.statusOverdue || "Overdue" },
+            ]}
+            className="md:w-48"
+          />
+        </div>
         {state.loading ? <SkeletonRows /> : state.error ? <ErrorState onRetry={load} /> : list.length === 0 ? (
-          <Empty message={t.noData} icon={Receipt} action={isAdmin && <Btn size="sm" onClick={() => setOpen(true)}><Plus className="w-4 h-4" />{t.invoices}</Btn>} />
+          <Empty message={t.noData} icon={Receipt} action={isAdmin && <Btn size="sm" onClick={openAdd}><Plus className="w-4 h-4" />{t.invoices}</Btn>} />
+        ) : table.total === 0 ? (
+          <NoMatches onClear={() => { table.setQuery(""); setStatusFilter(""); }} />
         ) : (
+          <>
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
-            <table className="w-full min-w-[860px]">
+            <table className="w-full min-w-[900px]">
               <thead>
-                <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
-                  <th className="text-left px-5 py-3">{t.invoiceNumber}</th>
-                  {isAdmin && <th className="text-left px-5 py-3">{t.student}</th>}
-                  <th className="text-left px-5 py-3">{t.description}</th>
-                  <th className="text-left px-5 py-3">{t.amount}</th>
-                  <th className="text-left px-5 py-3">{t.dueDate}</th>
-                  <th className="text-left px-5 py-3">{t.status}</th>
-                  <th className="text-left px-5 py-3">{t.actions}</th>
+                <tr className="bg-slate-50 text-[11px] text-slate-600 font-outfit text-left">
+                  <SortTh label={t.invoiceNumber} k="number" table={table} />
+                  {isAdmin && <SortTh label={t.student} k="student" table={table} />}
+                  <th className="px-5 py-3 uppercase tracking-wider">{t.description}</th>
+                  <SortTh label={t.amount} k="amount" table={table} />
+                  <SortTh label={t.dueDate} k="due" table={table} />
+                  <SortTh label={t.status} k="status" table={table} />
+                  <th className="px-5 py-3 uppercase tracking-wider">{t.actions}</th>
                 </tr>
               </thead>
               <tbody>
-                {list.map((inv) => (
+                {table.rows.map((inv) => (
                   <tr key={inv.id} className="border-t border-slate-100 row-hover" data-testid={`invoice-row-${inv.id}`}>
                     <td className="px-5 py-3 font-mono text-xs text-slate-600">{inv.invoice_number}</td>
                     {isAdmin && <td className="px-5 py-3 text-sm font-jakarta">{studentName(inv.student_id)}</td>}
@@ -84,30 +159,49 @@ export default function Invoices() {
                     <td className="px-5 py-3 text-sm font-jakarta">{fmtDate(inv.due_date)}</td>
                     <td className="px-5 py-3"><StatusBadge status={inv.status} label={t[`status${inv.status?.charAt(0).toUpperCase()}${inv.status?.slice(1)}`] || inv.status} /></td>
                     <td className="px-5 py-3">
-                      {inv.status !== "paid" && (
-                        <Btn size="sm" variant="outline" onClick={() => { setPayOpen(inv); setPayForm({ amount: inv.balance_due, method: "cash" }); }} testid={`pay-${inv.id}`}>
-                          {t.payNow}
-                        </Btn>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {inv.status !== "paid" && (
+                          <Btn size="sm" variant="outline" onClick={() => { setPayOpen(inv); setPayForm({ amount: inv.balance_due, method: "cash" }); }} testid={`pay-${inv.id}`}>
+                            {t.payNow}
+                          </Btn>
+                        )}
+                        {isAdmin && (
+                          <RowActions
+                            testid={`invoice-${inv.id}`}
+                            onEdit={() => openEdit(inv)}
+                            onDelete={!(inv.amount_paid > 0) ? () => setRemoving(inv) : undefined}
+                          />
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          <Pagination table={table} />
+          </>
         )}
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={t.invoices}
+      <ConfirmModal
+        open={!!removing}
+        onClose={() => setRemoving(null)}
+        onConfirm={remove}
+        message={removing ? `${removing.invoice_number}. ${t.deleteHint}` : ""}
+      />
+
+      <Modal open={open} onClose={() => setOpen(false)} title={editing ? `${t.edit}: ${editing.invoice_number}` : t.invoices}
         footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t.cancel}</Btn><Btn onClick={create} testid="submit-invoice">{t.save}</Btn></>}
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Select label={t.student} value={form.student_id} onChange={(e) => setForm({ ...form, student_id: e.target.value })} testid="inv-student"
+          <Select label={t.student} value={form.student_id} onChange={(e) => setForm({ ...form, student_id: e.target.value })} testid="inv-student" disabled={!!editing}
             options={[{ value: "", label: "—" }, ...students.map((s) => ({ value: s.id, label: s.full_name }))]} className="sm:col-span-2" />
           <Input label={t.billingMonth} type="month" value={form.billing_month} onChange={(e) => setForm({ ...form, billing_month: e.target.value })} />
           <Input label={t.dueDate} type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} />
-          <Input label={t.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="sm:col-span-2" testid="inv-desc" />
-          <Input label="Amount (IDR)" type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="sm:col-span-2" testid="inv-amount" />
+          <Input label={t.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="sm:col-span-2" testid="inv-desc" disabled={amountLocked} />
+          <Input label="Amount (IDR)" type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="sm:col-span-2" testid="inv-amount" disabled={amountLocked} />
+          {amountLocked && <p className="sm:col-span-2 text-xs text-slate-600 font-jakarta">Amounts can't be changed after a payment was recorded.</p>}
         </div>
       </Modal>
 

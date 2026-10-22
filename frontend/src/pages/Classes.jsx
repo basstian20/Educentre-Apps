@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, Btn, Input, Select, Modal, Empty, ErrorState, SkeletonCards } from "@/components/UI";
+import { ConfirmModal, NoMatches, Pagination, RowActions, SearchBox, useTable } from "@/components/TableTools";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useLoadState } from "@/lib/useLoadState";
@@ -16,7 +17,9 @@ export default function Classes() {
   const [classes, setClasses] = useState([]);
   const [educators, setEducators] = useState([]);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
+  const [editing, setEditing] = useState(null);
+  const [removing, setRemoving] = useState(null);
+  const blankForm = () => ({
     subject_name: "",
     level: "Year 5",
     educator_id: "",
@@ -29,6 +32,7 @@ export default function Classes() {
     time_start: "08:00",
     time_end: "09:30",
   });
+  const [form, setForm] = useState(blankForm);
 
   const [state, track] = useLoadState();
   const load = () => track(api.get("/classes").then((r) => setClasses(r.data || [])));
@@ -37,11 +41,58 @@ export default function Classes() {
     api.get("/educators").then((r) => setEducators(r.data || []));
   }, []);
 
+  const table = useTable(classes, {
+    searchKeys: ["subject_name", "level", "room", "educator_name"],
+    sorters: { name: (c) => c.subject_name },
+    defaultSort: "name",
+    pageSize: 9,
+  });
+
+  const openAdd = () => {
+    setEditing(null);
+    setForm(blankForm());
+    setOpen(true);
+  };
+  const openEdit = (c) => {
+    setEditing(c);
+    setForm({
+      ...blankForm(),
+      subject_name: c.subject_name || "",
+      level: c.level || "",
+      educator_id: c.educator_id || "",
+      room: c.room || "",
+      description: c.description || "",
+      color_hex: c.color_hex || "#3B82F6",
+      capacity: c.capacity ?? 0,
+      fee_amount: c.fee_amount ?? 0,
+      schedule_days: c.schedule_days || [],
+      time_start: c.time_start || "08:00",
+      time_end: c.time_end || "09:30",
+    });
+    setOpen(true);
+  };
+
   const submit = async () => {
     try {
-      await api.post("/classes", form);
-      toast.success("Class created");
+      if (editing) {
+        await api.patch(`/classes/${editing.id}`, form);
+        toast.success(t.saved);
+      } else {
+        await api.post("/classes", form);
+        toast.success("Class created");
+      }
       setOpen(false);
+      load();
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail));
+    }
+  };
+
+  const remove = async () => {
+    try {
+      await api.delete(`/classes/${removing.id}`);
+      toast.success(t.removed);
+      setRemoving(null);
       load();
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail));
@@ -55,7 +106,7 @@ export default function Classes() {
       title={user?.role === "student" ? t.mySchedule : t.classes}
       subtitle={`${classes.length} ${t.classes.toLowerCase()}`}
       actions={isAdmin && (
-        <Btn onClick={() => setOpen(true)} size="sm" testid="add-class-btn">
+        <Btn onClick={openAdd} size="sm" testid="add-class-btn">
           <Plus className="w-4 h-4" />
           {t.addClass}
         </Btn>
@@ -67,13 +118,18 @@ export default function Classes() {
       </Card>
 
       {/* Class list */}
+      {!state.loading && !state.error && classes.length > 0 && (
+        <div className="mb-4 flex"><SearchBox value={table.query} onChange={table.setQuery} testid="class-search" /></div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {state.loading ? <SkeletonCards /> : state.error ? (
           <div className="col-span-full"><Card><ErrorState onRetry={load} /></Card></div>
         ) : classes.length === 0 ? (
-          <div className="col-span-full"><Card><Empty message={t.noData} icon={BookOpen} action={isAdmin && <Btn size="sm" onClick={() => setOpen(true)}><Plus className="w-4 h-4" />{t.addClass}</Btn>} /></Card></div>
+          <div className="col-span-full"><Card><Empty message={t.noData} icon={BookOpen} action={isAdmin && <Btn size="sm" onClick={openAdd}><Plus className="w-4 h-4" />{t.addClass}</Btn>} /></Card></div>
+        ) : table.total === 0 ? (
+          <div className="col-span-full"><Card><NoMatches onClear={() => table.setQuery("")} /></Card></div>
         ) : (
-          classes.map((c) => (
+          table.rows.map((c) => (
             <div
               key={c.id}
               className="bg-white border border-slate-200 rounded-xl p-5 shadow-card hover:-translate-y-0.5 transition-transform"
@@ -83,8 +139,9 @@ export default function Classes() {
                 <div className="w-1 self-stretch rounded-full mr-3" style={{ background: c.color_hex }} />
                 <div className="flex-1">
                   <div className="font-outfit font-semibold text-slate-900">{c.subject_name}</div>
-                  <div className="text-xs text-slate-500 font-jakarta mt-0.5">{c.level} · {c.room}</div>
+                  <div className="text-xs text-slate-600 font-jakarta mt-0.5">{c.level} · {c.room}</div>
                 </div>
+                {isAdmin && <RowActions testid={`class-${c.id}`} onEdit={() => openEdit(c)} onDelete={() => setRemoving(c)} />}
               </div>
               <div className="text-xs text-slate-600 font-jakarta mt-3">
                 <div>👩‍🏫 {c.educator_name || "—"}</div>
@@ -99,11 +156,19 @@ export default function Classes() {
           ))
         )}
       </div>
+      <Pagination table={table} />
+
+      <ConfirmModal
+        open={!!removing}
+        onClose={() => setRemoving(null)}
+        onConfirm={remove}
+        message={removing ? `${removing.subject_name}. ${t.deleteHint}` : ""}
+      />
 
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title={t.addClass}
+        title={editing ? `${t.edit}: ${editing.subject_name}` : t.addClass}
         size="lg"
         footer={
           <>

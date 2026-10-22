@@ -1,47 +1,103 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, Btn, Input, Select, StatusBadge, Modal, Empty, ErrorState, SkeletonRows } from "@/components/UI";
+import { ConfirmModal, NoMatches, Pagination, RowActions, SearchBox, SortTh, useTable } from "@/components/TableTools";
+import StudentImport from "@/components/StudentImport";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useLoadState } from "@/lib/useLoadState";
 import { api, formatApiError } from "@/lib/api";
-import { Plus, Search, Users } from "lucide-react";
+import { Plus, Upload, UserX, Users } from "lucide-react";
 import { toast } from "sonner";
+
+const EMPTY_FORM = { full_name: "", email: "", password: "", phone: "", school_year: "Year 5", school_name: "", dob: "", parent_id: "", status: "active" };
 
 export default function Students() {
   const { t } = useLang();
   const { user } = useAuth();
   const [students, setStudents] = useState([]);
-  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [removing, setRemoving] = useState(null);
+  const [importOpen, setImportOpen] = useState(false);
   const [parents, setParents] = useState([]);
-  const [form, setForm] = useState({ full_name: "", email: "", password: "", phone: "", school_year: "Year 5", school_name: "", dob: "", parent_id: "" });
+  const [form, setForm] = useState(EMPTY_FORM);
   const isAdmin = user?.role === "admin";
   const [state, track] = useLoadState();
 
-  const load = useCallback(() => {
-    const params = {};
-    if (search) params.search = search;
-    if (statusFilter) params.status = statusFilter;
-    return track(api.get("/students", { params }).then((r) => setStudents(r.data || [])));
-  }, [search, statusFilter, track]);
+  const load = useCallback(() => track(api.get("/students").then((r) => setStudents(r.data || []))), [track]);
 
   useEffect(() => {
     load();
     if (isAdmin) api.get("/users", { params: { role: "parent" } }).then((r) => setParents(r.data || []));
   }, [load, isAdmin]);
 
+  const table = useTable(students, {
+    searchKeys: ["full_name", "email", "student_code", "school_name"],
+    sorters: {
+      name: (s) => s.full_name,
+      code: (s) => s.student_code,
+      school: (s) => s.school_name,
+      year: (s) => s.school_year,
+      status: (s) => s.status,
+    },
+    defaultSort: "name",
+    filter: useCallback((s) => !statusFilter || s.status === statusFilter, [statusFilter]),
+  });
+
+  const openAdd = () => {
+    setEditing(null);
+    setForm(EMPTY_FORM);
+    setOpen(true);
+  };
+  const openEdit = (s) => {
+    setEditing(s);
+    setForm({ ...EMPTY_FORM, full_name: s.full_name || "", phone: s.phone || "", school_year: s.school_year || "", school_name: s.school_name || "", dob: s.dob || "", status: s.status || "active" });
+    setOpen(true);
+  };
+
   const submit = async () => {
     try {
-      await api.post("/students", form);
-      toast.success("Student added");
+      if (editing) {
+        const { full_name, phone, school_year, school_name, dob, status } = form;
+        await api.patch(`/students/${editing.id}`, { full_name, phone, school_year, school_name, dob: dob || null, status });
+        toast.success(t.saved);
+      } else {
+        await api.post("/students", form);
+        toast.success("Student added");
+      }
       setOpen(false);
-      setForm({ full_name: "", email: "", password: "", phone: "", school_year: "Year 5", school_name: "", dob: "", parent_id: "" });
       load();
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail));
     }
+  };
+
+  const deactivate = async () => {
+    try {
+      await api.delete(`/students/${removing.id}`);
+      toast.success(t.saved);
+      setRemoving(null);
+      load();
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail));
+    }
+  };
+
+  const reactivate = async (s) => {
+    try {
+      await api.patch(`/students/${s.id}`, { status: "active" });
+      toast.success(t.saved);
+      load();
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail));
+    }
+  };
+
+  const clearFilters = () => {
+    table.setQuery("");
+    setStatusFilter("");
   };
 
   return (
@@ -50,32 +106,28 @@ export default function Students() {
       subtitle={`${students.length} ${t.students.toLowerCase()}`}
       actions={
         isAdmin && (
-          <Btn onClick={() => setOpen(true)} testid="add-student-btn" size="sm">
-            <Plus className="w-4 h-4" />
-            {t.addStudent}
-          </Btn>
+          <>
+            <Btn onClick={() => setImportOpen(true)} testid="import-students-btn" size="sm" variant="outline">
+              <Upload className="w-4 h-4" />
+              {t.importStudents}
+            </Btn>
+            <Btn onClick={openAdd} testid="add-student-btn" size="sm">
+              <Plus className="w-4 h-4" />
+              {t.addStudent}
+            </Btn>
+          </>
         )
       }
     >
       <Card testid="students-card">
         <div className="flex flex-col md:flex-row gap-3 mb-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={`${t.search}…`}
-              data-testid="student-search"
-              className="w-full h-10 pl-9 pr-3 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            />
-          </div>
+          <SearchBox value={table.query} onChange={table.setQuery} testid="student-search" />
           <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             testid="student-status-filter"
             options={[
-              { value: "", label: `All ${t.status}` },
+              { value: "", label: t.allStatuses },
               { value: "active", label: t.statusActive },
               { value: "inactive", label: t.statusInactive },
             ]}
@@ -87,52 +139,76 @@ export default function Students() {
           <Empty
             message={t.noData}
             icon={Users}
-            action={isAdmin && !search && !statusFilter && <Btn size="sm" onClick={() => setOpen(true)}><Plus className="w-4 h-4" />{t.addStudent}</Btn>}
+            action={isAdmin && <Btn size="sm" onClick={openAdd}><Plus className="w-4 h-4" />{t.addStudent}</Btn>}
           />
+        ) : table.total === 0 ? (
+          <NoMatches onClear={clearFilters} />
         ) : (
-          <div className="overflow-x-auto -mx-4 sm:-mx-5">
-            <table className="w-full min-w-[680px] text-left">
-              <thead>
-                <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
-                  <th className="px-5 py-3">{t.name}</th>
-                  <th className="px-5 py-3">{t.code}</th>
-                  <th className="px-5 py-3">{t.school}</th>
-                  <th className="px-5 py-3">{t.yearLevel}</th>
-                  <th className="px-5 py-3">{t.status}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((s) => (
-                  <tr key={s.id} className="border-t border-slate-100 row-hover" data-testid={`student-row-${s.id}`}>
-                    <td className="px-5 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-outfit font-semibold">
-                          {s.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
-                        </div>
-                        <div>
-                          <div className="font-outfit font-semibold text-sm">{s.full_name}</div>
-                          <div className="text-xs text-slate-500 font-jakarta">{s.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 font-mono text-xs text-slate-600">{s.student_code}</td>
-                    <td className="px-5 py-3 text-sm">{s.school_name || "—"}</td>
-                    <td className="px-5 py-3 text-sm">{s.school_year || "—"}</td>
-                    <td className="px-5 py-3">
-                      <StatusBadge status={s.status} label={t[`status${s.status?.charAt(0).toUpperCase()}${s.status?.slice(1)}`] || s.status} />
-                    </td>
+          <>
+            <div className="overflow-x-auto -mx-4 sm:-mx-5">
+              <table className="w-full min-w-[720px] text-left">
+                <thead>
+                  <tr className="bg-slate-50 text-[11px] text-slate-600 font-outfit">
+                    <SortTh label={t.name} k="name" table={table} />
+                    <SortTh label={t.code} k="code" table={table} />
+                    <SortTh label={t.school} k="school" table={table} />
+                    <SortTh label={t.yearLevel} k="year" table={table} />
+                    <SortTh label={t.status} k="status" table={table} />
+                    {isAdmin && <th className="px-5 py-3 text-right uppercase tracking-wider"><span className="sr-only">{t.actions}</span></th>}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {table.rows.map((s) => (
+                    <tr key={s.id} className="border-t border-slate-100 row-hover" data-testid={`student-row-${s.id}`}>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-outfit font-semibold">
+                            {s.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+                          </div>
+                          <div>
+                            <div className="font-outfit font-semibold text-sm">{s.full_name}</div>
+                            <div className="text-xs text-slate-600 font-jakarta">{s.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 font-mono text-xs text-slate-600">{s.student_code}</td>
+                      <td className="px-5 py-3 text-sm">{s.school_name || "—"}</td>
+                      <td className="px-5 py-3 text-sm">{s.school_year || "—"}</td>
+                      <td className="px-5 py-3">
+                        <StatusBadge status={s.status} label={t[`status${s.status?.charAt(0).toUpperCase()}${s.status?.slice(1)}`] || s.status} />
+                      </td>
+                      {isAdmin && (
+                        <td className="px-5 py-3">
+                          {s.status === "active" ? (
+                            <RowActions
+                              testid={`student-${s.id}`}
+                              onEdit={() => openEdit(s)}
+                              onDelete={() => setRemoving(s)}
+                              deleteLabel={t.deactivate}
+                              deleteIcon={UserX}
+                            />
+                          ) : (
+                            <div className="flex items-center justify-end gap-2">
+                              <Btn size="sm" variant="outline" onClick={() => reactivate(s)}>{t.reactivate}</Btn>
+                              <RowActions testid={`student-${s.id}`} onEdit={() => openEdit(s)} />
+                            </div>
+                          )}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pagination table={table} />
+          </>
         )}
       </Card>
 
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title={t.addStudent}
+        title={editing ? `${t.edit}: ${editing.full_name}` : t.addStudent}
         testid="add-student-modal"
         footer={
           <>
@@ -143,22 +219,51 @@ export default function Students() {
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Input label={t.fullName} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} testid="form-name" className="sm:col-span-2" />
-          <Input label={t.email} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} testid="form-email" />
-          <Input label={t.password} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} testid="form-password" />
+          {!editing && (
+            <>
+              <Input label={t.email} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} testid="form-email" />
+              <Input label={t.password} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} testid="form-password" />
+            </>
+          )}
           <Input label={t.phone} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} testid="form-phone" />
           <Input label={t.dob} type="date" value={form.dob} onChange={(e) => setForm({ ...form, dob: e.target.value })} testid="form-dob" />
           <Input label={t.school} value={form.school_name} onChange={(e) => setForm({ ...form, school_name: e.target.value })} testid="form-school" />
           <Input label={t.yearLevel} value={form.school_year} onChange={(e) => setForm({ ...form, school_year: e.target.value })} testid="form-year" />
-          <Select
-            label={t.parent}
-            value={form.parent_id}
-            onChange={(e) => setForm({ ...form, parent_id: e.target.value })}
-            testid="form-parent"
-            options={[{ value: "", label: "— None —" }, ...parents.map((p) => ({ value: p.id, label: p.full_name }))]}
-            className="sm:col-span-2"
-          />
+          {editing ? (
+            <Select
+              label={t.status}
+              value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+              testid="form-status"
+              options={[
+                { value: "active", label: t.statusActive },
+                { value: "inactive", label: t.statusInactive },
+              ]}
+              className="sm:col-span-2"
+            />
+          ) : (
+            <Select
+              label={t.parent}
+              value={form.parent_id}
+              onChange={(e) => setForm({ ...form, parent_id: e.target.value })}
+              testid="form-parent"
+              options={[{ value: "", label: "— None —" }, ...parents.map((p) => ({ value: p.id, label: p.full_name }))]}
+              className="sm:col-span-2"
+            />
+          )}
         </div>
       </Modal>
+
+      <ConfirmModal
+        open={!!removing}
+        onClose={() => setRemoving(null)}
+        onConfirm={deactivate}
+        title={t.deactivateTitle}
+        message={removing ? `${removing.full_name}. ${t.deactivateHint}` : ""}
+        confirmLabel={t.deactivate}
+      />
+
+      <StudentImport open={importOpen} onClose={() => setImportOpen(false)} onDone={load} />
     </Layout>
   );
 }

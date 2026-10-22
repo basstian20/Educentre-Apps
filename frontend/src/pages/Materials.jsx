@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, Btn, Input, Select, Modal, Empty, ErrorState, SkeletonCards } from "@/components/UI";
+import { ConfirmModal, NoMatches, Pagination, RowActions, SearchBox, useTable } from "@/components/TableTools";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useLoadState } from "@/lib/useLoadState";
@@ -16,6 +17,7 @@ export default function Materials() {
   const [list, setList] = useState([]);
   const [classes, setClasses] = useState([]);
   const [open, setOpen] = useState(false);
+  const [removing, setRemoving] = useState(null);
   const [form, setForm] = useState({ class_id: "", title: "", type: "link", external_url: "", description: "" });
   const canUpload = user?.role === "admin" || user?.role === "educator";
 
@@ -40,19 +42,40 @@ export default function Materials() {
 
   const findClass = (cid) => classes.find((c) => c.id === cid);
 
+  const table = useTable(list, {
+    searchKeys: ["title", "description", "uploader_name", (m) => findClass(m.class_id)?.subject_name],
+    pageSize: 9,
+  });
+
+  const remove = async () => {
+    try {
+      await api.delete(`/materials/${removing.id}`);
+      toast.success(t.removed);
+      setRemoving(null);
+      load();
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail));
+    }
+  };
+
   return (
     <Layout title={t.materials} subtitle={`${list.length} resources`}
       actions={canUpload && (
         <Btn onClick={() => setOpen(true)} size="sm" testid="add-material-btn"><Plus className="w-4 h-4" />{t.addMaterial}</Btn>
       )}
     >
+      {!state.loading && !state.error && list.length > 0 && (
+        <div className="mb-4 flex"><SearchBox value={table.query} onChange={table.setQuery} testid="material-search" /></div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {state.loading ? <SkeletonCards /> : state.error ? (
           <div className="col-span-full"><Card><ErrorState onRetry={load} /></Card></div>
         ) : list.length === 0 ? (
           <div className="col-span-full"><Card><Empty message={t.noData} icon={FileText} action={canUpload && <Btn size="sm" onClick={() => setOpen(true)}><Plus className="w-4 h-4" />{t.addMaterial}</Btn>} /></Card></div>
+        ) : table.total === 0 ? (
+          <div className="col-span-full"><Card><NoMatches onClear={() => table.setQuery("")} /></Card></div>
         ) : (
-          list.map((m) => {
+          table.rows.map((m) => {
             const Icon = ICON[m.type] || FileText;
             const c = findClass(m.class_id);
             return (
@@ -63,8 +86,9 @@ export default function Materials() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-outfit font-semibold text-sm truncate">{m.title}</div>
-                    <div className="text-xs text-slate-500 mt-0.5 font-jakarta">{c?.subject_name || "—"}</div>
+                    <div className="text-xs text-slate-600 mt-0.5 font-jakarta">{c?.subject_name || "—"}</div>
                   </div>
+                  {canUpload && <RowActions testid={`material-${m.id}`} onDelete={() => setRemoving(m)} />}
                 </div>
                 {m.description && <div className="text-xs text-slate-600 mt-3 font-jakarta line-clamp-2">{m.description}</div>}
                 <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-slate-100">
@@ -80,6 +104,14 @@ export default function Materials() {
           })
         )}
       </div>
+      <Pagination table={table} />
+
+      <ConfirmModal
+        open={!!removing}
+        onClose={() => setRemoving(null)}
+        onConfirm={remove}
+        message={removing ? `${removing.title}. ${t.deleteHint}` : ""}
+      />
 
       <Modal open={open} onClose={() => setOpen(false)} title={t.addMaterial}
         footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t.cancel}</Btn><Btn onClick={submit} testid="submit-material">{t.save}</Btn></>}

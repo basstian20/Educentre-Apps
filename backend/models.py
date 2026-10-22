@@ -64,6 +64,19 @@ class StudentUpdate(BaseModel):
     status: Optional[str] = None
 
 
+class StudentImportRow(BaseModel):
+    full_name: str
+    email: str
+    phone: Optional[str] = None
+    dob: Optional[str] = None
+    school_name: Optional[str] = None
+    school_year: Optional[str] = None
+
+
+class StudentImport(BaseModel):
+    rows: List[StudentImportRow]
+
+
 # ── Educators ──
 class EducatorCreate(BaseModel):
     full_name: str
@@ -75,6 +88,15 @@ class EducatorCreate(BaseModel):
     qualifications: Optional[str] = None
 
 
+class EducatorUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    subjects: Optional[List[str]] = None
+    employment_type: Optional[str] = None
+    qualifications: Optional[str] = None
+    status: Optional[str] = None
+
+
 # ── Parents ──
 class ParentCreate(BaseModel):
     full_name: str
@@ -83,6 +105,13 @@ class ParentCreate(BaseModel):
     phone: Optional[str] = None
     occupation: Optional[str] = None
     children_ids: List[str] = []
+
+
+class ParentUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    occupation: Optional[str] = None
+    children_ids: Optional[List[str]] = None
 
 
 # ── Classes ──
@@ -141,6 +170,13 @@ class InvoiceCreate(BaseModel):
     notes: Optional[str] = None
 
 
+class InvoiceUpdate(BaseModel):
+    billing_month: Optional[str] = None
+    due_date: Optional[str] = None
+    notes: Optional[str] = None
+    items: Optional[List[InvoiceItem]] = None
+
+
 class PaymentRecord(BaseModel):
     invoice_id: str
     amount: float
@@ -191,4 +227,11 @@ class AnnouncementCreate(BaseModel):
     title: str
     body: str
     audience: str = "all"  # all | parents | students | educators | class
+    class_id: Optional[str] = None
+
+
+class AnnouncementUpdate(BaseModel):
+    title: Optional[str] = None
+    body: Optional[str] = None
+    audience: Optional[str] = None
     class_id: Optional[str] = None

@@ -30,19 +30,24 @@ from models import (
     RegisterInput,
     StudentCreate,
     StudentUpdate,
+    StudentImport,
     EducatorCreate,
+    EducatorUpdate,
     ParentCreate,
+    ParentUpdate,
     ClassCreate,
     ClassUpdate,
     EnrollmentCreate,
     AttendanceMark,
     InvoiceCreate,
+    InvoiceUpdate,
     PaymentRecord,
     AssessmentCreate,
     GradeBulkSave,
     AssessmentPublish,
     MaterialCreate,
     AnnouncementCreate,
+    AnnouncementUpdate,
 )
 
 # ── DB ──
@@ -99,6 +104,21 @@ async def _resolve_educator_id(user_id: str) -> Optional[str]:
 async def _resolve_student_id(user_id: str) -> Optional[str]:
     s = await db.students.find_one({"user_id": user_id}, {"_id": 0, "id": 1})
     return s["id"] if s else None
+
+
+async def _sync_user(user_id: Optional[str], update: dict):
+    """Mirror profile edits (name, phone, active status) onto the login account."""
+    if not user_id:
+        return
+    changes = {}
+    if "full_name" in update:
+        changes["full_name"] = update["full_name"]
+    if "phone" in update:
+        changes["phone"] = update["phone"]
+    if "status" in update:
+        changes["is_active"] = update["status"] == "active"
+    if changes:
+        await db.users.update_one({"id": user_id}, {"$set": changes})
 
 
 # ── Health ──
@@ -212,6 +232,51 @@ async def create_student(payload: StudentCreate, current=Depends(require_roles("
     return student_doc
 
 
+@api.post("/students/import")
+async def import_students(payload: StudentImport, current=Depends(require_roles("admin"))):
+    """Bulk-create students. Rows that fail are reported back; the rest are still created."""
+    created = 0
+    errors = []
+    seen = set()
+    for idx, row in enumerate(payload.rows, start=1):
+        email = (row.email or "").lower().strip()
+        name = (row.full_name or "").strip()
+        if not name or "@" not in email:
+            errors.append({"row": idx, "email": email, "reason": "Name and a valid email are required"})
+            continue
+        if email in seen or await db.users.find_one({"email": email}):
+            errors.append({"row": idx, "email": email, "reason": "Email already exists"})
+            continue
+        seen.add(email)
+        user_id = new_id()
+        await db.users.insert_one({
+            "id": user_id,
+            "email": email,
+            "password_hash": hash_password("student123"),
+            "full_name": name,
+            "role": "student",
+            "phone": row.phone,
+            "is_active": True,
+            "created_at": now_iso(),
+        })
+        await db.students.insert_one({
+            "id": new_id(),
+            "user_id": user_id,
+            "student_code": await _gen_student_code(),
+            "full_name": name,
+            "email": email,
+            "phone": row.phone,
+            "dob": row.dob,
+            "school_name": row.school_name,
+            "school_year": row.school_year,
+            "status": "active",
+            "enrolled_at": now_iso(),
+            "created_at": now_iso(),
+        })
+        created += 1
+    return {"created": created, "errors": errors}
+
+
 @api.get("/students")
 async def list_students(search: Optional[str] = None, status: Optional[str] = None, current=Depends(get_current_user)):
     role = current["role"]
@@ -251,10 +316,25 @@ async def get_student(sid: str, current=Depends(get_current_user)):
 
 @api.patch("/students/{sid}")
 async def update_student(sid: str, payload: StudentUpdate, current=Depends(require_roles("admin"))):
+    student = await db.students.find_one({"id": sid}, {"_id": 0})
+    if not student:
+        raise HTTPException(404, "Student not found")
     update = {k: v for k, v in payload.model_dump().items() if v is not None}
     update["updated_at"] = now_iso()
     await db.students.update_one({"id": sid}, {"$set": update})
+    await _sync_user(student.get("user_id"), update)
     return await db.students.find_one({"id": sid}, {"_id": 0})
+
+
+@api.delete("/students/{sid}")
+async def deactivate_student(sid: str, current=Depends(require_roles("admin"))):
+    """Soft delete: keeps attendance, grades and invoices, blocks login."""
+    student = await db.students.find_one({"id": sid}, {"_id": 0})
+    if not student:
+        raise HTTPException(404, "Student not found")
+    await db.students.update_one({"id": sid}, {"$set": {"status": "inactive", "updated_at": now_iso()}})
+    await _sync_user(student.get("user_id"), {"status": "inactive"})
+    return {"ok": True}
 
 
 # ── Educators ──
@@ -302,6 +382,29 @@ async def list_educators(current=Depends(get_current_user)):
     return educators
 
 
+@api.patch("/educators/{eid}")
+async def update_educator(eid: str, payload: EducatorUpdate, current=Depends(require_roles("admin"))):
+    edu = await db.educators.find_one({"id": eid}, {"_id": 0})
+    if not edu:
+        raise HTTPException(404, "Educator not found")
+    update = {k: v for k, v in payload.model_dump().items() if v is not None}
+    update["updated_at"] = now_iso()
+    await db.educators.update_one({"id": eid}, {"$set": update})
+    await _sync_user(edu.get("user_id"), update)
+    return await db.educators.find_one({"id": eid}, {"_id": 0})
+
+
+@api.delete("/educators/{eid}")
+async def deactivate_educator(eid: str, current=Depends(require_roles("admin"))):
+    """Soft delete: keeps the educator's classes and history, blocks login."""
+    edu = await db.educators.find_one({"id": eid}, {"_id": 0})
+    if not edu:
+        raise HTTPException(404, "Educator not found")
+    await db.educators.update_one({"id": eid}, {"$set": {"status": "inactive", "updated_at": now_iso()}})
+    await _sync_user(edu.get("user_id"), {"status": "inactive"})
+    return {"ok": True}
+
+
 # ── Parents ──
 @api.post("/parents")
 async def create_parent(payload: ParentCreate, current=Depends(require_roles("admin"))):
@@ -341,6 +444,39 @@ async def create_parent(payload: ParentCreate, current=Depends(require_roles("ad
 @api.get("/parents")
 async def list_parents(current=Depends(require_roles("admin"))):
     return await db.parents.find({}, {"_id": 0}).to_list(200)
+
+
+@api.patch("/parents/{pid}")
+async def update_parent(pid: str, payload: ParentUpdate, current=Depends(require_roles("admin"))):
+    parent = await db.parents.find_one({"id": pid}, {"_id": 0})
+    if not parent:
+        raise HTTPException(404, "Parent not found")
+    update = {k: v for k, v in payload.model_dump().items() if v is not None}
+    update["updated_at"] = now_iso()
+    await db.parents.update_one({"id": pid}, {"$set": update})
+    await _sync_user(parent.get("user_id"), update)
+    if "children_ids" in update:
+        # re-link: free students dropped from the list, attach the new ones
+        await db.students.update_many(
+            {"parent_id": parent["user_id"], "id": {"$nin": update["children_ids"]}},
+            {"$set": {"parent_id": None}},
+        )
+        await db.students.update_many(
+            {"id": {"$in": update["children_ids"]}}, {"$set": {"parent_id": parent["user_id"]}}
+        )
+    return await db.parents.find_one({"id": pid}, {"_id": 0})
+
+
+@api.delete("/parents/{pid}")
+async def delete_parent(pid: str, current=Depends(require_roles("admin"))):
+    """Removes the parent account and unlinks (does not delete) their children."""
+    parent = await db.parents.find_one({"id": pid}, {"_id": 0})
+    if not parent:
+        raise HTTPException(404, "Parent not found")
+    await db.students.update_many({"parent_id": parent["user_id"]}, {"$set": {"parent_id": None}})
+    await db.users.delete_one({"id": parent["user_id"]})
+    await db.parents.delete_one({"id": pid})
+    return {"ok": True}
 
 
 # ── Classes ──
@@ -576,6 +712,34 @@ async def get_invoice(iid: str, current=Depends(get_current_user)):
     return inv
 
 
+@api.patch("/invoices/{iid}")
+async def update_invoice(iid: str, payload: InvoiceUpdate, current=Depends(require_roles("admin"))):
+    inv = await db.invoices.find_one({"id": iid}, {"_id": 0})
+    if not inv:
+        raise HTTPException(404, "Invoice not found")
+    update = {k: v for k, v in payload.model_dump(exclude={"items"}).items() if v is not None}
+    if payload.items is not None:
+        if inv.get("amount_paid", 0) > 0:
+            raise HTTPException(400, "Amounts can't be changed after a payment was recorded")
+        items = [i.model_dump() for i in payload.items]
+        subtotal = sum(i["amount"] for i in items)
+        update.update({"items": items, "subtotal": subtotal, "total_amount": subtotal, "balance_due": subtotal})
+    update["updated_at"] = now_iso()
+    await db.invoices.update_one({"id": iid}, {"$set": update})
+    return await db.invoices.find_one({"id": iid}, {"_id": 0})
+
+
+@api.delete("/invoices/{iid}")
+async def delete_invoice(iid: str, current=Depends(require_roles("admin"))):
+    inv = await db.invoices.find_one({"id": iid}, {"_id": 0})
+    if not inv:
+        raise HTTPException(404, "Invoice not found")
+    if inv.get("amount_paid", 0) > 0 or await db.payments.count_documents({"invoice_id": iid}):
+        raise HTTPException(400, "This invoice has payments and can't be deleted")
+    await db.invoices.delete_one({"id": iid})
+    return {"ok": True}
+
+
 @api.post("/payments")
 async def record_payment(payload: PaymentRecord, current=Depends(require_roles("admin"))):
     inv = await db.invoices.find_one({"id": payload.invoice_id})
@@ -765,6 +929,31 @@ async def create_announcement(payload: AnnouncementCreate, current=Depends(requi
     await db.announcements.insert_one(doc)
     doc.pop("_id", None)
     return doc
+
+
+async def _own_announcement_or_403(aid: str, current: dict) -> dict:
+    doc = await db.announcements.find_one({"id": aid}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Announcement not found")
+    if current["role"] != "admin" and doc.get("created_by") != current["id"]:
+        raise HTTPException(403, "You can only change your own announcements")
+    return doc
+
+
+@api.patch("/announcements/{aid}")
+async def update_announcement(aid: str, payload: AnnouncementUpdate, current=Depends(require_roles("admin", "educator"))):
+    await _own_announcement_or_403(aid, current)
+    update = {k: v for k, v in payload.model_dump().items() if v is not None}
+    update["updated_at"] = now_iso()
+    await db.announcements.update_one({"id": aid}, {"$set": update})
+    return await db.announcements.find_one({"id": aid}, {"_id": 0})
+
+
+@api.delete("/announcements/{aid}")
+async def delete_announcement(aid: str, current=Depends(require_roles("admin", "educator"))):
+    await _own_announcement_or_403(aid, current)
+    await db.announcements.delete_one({"id": aid})
+    return {"ok": True}
 
 
 @api.get("/announcements")
