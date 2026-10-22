@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { ClipboardList } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ClipboardList, FileText } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Card, Empty, ErrorState, SkeletonRows } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
@@ -11,6 +12,7 @@ export default function Results() {
   const [grades, setGrades] = useState([]);
   const [assessments, setAssessments] = useState([]);
   const [classes, setClasses] = useState([]);
+  const [kids, setKids] = useState([]);
 
   const [state, track] = useLoadState();
   const load = useCallback(
@@ -25,6 +27,9 @@ export default function Results() {
     [track]
   );
   useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    api.get("/students").then((r) => setKids(r.data || [])).catch(() => {});
+  }, []);
 
   const enriched = grades
     .map((g) => {
@@ -35,7 +40,21 @@ export default function Results() {
     .filter((g) => g.assessment);
 
   return (
-    <Layout title={t.myResults} subtitle="Published assessments only">
+    <Layout
+      title={t.myResults}
+      subtitle="Published assessments only"
+      actions={kids.map((k) => (
+        <Link
+          key={k.id}
+          to={`/students/${k.id}/report`}
+          className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 font-outfit"
+          data-testid={`report-link-${k.id}`}
+        >
+          <FileText className="h-4 w-4" />
+          {t.reportCard}{kids.length > 1 ? `: ${k.full_name}` : ""}
+        </Link>
+      ))}
+    >
       <Card>
         {state.loading ? <SkeletonRows /> : state.error ? <ErrorState onRetry={load} /> : enriched.length === 0 ? <Empty message={t.noData} icon={ClipboardList} /> : (
           <div className="overflow-x-auto -mx-4 sm:-mx-5">

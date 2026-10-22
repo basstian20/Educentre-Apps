@@ -7,7 +7,9 @@ import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useLoadState } from "@/lib/useLoadState";
 import { api, formatApiError } from "@/lib/api";
-import { Plus, Upload, UserX, Users } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Download, FileText, Plus, Upload, UserX, Users } from "lucide-react";
+import { exportCsv } from "@/lib/csv";
 import { toast } from "sonner";
 
 const EMPTY_FORM = { full_name: "", email: "", password: "", phone: "", school_year: "Year 5", school_name: "", dob: "", parent_id: "", status: "active" };
@@ -95,6 +97,17 @@ export default function Students() {
     }
   };
 
+  const exportStudents = () =>
+    exportCsv("students.csv", [
+      { label: t.code, value: (s) => s.student_code },
+      { label: t.name, value: (s) => s.full_name },
+      { label: t.email, value: (s) => s.email },
+      { label: t.phone, value: (s) => s.phone },
+      { label: t.school, value: (s) => s.school_name },
+      { label: t.yearLevel, value: (s) => s.school_year },
+      { label: t.status, value: (s) => s.status },
+    ], table.all);
+
   const clearFilters = () => {
     table.setQuery("");
     setStatusFilter("");
@@ -107,6 +120,10 @@ export default function Students() {
       actions={
         isAdmin && (
           <>
+            <Btn onClick={exportStudents} testid="export-students-btn" size="sm" variant="outline" disabled={students.length === 0}>
+              <Download className="w-4 h-4" />
+              {t.exportCsv}
+            </Btn>
             <Btn onClick={() => setImportOpen(true)} testid="import-students-btn" size="sm" variant="outline">
               <Upload className="w-4 h-4" />
               {t.importStudents}
@@ -154,7 +171,7 @@ export default function Students() {
                     <SortTh label={t.school} k="school" table={table} />
                     <SortTh label={t.yearLevel} k="year" table={table} />
                     <SortTh label={t.status} k="status" table={table} />
-                    {isAdmin && <th className="px-5 py-3 text-right uppercase tracking-wider"><span className="sr-only">{t.actions}</span></th>}
+                    <th className="px-5 py-3 text-right uppercase tracking-wider"><span className="sr-only">{t.actions}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -177,9 +194,18 @@ export default function Students() {
                       <td className="px-5 py-3">
                         <StatusBadge status={s.status} label={t[`status${s.status?.charAt(0).toUpperCase()}${s.status?.slice(1)}`] || s.status} />
                       </td>
-                      {isAdmin && (
-                        <td className="px-5 py-3">
-                          {s.status === "active" ? (
+                      <td className="px-5 py-3">
+                        <div className="flex items-center justify-end gap-1">
+                          <Link
+                            to={`/students/${s.id}/report`}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                            aria-label={t.reportCard}
+                            title={t.reportCard}
+                            data-testid={`report-${s.id}`}
+                          >
+                            <FileText className="h-4 w-4" />
+                          </Link>
+                          {isAdmin && s.status === "active" && (
                             <RowActions
                               testid={`student-${s.id}`}
                               onEdit={() => openEdit(s)}
@@ -187,14 +213,15 @@ export default function Students() {
                               deleteLabel={t.deactivate}
                               deleteIcon={UserX}
                             />
-                          ) : (
-                            <div className="flex items-center justify-end gap-2">
+                          )}
+                          {isAdmin && s.status !== "active" && (
+                            <>
                               <Btn size="sm" variant="outline" onClick={() => reactivate(s)}>{t.reactivate}</Btn>
                               <RowActions testid={`student-${s.id}`} onEdit={() => openEdit(s)} />
-                            </div>
+                            </>
                           )}
-                        </td>
-                      )}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -120,7 +120,10 @@ export default function Sidebar({ open = false, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   if (!user) return null;
-  const sections = getNav(user.role, t);
+  const settingsItem = { label: t.settings, to: "/settings", icon: SettingsIcon, testid: "nav-settings" };
+  const sections = getNav(user.role, t).map((sec, i, all) =>
+    i === all.length - 1 ? { ...sec, items: [...sec.items, settingsItem] } : sec
+  );
   const roleColor = ROLE_COLORS[user.role];
   const roleLabel = t[ROLE_TITLES[user.role]];
 

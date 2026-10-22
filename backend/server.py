@@ -8,10 +8,10 @@ load_dotenv(ROOT_DIR / ".env")
 import os
 import uuid
 import logging
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone, date, timedelta
 from typing import List, Optional
 
-from fastapi import FastAPI, APIRouter, Depends, HTTPException, Response, Request
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, Response, Request, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient  # noqa: F401  (kept for type hints in tests)
@@ -48,6 +48,9 @@ from models import (
     MaterialCreate,
     AnnouncementCreate,
     AnnouncementUpdate,
+    CentreSettings,
+    ProfileUpdate,
+    PasswordChange,
 )
 
 # ── DB ──
@@ -704,12 +707,56 @@ async def list_invoices(student_id: Optional[str] = None, status: Optional[str] 
     return invoices
 
 
-@api.get("/invoices/{iid}")
-async def get_invoice(iid: str, current=Depends(get_current_user)):
+async def _visible_student_ids(current: dict) -> Optional[set]:
+    """Student ids this user may see. None means everyone (admin)."""
+    role = current["role"]
+    if role == "admin":
+        return None
+    if role == "student":
+        s = await db.students.find_one({"user_id": current["id"]}, {"_id": 0, "id": 1})
+        return {s["id"]} if s else set()
+    if role == "parent":
+        kids = await db.students.find({"parent_id": current["id"]}, {"_id": 0, "id": 1}).to_list(50)
+        return {k["id"] for k in kids}
+    return set()
+
+
+async def _get_centre() -> dict:
+    doc = await db.settings.find_one({"id": "centre"}, {"_id": 0})
+    return doc or {"id": "centre", "centre_name": "EduCentre", "address": "", "phone": "", "email": ""}
+
+
+async def _invoice_for(iid: str, current: dict) -> dict:
     inv = await db.invoices.find_one({"id": iid}, {"_id": 0})
     if not inv:
         raise HTTPException(404, "Invoice not found")
+    visible = await _visible_student_ids(current)
+    if visible is not None and inv["student_id"] not in visible:
+        raise HTTPException(403, "Not allowed to view this invoice")
     return inv
+
+
+@api.get("/invoices/{iid}")
+async def get_invoice(iid: str, current=Depends(get_current_user)):
+    return await _invoice_for(iid, current)
+
+
+@api.get("/invoices/{iid}/document")
+async def invoice_document(iid: str, current=Depends(get_current_user)):
+    """Everything needed to print an invoice or a payment receipt."""
+    inv = await _invoice_for(iid, current)
+    student = await db.students.find_one({"id": inv["student_id"]}, {"_id": 0})
+    parent = None
+    if student and student.get("parent_id"):
+        parent = await db.parents.find_one({"user_id": student["parent_id"]}, {"_id": 0, "full_name": 1, "phone": 1})
+    payments = await db.payments.find({"invoice_id": iid}, {"_id": 0}).sort("paid_at", 1).to_list(200)
+    return {
+        "invoice": inv,
+        "student": {k: (student or {}).get(k) for k in ("full_name", "student_code", "email", "school_name", "school_year")},
+        "parent": parent,
+        "payments": payments,
+        "centre": await _get_centre(),
+    }
 
 
 @api.patch("/invoices/{iid}")
@@ -914,6 +961,9 @@ async def list_materials(class_id: Optional[str] = None, current=Depends(get_cur
 
 @api.delete("/materials/{mid}")
 async def delete_material(mid: str, current=Depends(require_roles("admin", "educator"))):
+    mat = await db.materials.find_one({"id": mid}, {"_id": 0})
+    if mat and mat.get("file_id"):
+        await db.material_files.delete_one({"id": mat["file_id"]})
     await db.materials.delete_one({"id": mid})
     return {"ok": True}
 
@@ -981,6 +1031,251 @@ async def list_announcements(current=Depends(get_current_user)):
             class_ids = {e["class_id"] for e in es}
         docs = [d for d in docs if d.get("audience") != "class" or d.get("class_id") in class_ids]
     return docs
+
+
+# ── Material file upload (stored in MongoDB, max 5 MB) ──
+MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+
+
+@api.post("/materials/upload")
+async def upload_material(
+    class_id: str = Form(...),
+    title: str = Form(...),
+    description: Optional[str] = Form(None),
+    file: UploadFile = File(...),
+    current=Depends(require_roles("admin", "educator")),
+):
+    data = await file.read(MAX_UPLOAD_BYTES + 1)
+    if len(data) > MAX_UPLOAD_BYTES:
+        raise HTTPException(413, "File is too large (max 5 MB)")
+    if not data:
+        raise HTTPException(400, "The file is empty")
+    file_id = new_id()
+    await db.material_files.insert_one({
+        "id": file_id,
+        "filename": file.filename or "file",
+        "content_type": file.content_type or "application/octet-stream",
+        "size": len(data),
+        "data": data,
+        "created_at": now_iso(),
+    })
+    doc = {
+        "id": new_id(),
+        "class_id": class_id,
+        "title": title,
+        "type": "file",
+        "description": description,
+        "file_id": file_id,
+        "file_url": f"/api/files/{file_id}",
+        "file_name": file.filename,
+        "file_size": len(data),
+        "uploaded_by": current["id"],
+        "uploader_name": current["full_name"],
+        "created_at": now_iso(),
+    }
+    await db.materials.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api.get("/files/{file_id}")
+async def download_file(file_id: str, current=Depends(get_current_user)):
+    f = await db.material_files.find_one({"id": file_id}, {"_id": 0})
+    if not f:
+        raise HTTPException(404, "File not found")
+    # only people who can see the owning material may download
+    mat = await db.materials.find_one({"file_id": file_id}, {"_id": 0})
+    if mat and current["role"] in ("student", "parent", "educator"):
+        visible = await list_materials(None, current)
+        if not any(m["id"] == mat["id"] for m in visible):
+            raise HTTPException(403, "Not allowed to open this file")
+    safe_name = (f["filename"] or "file").replace('"', "")
+    return Response(
+        content=bytes(f["data"]),
+        media_type=f["content_type"],
+        headers={"Content-Disposition": f'inline; filename="{safe_name}"'},
+    )
+
+
+# ── Centre settings & profile ──
+@api.get("/settings")
+async def get_settings(current=Depends(get_current_user)):
+    return await _get_centre()
+
+
+@api.put("/settings")
+async def put_settings(payload: CentreSettings, current=Depends(require_roles("admin"))):
+    doc = {"id": "centre", **payload.model_dump(), "updated_at": now_iso()}
+    await db.settings.update_one({"id": "centre"}, {"$set": doc}, upsert=True)
+    return doc
+
+
+@api.patch("/auth/me")
+async def update_me(payload: ProfileUpdate, current=Depends(get_current_user)):
+    update = {k: v for k, v in payload.model_dump().items() if v is not None}
+    if "full_name" in update and not update["full_name"].strip():
+        raise HTTPException(400, "Name can't be empty")
+    if update:
+        await db.users.update_one({"id": current["id"]}, {"$set": update})
+        # keep the role profile (student/educator/parent) in step with the login account
+        for coll in ("students", "educators", "parents"):
+            await db[coll].update_one({"user_id": current["id"]}, {"$set": update})
+    return await db.users.find_one({"id": current["id"]}, {"_id": 0, "password_hash": 0})
+
+
+@api.post("/auth/change-password")
+async def change_password(payload: PasswordChange, current=Depends(get_current_user)):
+    user = await db.users.find_one({"id": current["id"]})
+    if not verify_password(payload.current_password, user["password_hash"]):
+        raise HTTPException(400, "Current password is incorrect")
+    if len(payload.new_password) < 6:
+        raise HTTPException(400, "New password must be at least 6 characters")
+    await db.users.update_one({"id": current["id"]}, {"$set": {"password_hash": hash_password(payload.new_password)}})
+    return {"ok": True}
+
+
+# ── Report card ──
+@api.get("/students/{sid}/report")
+async def student_report(sid: str, current=Depends(get_current_user)):
+    visible = await _visible_student_ids(current)
+    if visible is not None and sid not in visible:
+        raise HTTPException(403, "Not allowed to view this report")
+    student = await db.students.find_one({"id": sid}, {"_id": 0})
+    if not student:
+        raise HTTPException(404, "Student not found")
+
+    enrolls = await db.enrollments.find({"student_id": sid, "status": "active"}, {"_id": 0, "class_id": 1}).to_list(100)
+    class_ids = [e["class_id"] for e in enrolls]
+    classes = await db.classes.find({"id": {"$in": class_ids}}, {"_id": 0}).to_list(100)
+    class_map = {c["id"]: c for c in classes}
+    edus = await db.educators.find({"id": {"$in": [c.get("educator_id") for c in classes]}}, {"_id": 0, "id": 1, "full_name": 1}).to_list(100)
+    edu_map = {e["id"]: e["full_name"] for e in edus}
+
+    att = await db.attendance.find({"student_id": sid}, {"_id": 0}).to_list(5000)
+    summary = {"present": 0, "late": 0, "absent": 0, "excused": 0}
+    by_class = {}
+    for a in att:
+        st = a.get("status", "present")
+        if st in summary:
+            summary[st] += 1
+        row = by_class.setdefault(a["class_id"], {"present": 0, "late": 0, "absent": 0, "excused": 0})
+        if st in row:
+            row[st] += 1
+    total = sum(summary.values())
+    attended = summary["present"] + summary["late"]
+
+    grades = await db.grades.find({"student_id": sid}, {"_id": 0}).to_list(2000)
+    ass_map = {
+        a["id"]: a
+        for a in await db.assessments.find(
+            {"id": {"$in": [g["assessment_id"] for g in grades]}, "is_published": True}, {"_id": 0}
+        ).to_list(1000)
+    }
+    rows = []
+    for g in grades:
+        a = ass_map.get(g["assessment_id"])
+        if not a:
+            continue
+        mx = g.get("max_score") or 0
+        rows.append({
+            "class_name": class_map.get(a.get("class_id"), {}).get("subject_name", "—"),
+            "assessment_name": a.get("name"),
+            "date": a.get("assessment_date"),
+            "score": g.get("score"),
+            "max_score": mx,
+            "letter_grade": g.get("letter_grade"),
+            "remark": g.get("remark"),
+        })
+    scored = [r for r in rows if r["max_score"] and r["score"] is not None]
+    average = round(sum(r["score"] / r["max_score"] * 100 for r in scored) / len(scored), 1) if scored else None
+
+    return {
+        "student": {k: student.get(k) for k in ("full_name", "student_code", "email", "school_name", "school_year", "dob")},
+        "centre": await _get_centre(),
+        "classes": [
+            {
+                "subject_name": c["subject_name"],
+                "level": c.get("level"),
+                "educator_name": edu_map.get(c.get("educator_id"), "—"),
+                "attendance": by_class.get(c["id"], {"present": 0, "late": 0, "absent": 0, "excused": 0}),
+            }
+            for c in classes
+        ],
+        "attendance": {**summary, "total": total, "percentage": round(attended / total * 100, 1) if total else None},
+        "grades": sorted(rows, key=lambda r: (r["date"] or ""), reverse=True),
+        "average_percentage": average,
+        "generated_at": now_iso(),
+    }
+
+
+# ── Notifications (computed on the fly, nothing stored) ──
+@api.get("/notifications")
+async def notifications(current=Depends(get_current_user)):
+    role = current["role"]
+    today = date.today()
+    today_s = today.isoformat()
+    soon_s = (today + timedelta(days=3)).isoformat()
+    week_ago_s = (today - timedelta(days=7)).isoformat()
+    items = []
+
+    if role == "educator":
+        edu_id = await _resolve_educator_id(current["id"])
+        n = await db.classes.count_documents({"educator_id": edu_id, "is_active": True, "schedule_days": _today_dow()})
+        if n:
+            items.append({"id": f"classes-{today_s}", "kind": "classes_today", "severity": "info", "count": n, "link": "/classes"})
+        return items
+
+    visible = await _visible_student_ids(current)
+    q = {"status": {"$in": ["unpaid", "partial", "overdue"]}}
+    if visible is not None:
+        q["student_id"] = {"$in": list(visible)}
+    invoices = await db.invoices.find(q, {"_id": 0}).sort("due_date", 1).to_list(200)
+
+    stu_ids = list({i["student_id"] for i in invoices})
+    students = await db.students.find({"id": {"$in": stu_ids}}, {"_id": 0}).to_list(500)
+    stu_map = {s["id"]: s for s in students}
+    phone_by_parent = {}
+    if role == "admin":
+        parent_ids = [s["parent_id"] for s in students if s.get("parent_id")]
+        for p in await db.parents.find({"user_id": {"$in": parent_ids}}, {"_id": 0, "user_id": 1, "phone": 1}).to_list(500):
+            phone_by_parent[p["user_id"]] = p.get("phone")
+
+    for inv in invoices:
+        due = inv.get("due_date") or ""
+        if inv.get("balance_due", 0) <= 0 or due > soon_s:
+            continue
+        stu = stu_map.get(inv["student_id"], {})
+        overdue = due < today_s
+        items.append({
+            "id": f"inv-{inv['id']}-{'overdue' if overdue else 'soon'}",
+            "kind": "invoice_overdue" if overdue else "invoice_due_soon",
+            "severity": "danger" if overdue else "warning",
+            "student_name": stu.get("full_name"),
+            "invoice_number": inv.get("invoice_number"),
+            "amount": inv.get("balance_due"),
+            "due_date": due,
+            "phone": (phone_by_parent.get(stu.get("parent_id")) or stu.get("phone")) if role == "admin" else None,
+            "link": "/invoices",
+        })
+
+    if role in ("student", "parent") and visible:
+        absences = await db.attendance.find(
+            {"student_id": {"$in": list(visible)}, "status": "absent", "session_date": {"$gte": week_ago_s}}, {"_id": 0}
+        ).to_list(200)
+        names = {s["id"]: s["full_name"] for s in await db.students.find({"id": {"$in": list(visible)}}, {"_id": 0, "id": 1, "full_name": 1}).to_list(50)}
+        for a in absences:
+            items.append({
+                "id": f"abs-{a['id']}",
+                "kind": "absent",
+                "severity": "warning",
+                "student_name": names.get(a["student_id"]),
+                "date": a["session_date"],
+                "link": "/dashboard",
+            })
+
+    order = {"danger": 0, "warning": 1, "info": 2}
+    items.sort(key=lambda i: order.get(i["severity"], 3))
+    return items[:40]
 
 
 # ── Dashboard stats ──

@@ -53,6 +53,19 @@ export function parseCsv(text) {
   });
 }
 
+const csvCell = (v) => {
+  const s = v == null ? "" : String(v);
+  return /[",\r\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+// Download rows as a CSV that Excel opens correctly (UTF-8 with a BOM).
+//   columns: [{ label: "Name", value: (row) => row.full_name }]
+export function exportCsv(filename, columns, rows) {
+  const lines = [columns.map((c) => csvCell(c.label)).join(",")];
+  rows.forEach((r) => lines.push(columns.map((c) => csvCell(c.value(r))).join(",")));
+  downloadText(filename, `﻿${lines.join("\r\n")}`);
+}
+
 export function downloadText(filename, text, type = "text/csv;charset=utf-8") {
   const url = URL.createObjectURL(new Blob([text], { type }));
   const a = document.createElement("a");

@@ -1396,3 +1396,26 @@ body {
   }
   body { background: var(--bg); }
 }
+
+/* Printing: invoices, receipts and report cards */
+@media print {
+  .no-print,
+  .developer-credit {
+    display: none !important;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  .print-sheet {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  @page {
+    size: A4;
+    margin: 16mm;
+  }
+}

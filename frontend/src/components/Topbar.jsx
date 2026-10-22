@@ -1,6 +1,8 @@
 import { useLang } from "../lib/i18n";
 import { useAuth } from "../lib/auth";
-import { Bell, Menu, Search } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Menu, Search } from "lucide-react";
+import NotificationBell from "./NotificationBell";
 
 const ROLE_COLORS = {
   admin: "#2563EB",
@@ -66,16 +68,9 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
           ))}
         </div>
 
-        <button
-          className="glass-icon-button relative"
-          title="Notifications"
-          data-testid="notif-btn"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-red-500" />
-        </button>
+        <NotificationBell />
         {user && (
-          <div className="profile-chip hidden items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 sm:flex" data-testid="role-pill">
+          <Link to="/settings" className="profile-chip hidden items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 sm:flex" data-testid="role-pill" title={t.settingsTitle}>
             <div
               className="flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-bold text-white"
               style={{ background: `linear-gradient(135deg, ${roleColor}, #78a99d)` }}
@@ -86,7 +81,7 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
               <div className="max-w-28 truncate text-xs font-semibold text-[#294a55] font-outfit">{user.full_name}</div>
               <div className="text-[9px] uppercase tracking-wider text-[#76908f]">{roleLabel}</div>
             </div>
-          </div>
+          </Link>
         )}
       </div>
     </header>

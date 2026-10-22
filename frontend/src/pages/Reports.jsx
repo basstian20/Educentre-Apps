@@ -4,7 +4,9 @@ import { Card, StatTile, Empty, ErrorState, SkeletonCards, SkeletonRows } from "
 import { useLang } from "@/lib/i18n";
 import { useLoadState } from "@/lib/useLoadState";
 import { api, fmtIDR } from "@/lib/api";
-import { TrendingUp, Users, BookOpen, AlertTriangle } from "lucide-react";
+import { TrendingUp, Users, BookOpen, AlertTriangle, Download } from "lucide-react";
+import { Btn } from "@/components/UI";
+import { exportCsv } from "@/lib/csv";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 export default function Reports() {
@@ -72,8 +74,22 @@ export default function Reports() {
     [students, classes, invoices]
   );
 
+  const exportClasses = () =>
+    exportCsv("class-report.csv", [
+      { label: t.subject, value: (c) => c.subject_name },
+      { label: t.level, value: (c) => c.level },
+      { label: t.educator, value: (c) => c.educator_name },
+      { label: t.enrolled, value: (c) => c.enrolled_count },
+      { label: t.capacity, value: (c) => c.capacity },
+      { label: t.fee, value: (c) => c.fee_amount },
+    ], classes);
+
   return (
-    <Layout title={t.reports} subtitle="Business intelligence & operational metrics">
+    <Layout
+      title={t.reports}
+      subtitle="Business intelligence & operational metrics"
+      actions={<Btn variant="outline" size="sm" onClick={exportClasses} disabled={classes.length === 0} testid="export-report-btn"><Download className="w-4 h-4" />{t.exportCsv}</Btn>}
+    >
       {state.loading ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"><SkeletonCards count={4} /></div>

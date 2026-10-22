@@ -50,6 +50,7 @@ export function useTable(items, { searchKeys = [], sorters = {}, defaultSort = n
 
   return {
     rows,
+    all: sorted,
     total: sorted.length,
     query,
     setQuery: (v) => {

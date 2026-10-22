@@ -6,7 +6,7 @@ import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useLoadState } from "@/lib/useLoadState";
 import { api, fmtDate, formatApiError } from "@/lib/api";
-import { Plus, FileText, Link2, Video } from "lucide-react";
+import { Plus, FileText, Link2, Video, Paperclip } from "lucide-react";
 import { toast } from "sonner";
 
 const ICON = { file: FileText, link: Link2, video: Video };
@@ -28,9 +28,37 @@ export default function Materials() {
     api.get("/classes").then((r) => setClasses(r.data || []));
   }, []);
 
+  const [file, setFile] = useState(null);
+
+  // Uploaded files live behind the API, so they are fetched with the user's session and opened from memory.
+  const openUploaded = async (m) => {
+    try {
+      const { data } = await api.get(m.file_url.replace(/^\/api/, ""), { responseType: "blob" });
+      const url = URL.createObjectURL(data);
+      window.open(url, "_blank", "noopener");
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail));
+    }
+  };
+
   const submit = async () => {
     try {
-      await api.post("/materials", form);
+      if (form.type === "file") {
+        if (!file) {
+          toast.error(t.chooseAFile);
+          return;
+        }
+        const body = new FormData();
+        body.append("class_id", form.class_id);
+        body.append("title", form.title);
+        body.append("description", form.description || "");
+        body.append("file", file);
+        await api.post("/materials/upload", body);
+        setFile(null);
+      } else {
+        await api.post("/materials", form);
+      }
       toast.success("Material added");
       setOpen(false);
       setForm({ class_id: "", title: "", type: "link", external_url: "", description: "" });
@@ -93,8 +121,13 @@ export default function Materials() {
                 {m.description && <div className="text-xs text-slate-600 mt-3 font-jakarta line-clamp-2">{m.description}</div>}
                 <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-slate-100">
                   <span className="text-[10px] text-slate-500 font-jakarta">{fmtDate(m.created_at)} · {m.uploader_name || "—"}</span>
-                  {(m.external_url || m.file_url) && (
-                    <a href={m.external_url || m.file_url} target="_blank" rel="noreferrer" className="text-xs font-outfit font-semibold text-blue-600 hover:underline" data-testid={`material-open-${m.id}`}>
+                  {m.file_id ? (
+                    <button type="button" onClick={() => openUploaded(m)} className="inline-flex items-center gap-1 text-xs font-outfit font-semibold text-blue-700 hover:underline" data-testid={`material-open-${m.id}`}>
+                      <Paperclip className="h-3.5 w-3.5" />
+                      {m.file_name || t.downloadFile}
+                    </button>
+                  ) : (m.external_url || m.file_url) && (
+                    <a href={m.external_url || m.file_url} target="_blank" rel="noreferrer" className="text-xs font-outfit font-semibold text-blue-700 hover:underline" data-testid={`material-open-${m.id}`}>
                       Open →
                     </a>
                   )}
@@ -122,7 +155,20 @@ export default function Materials() {
           <Input label={t.materialTitle} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="sm:col-span-2" testid="mat-title" />
           <Select label="Type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
             options={[{ value: "link", label: "Link" }, { value: "file", label: "File" }, { value: "video", label: "Video" }]} />
-          <Input label={t.materialUrl} value={form.external_url} onChange={(e) => setForm({ ...form, external_url: e.target.value })} testid="mat-url" />
+          {form.type === "file" ? (
+            <label className="block">
+              <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.uploadFile}</span>
+              <input
+                type="file"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                data-testid="mat-file"
+                className="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-medium file:text-slate-700 hover:file:bg-slate-200"
+              />
+              <span className="mt-1 block text-[11px] text-slate-600">{file ? file.name : t.chooseAFile}</span>
+            </label>
+          ) : (
+            <Input label={t.materialUrl} value={form.external_url} onChange={(e) => setForm({ ...form, external_url: e.target.value })} testid="mat-url" />
+          )}
           <Input label={t.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="sm:col-span-2" />
         </div>
       </Modal>

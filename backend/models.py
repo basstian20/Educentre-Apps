@@ -235,3 +235,21 @@ class AnnouncementUpdate(BaseModel):
     body: Optional[str] = None
     audience: Optional[str] = None
     class_id: Optional[str] = None
+
+
+# ── Settings & profile ──
+class CentreSettings(BaseModel):
+    centre_name: str
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+
+
+class ProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str

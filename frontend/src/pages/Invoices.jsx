@@ -6,7 +6,9 @@ import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useLoadState } from "@/lib/useLoadState";
 import { api, fmtIDR, fmtDate, formatApiError } from "@/lib/api";
-import { Plus, Receipt } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Download, Plus, Printer, Receipt } from "lucide-react";
+import { exportCsv } from "@/lib/csv";
 import { toast } from "sonner";
 
 export default function Invoices() {
@@ -96,6 +98,18 @@ export default function Invoices() {
     }
   };
 
+  const exportInvoices = () =>
+    exportCsv("invoices.csv", [
+      { label: t.invoiceNumber, value: (i) => i.invoice_number },
+      { label: t.student, value: (i) => studentName(i.student_id) },
+      { label: t.description, value: (i) => (i.items || []).map((x) => x.description).join("; ") },
+      { label: t.amount, value: (i) => i.total_amount },
+      { label: t.amountPaid, value: (i) => i.amount_paid },
+      { label: t.balanceDue, value: (i) => i.balance_due },
+      { label: t.dueDate, value: (i) => i.due_date },
+      { label: t.status, value: (i) => i.status },
+    ], table.all);
+
   const remove = async () => {
     try {
       await api.delete(`/invoices/${removing.id}`);
@@ -111,7 +125,12 @@ export default function Invoices() {
     <Layout
       title={user?.role === "parent" ? t.fees : t.invoices}
       subtitle={`${list.length} invoices`}
-      actions={isAdmin && <Btn onClick={openAdd} size="sm" testid="new-invoice-btn"><Plus className="w-4 h-4" />{t.invoices}</Btn>}
+      actions={isAdmin && (
+        <>
+          <Btn variant="outline" size="sm" onClick={exportInvoices} testid="export-invoices-btn" disabled={list.length === 0}><Download className="w-4 h-4" />{t.exportCsv}</Btn>
+          <Btn onClick={openAdd} size="sm" testid="new-invoice-btn"><Plus className="w-4 h-4" />{t.invoices}</Btn>
+        </>
+      )}
     >
       <Card>
         <div className="flex flex-col md:flex-row gap-3 mb-4">
@@ -160,6 +179,15 @@ export default function Invoices() {
                     <td className="px-5 py-3"><StatusBadge status={inv.status} label={t[`status${inv.status?.charAt(0).toUpperCase()}${inv.status?.slice(1)}`] || inv.status} /></td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">
+                        <Link
+                          to={`/invoices/${inv.id}/print`}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                          aria-label={t.printInvoice}
+                          title={t.printInvoice}
+                          data-testid={`print-${inv.id}`}
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Link>
                         {inv.status !== "paid" && (
                           <Btn size="sm" variant="outline" onClick={() => { setPayOpen(inv); setPayForm({ amount: inv.balance_due, method: "cash" }); }} testid={`pay-${inv.id}`}>
                             {t.payNow}
