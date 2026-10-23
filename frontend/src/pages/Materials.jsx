@@ -26,6 +26,7 @@ export default function Materials() {
   useEffect(() => {
     load();
     api.get("/classes").then((r) => setClasses(r.data || []));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [file, setFile] = useState(null);

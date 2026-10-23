@@ -39,6 +39,7 @@ export default function Classes() {
   useEffect(() => {
     load();
     api.get("/educators").then((r) => setEducators(r.data || []));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const table = useTable(classes, {

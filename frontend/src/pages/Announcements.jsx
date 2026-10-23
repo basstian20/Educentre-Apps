@@ -21,7 +21,7 @@ export default function Announcements() {
 
   const [state, track] = useLoadState();
   const load = () => track(api.get("/announcements").then((r) => setList(r.data || [])));
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const table = useTable(list, { searchKeys: ["title", "body", "created_by_name"], pageSize: 8 });
   const canManage = (a) => user?.role === "admin" || a.created_by === user?.id;

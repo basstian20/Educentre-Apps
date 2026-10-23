@@ -31,6 +31,7 @@ export default function Invoices() {
   useEffect(() => {
     load();
     if (isAdmin) api.get("/students").then((r) => setStudents(r.data || []));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin]);
 
   const studentName = (sid) => students.find((s) => s.id === sid)?.full_name || sid?.slice(0, 8);
