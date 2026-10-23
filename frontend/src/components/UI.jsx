@@ -1,3 +1,4 @@
+import { useEffect, useId, useRef } from "react";
 import { AlertTriangle, ArrowRight, RefreshCw, Sparkles } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 
@@ -117,8 +118,9 @@ export function ErrorState({ onRetry }) {
 
 // Placeholder shapes shown while a list loads.
 export function SkeletonRows({ rows = 5 }) {
+  const { t } = useLang();
   return (
-    <div className="space-y-3 py-1" role="status" aria-label="Loading" data-testid="loading-skeleton">
+    <div className="space-y-3 py-1" role="status" aria-label={t.loadingLabel} data-testid="loading-skeleton">
       {Array.from({ length: rows }).map((_, i) => (
         <div key={i} className="flex items-center gap-3">
           <span className="sk h-9 w-9 flex-shrink-0 rounded-full" />
@@ -134,8 +136,9 @@ export function SkeletonRows({ rows = 5 }) {
 }
 
 export function SkeletonCards({ count = 6 }) {
+  const { t } = useLang();
   return (
-    <div className="contents" role="status" aria-label="Loading" data-testid="loading-skeleton">
+    <div className="contents" role="status" aria-label={t.loadingLabel} data-testid="loading-skeleton">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="rounded-xl border border-slate-200 bg-white p-5 shadow-card">
           <span className="sk mb-3 block h-4 w-2/5 rounded-full" />
@@ -221,7 +224,7 @@ export function InsightCard({ label, value, detail, color = "#2563EB", testid })
   );
 }
 
-export function Btn({ children, onClick, variant = "primary", size = "md", disabled, testid, type = "button", className = "" }) {
+export function Btn({ children, onClick, variant = "primary", size = "md", disabled, testid, type = "button", className = "", ariaLabel }) {
   const sizes = {
     sm: "px-3 py-1.5 text-xs",
     md: "px-4 py-2 text-sm",
@@ -240,6 +243,8 @@ export function Btn({ children, onClick, variant = "primary", size = "md", disab
       type={type}
       onClick={onClick}
       disabled={disabled}
+      aria-label={ariaLabel}
+      title={ariaLabel}
       data-testid={testid}
       className={`inline-flex max-w-full items-center justify-center gap-2 rounded-lg text-center font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none font-outfit ${sizes[size]} ${variants[variant]} ${className}`}
     >
@@ -303,6 +308,49 @@ export function Textarea({ label, value, onChange, rows = 3, testid, placeholder
 }
 
 export function Modal({ open, onClose, title, children, testid, footer, size = "md" }) {
+  const { t } = useLang();
+  const panelRef = useRef(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+  const titleId = useId();
+
+  // Keyboard support: focus moves into the dialog, Tab stays inside it, Escape closes it,
+  // and focus returns to whatever opened it.
+  useEffect(() => {
+    if (!open) return undefined;
+    const previous = document.activeElement;
+    const panel = panelRef.current;
+    const focusables = () =>
+      panel
+        ? [...panel.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
+        : [];
+    const first = panel?.querySelector("input:not([disabled]),select:not([disabled]),textarea:not([disabled])") || focusables()[0];
+    first?.focus();
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        closeRef.current();
+      } else if (e.key === "Tab") {
+        const items = focusables();
+        if (!items.length) return;
+        const firstItem = items[0];
+        const lastItem = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === firstItem) {
+          e.preventDefault();
+          lastItem.focus();
+        } else if (!e.shiftKey && document.activeElement === lastItem) {
+          e.preventDefault();
+          firstItem.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      previous?.focus?.();
+    };
+  }, [open]);
+
   if (!open) return null;
   const widths = { sm: "max-w-md", md: "max-w-lg", lg: "max-w-2xl", xl: "max-w-4xl" };
   return (
@@ -313,13 +361,17 @@ export function Modal({ open, onClose, title, children, testid, footer, size = "
       onClick={onClose}
     >
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         className={`bg-white rounded-xl sm:rounded-2xl w-full ${widths[size]} shadow-2xl animate-fadeUp`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-4 py-4 border-b border-slate-100 flex items-center justify-between gap-3 sm:px-6">
-          <h2 className="min-w-0 font-outfit font-semibold text-base text-slate-900 sm:text-lg">{title}</h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-600 text-xl leading-none" data-testid="modal-close">
-            ×
+          <h2 id={titleId} className="min-w-0 font-outfit font-semibold text-base text-slate-900 sm:text-lg">{title}</h2>
+          <button type="button" onClick={onClose} aria-label={t.close} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 text-xl leading-none" data-testid="modal-close">
+            <span aria-hidden="true">×</span>
           </button>
         </div>
         <div className="px-4 py-5 max-h-[70vh] overflow-y-auto sm:px-6">{children}</div>

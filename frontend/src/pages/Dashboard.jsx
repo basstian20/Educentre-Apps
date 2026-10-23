@@ -83,7 +83,7 @@ export default function Dashboard() {
 
   return (
     <Layout
-      title="Dashboard"
+      title={t.dashboard}
       subtitle={`${t.welcome}, ${firstName} · ${ROLE_COPY[user?.role]?.[lang] || dateLabel}`}
     >
       <div className="dashboard-grid" data-testid="dashboard-overview">

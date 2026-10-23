@@ -79,7 +79,7 @@ export default function Classes() {
         toast.success(t.saved);
       } else {
         await api.post("/classes", form);
-        toast.success("Class created");
+        toast.success(t.toastClassCreated);
       }
       setOpen(false);
       load();
@@ -185,14 +185,14 @@ export default function Classes() {
             value={form.educator_id}
             onChange={(e) => setForm({ ...form, educator_id: e.target.value })}
             testid="class-educator"
-            options={[{ value: "", label: "— Select —" }, ...educators.map((edu) => ({ value: edu.id, label: edu.full_name }))]}
+            options={[{ value: "", label: t.selectPlaceholder }, ...educators.map((edu) => ({ value: edu.id, label: edu.full_name }))]}
           />
           <Input label={t.room} value={form.room} onChange={(e) => setForm({ ...form, room: e.target.value })} />
           <Input label={t.capacity} type="number" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: parseInt(e.target.value || "0") })} />
           <Input label={`${t.fee} (IDR)`} type="number" value={form.fee_amount} onChange={(e) => setForm({ ...form, fee_amount: parseFloat(e.target.value || "0") })} />
-          <Input label="Color" type="color" value={form.color_hex} onChange={(e) => setForm({ ...form, color_hex: e.target.value })} />
-          <Input label="Start" type="time" value={form.time_start} onChange={(e) => setForm({ ...form, time_start: e.target.value })} />
-          <Input label="End" type="time" value={form.time_end} onChange={(e) => setForm({ ...form, time_end: e.target.value })} />
+          <Input label={t.colorLabel} type="color" value={form.color_hex} onChange={(e) => setForm({ ...form, color_hex: e.target.value })} />
+          <Input label={t.startTime} type="time" value={form.time_start} onChange={(e) => setForm({ ...form, time_start: e.target.value })} />
+          <Input label={t.endTime} type="time" value={form.time_end} onChange={(e) => setForm({ ...form, time_end: e.target.value })} />
           <div className="sm:col-span-2">
             <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.schedule_days}</span>
             <div className="flex flex-wrap gap-2">

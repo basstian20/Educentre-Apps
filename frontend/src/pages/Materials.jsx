@@ -59,7 +59,7 @@ export default function Materials() {
       } else {
         await api.post("/materials", form);
       }
-      toast.success("Material added");
+      toast.success(t.toastMaterialAdded);
       setOpen(false);
       setForm({ class_id: "", title: "", type: "link", external_url: "", description: "" });
       load();
@@ -87,7 +87,7 @@ export default function Materials() {
   };
 
   return (
-    <Layout title={t.materials} subtitle={`${list.length} resources`}
+    <Layout title={t.materials} subtitle={`${list.length} ${t.unitResources}`}
       actions={canUpload && (
         <Btn onClick={() => setOpen(true)} size="sm" testid="add-material-btn"><Plus className="w-4 h-4" />{t.addMaterial}</Btn>
       )}
@@ -128,7 +128,7 @@ export default function Materials() {
                     </button>
                   ) : (m.external_url || m.file_url) && (
                     <a href={m.external_url || m.file_url} target="_blank" rel="noreferrer" className="text-xs font-outfit font-semibold text-blue-700 hover:underline" data-testid={`material-open-${m.id}`}>
-                      Open →
+                      {t.openLink}
                     </a>
                   )}
                 </div>
@@ -153,8 +153,8 @@ export default function Materials() {
           <Select label={t.classes} value={form.class_id} onChange={(e) => setForm({ ...form, class_id: e.target.value })} testid="mat-class"
             options={[{ value: "", label: "—" }, ...classes.map((c) => ({ value: c.id, label: c.subject_name }))]} className="sm:col-span-2" />
           <Input label={t.materialTitle} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="sm:col-span-2" testid="mat-title" />
-          <Select label="Type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
-            options={[{ value: "link", label: "Link" }, { value: "file", label: "File" }, { value: "video", label: "Video" }]} />
+          <Select label={t.fieldType} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
+            options={[{ value: "link", label: t.matLink }, { value: "file", label: t.matFile }, { value: "video", label: t.matVideo }]} />
           {form.type === "file" ? (
             <label className="block">
               <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.uploadFile}</span>

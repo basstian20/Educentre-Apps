@@ -55,7 +55,7 @@ export default function Announcements() {
         toast.success(t.saved);
       } else {
         await api.post("/announcements", form);
-        toast.success("Announcement posted");
+        toast.success(t.toastAnnouncementPosted);
       }
       setOpen(false);
       setForm({ title: "", body: "", audience: "all" });
@@ -66,7 +66,7 @@ export default function Announcements() {
   };
 
   return (
-    <Layout title={t.announcements} subtitle={`${list.length} posts`}
+    <Layout title={t.announcements} subtitle={`${list.length} ${t.unitPosts}`}
       actions={canPost && <Btn onClick={openAdd} size="sm" testid="new-announce-btn"><Plus className="w-4 h-4" />{t.new}</Btn>}
     >
       {state.loading ? <Card><SkeletonRows rows={3} /></Card> : state.error ? <Card><ErrorState onRetry={load} /></Card> : list.length === 0 ? (
@@ -115,7 +115,7 @@ export default function Announcements() {
           <Input label={t.title} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} testid="announce-title" />
           <Textarea label={t.body} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} rows={5} testid="announce-body" />
           <Select label={t.audience} value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })}
-            options={[{ value: "all", label: "All" }, { value: "parents", label: "Parents" }, { value: "students", label: "Students" }, { value: "educators", label: "Educators" }, ...(form.audience === "class" ? [{ value: "class", label: "Class" }] : [])]} />
+            options={[{ value: "all", label: t.audAll }, { value: "parents", label: t.audParents }, { value: "students", label: t.audStudents }, { value: "educators", label: t.audEducators }, ...(form.audience === "class" ? [{ value: "class", label: t.audClass }] : [])]} />
         </div>
       </Modal>
     </Layout>

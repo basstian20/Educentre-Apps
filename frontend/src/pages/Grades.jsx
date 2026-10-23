@@ -47,7 +47,7 @@ export default function Grades() {
   const create = async () => {
     try {
       await api.post("/assessments", { ...form, class_id: classId });
-      toast.success("Assessment created");
+      toast.success(t.toastAssessmentCreated);
       setOpen(false);
       api.get("/assessments", { params: { class_id: classId } }).then((r) => setAssessments(r.data || []));
     } catch (e) {
@@ -60,7 +60,7 @@ export default function Grades() {
     try {
       const entries = students.map((s) => ({ student_id: s.id, score: grades[s.id]?.score ? parseFloat(grades[s.id].score) : null, remark: grades[s.id]?.remark || "" }));
       await api.post("/grades", { assessment_id: selectedAssId, entries });
-      toast.success("Grades saved");
+      toast.success(t.toastGradesSaved);
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail));
     }
@@ -70,7 +70,7 @@ export default function Grades() {
     if (!selectedAssId) return;
     try {
       await api.post("/assessments/publish", { assessment_id: selectedAssId });
-      toast.success("Published");
+      toast.success(t.toastPublished);
       api.get("/assessments", { params: { class_id: classId } }).then((r) => setAssessments(r.data || []));
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail));
@@ -81,7 +81,7 @@ export default function Grades() {
   const isAdminOrEdu = user?.role === "admin" || user?.role === "educator";
 
   return (
-    <Layout title={t.enterGrades} subtitle={isAdminOrEdu ? "Manage assessments and scores" : "View results"}>
+    <Layout title={t.enterGrades} subtitle={isAdminOrEdu ? t.subManage : t.subViewResults}>
       <Card className="mb-5" testid="grades-controls"
         action={isAdminOrEdu && classId && (
           <Btn onClick={() => { setForm({ ...form, class_id: classId }); setOpen(true); }} size="sm" testid="new-assessment-btn">
@@ -92,7 +92,7 @@ export default function Grades() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Select label={t.classes} value={classId} onChange={(e) => { setClassId(e.target.value); setSelectedAssId(""); }} testid="grade-class"
             options={[{ value: "", label: "—" }, ...classes.map((c) => ({ value: c.id, label: c.subject_name }))]} />
-          <Select label="Assessment" value={selectedAssId} onChange={(e) => setSelectedAssId(e.target.value)} testid="grade-assessment"
+          <Select label={t.assessmentLabel} value={selectedAssId} onChange={(e) => setSelectedAssId(e.target.value)} testid="grade-assessment"
             options={[{ value: "", label: "—" }, ...assessments.map((a) => ({ value: a.id, label: `${a.name} (${a.type})` }))]} />
         </div>
       </Card>
@@ -157,16 +157,16 @@ export default function Grades() {
         </Card>
       )}
 
-      <Modal open={open} onClose={() => setOpen(false)} title="New Assessment"
+      <Modal open={open} onClose={() => setOpen(false)} title={t.newAssessment}
         footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t.cancel}</Btn><Btn onClick={create} testid="submit-assessment">{t.save}</Btn></>}
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Input label={t.assessmentName} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="sm:col-span-2" testid="ass-name" />
-          <Select label="Type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
-            options={[{ value: "quiz", label: "Quiz" }, { value: "test", label: "Test" }, { value: "assignment", label: "Assignment" }, { value: "project", label: "Project" }]} />
+          <Select label={t.fieldType} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
+            options={[{ value: "quiz", label: t.typeQuiz }, { value: "test", label: t.typeTest }, { value: "assignment", label: t.typeAssignment }, { value: "project", label: t.typeProject }]} />
           <Input label={t.dueDate} type="date" value={form.assessment_date} onChange={(e) => setForm({ ...form, assessment_date: e.target.value })} />
           <Input label={t.maxScore} type="number" value={form.max_score} onChange={(e) => setForm({ ...form, max_score: parseFloat(e.target.value) })} />
-          <Input label="Pass Score" type="number" value={form.pass_score} onChange={(e) => setForm({ ...form, pass_score: parseFloat(e.target.value) })} />
+          <Input label={t.passScore} type="number" value={form.pass_score} onChange={(e) => setForm({ ...form, pass_score: parseFloat(e.target.value) })} />
         </div>
       </Modal>
     </Layout>

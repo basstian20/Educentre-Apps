@@ -42,7 +42,7 @@ export default function Results() {
   return (
     <Layout
       title={t.myResults}
-      subtitle="Published assessments only"
+      subtitle={t.subPublished}
       actions={kids.map((k) => (
         <Link
           key={k.id}
@@ -58,13 +58,13 @@ export default function Results() {
       <Card>
         {state.loading ? <SkeletonRows /> : state.error ? <ErrorState onRetry={load} /> : enriched.length === 0 ? <Empty message={t.noData} icon={ClipboardList} /> : (
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
-            <table className="w-full min-w-[760px]">
+            <table className="rtable w-full min-w-[760px]">
               <thead>
                 <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
                   <th className="text-left px-5 py-3">{t.subject}</th>
                   <th className="text-left px-5 py-3">{t.assessmentName}</th>
                   <th className="text-left px-5 py-3">{t.score}</th>
-                  <th className="text-left px-5 py-3">Grade</th>
+                  <th className="text-left px-5 py-3">{t.gradeLabel}</th>
                   <th className="text-left px-5 py-3">{t.dueDate}</th>
                   <th className="text-left px-5 py-3">{t.remark}</th>
                 </tr>

@@ -1,0 +1,164 @@
+/* Dark mode: switched on by adding the "dark" class to <html> (see lib/theme.jsx).
+   The app mixes custom "glass" classes with Tailwind utilities, so both are remapped here. */
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background:
+    radial-gradient(circle at 9% 10%, rgba(53, 111, 131, 0.32), transparent 30%),
+    radial-gradient(circle at 86% 7%, rgba(95, 90, 160, 0.28), transparent 32%),
+    linear-gradient(135deg, #0a161f 0%, #0e1d29 50%, #131629 100%);
+  color: #e2e8f0;
+}
+
+/* Shell */
+.dark .app-canvas {
+  background:
+    radial-gradient(circle at 12% 16%, rgba(220, 143, 110, 0.1), transparent 24%),
+    radial-gradient(circle at 84% 5%, rgba(95, 90, 160, 0.2), transparent 30%),
+    #0c1822;
+}
+.dark .app-canvas::before { background: rgba(53, 111, 131, 0.16); }
+.dark .app-canvas::after { background: rgba(95, 90, 160, 0.14); }
+.dark .app-shell {
+  background:
+    radial-gradient(circle at 88% 4%, rgba(95, 90, 160, 0.14), transparent 28%),
+    radial-gradient(circle at 4% 80%, rgba(53, 111, 131, 0.14), transparent 30%),
+    #0e1b26;
+}
+.dark .sidebar-glass {
+  background: rgba(13, 25, 35, 0.88);
+  border-right-color: rgba(148, 163, 184, 0.14);
+  box-shadow: 16px 0 48px rgba(0, 0, 0, 0.3);
+}
+.dark .topbar-glass {
+  background: linear-gradient(180deg, rgba(14, 27, 38, 0.96), rgba(14, 27, 38, 0.55));
+}
+.dark .glass-icon-button,
+.dark .lang-switcher,
+.dark .profile-chip {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  color: #9fd3df;
+}
+.dark .glass-icon-button:hover { background: rgba(255, 255, 255, 0.13); box-shadow: none; }
+
+/* Dashboard glass cards */
+.dark .dashboard-card {
+  border-color: rgba(148, 163, 184, 0.16);
+  background: linear-gradient(145deg, rgba(30, 46, 60, 0.8), rgba(18, 31, 43, 0.62));
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.dark .dashboard-link { color: #7cc3d6; }
+.dark .dashboard-link:hover { color: #b6e3ee; }
+.dark .stat-mini { border-left-color: rgba(148, 163, 184, 0.18); }
+.dark .stat-mini div { color: #9fb0c2; }
+.dark .stat-mini strong { color: #e8f0f4; }
+.dark .progress-track { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.12); }
+.dark .overview-table th { color: #9fb0c2; }
+.dark .overview-table td { color: #cbd5e1; border-top-color: rgba(148, 163, 184, 0.16); }
+.dark .overview-table tbody tr:hover { background: rgba(255, 255, 255, 0.05); }
+.dark .student-avatar { background: rgba(255, 255, 255, 0.1); color: #9fd3df; }
+.dark .status-pill { background: rgba(142, 189, 168, 0.18); color: #9ad8bb; }
+.dark .payment-state.success { color: #9ad8bb; }
+.dark .payment-state.warning { background: rgba(239, 183, 132, 0.16); color: #f0b98c; }
+.dark .metric-icon.teal { background: rgba(111, 159, 175, 0.22); color: #8fd0e2; }
+.dark .metric-icon.purple { background: rgba(143, 134, 189, 0.24); color: #c0b8ee; }
+.dark .metric-icon.pink { background: rgba(219, 145, 134, 0.22); color: #f0b3aa; }
+.dark .metric-icon.orange { background: rgba(239, 183, 132, 0.22); color: #f0b98c; }
+.dark .skeleton-stack span {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.06));
+  background-size: 200% 100%;
+}
+.dark .sk {
+  background: linear-gradient(90deg, #1f2d3d, #2d3f54, #1f2d3d);
+  background-size: 200% 100%;
+}
+
+/* Tailwind surfaces */
+.dark .bg-white { background-color: #15212d; }
+.dark .bg-slate-50 { background-color: #1a2836; }
+.dark .bg-slate-100 { background-color: #223245; }
+.dark .bg-slate-200 { background-color: #2b3d52; }
+.dark .hover\:bg-slate-50:hover { background-color: #1f2f40; }
+.dark .hover\:bg-slate-100:hover { background-color: #263a4e; }
+.dark .hover\:bg-slate-200:hover { background-color: #30455c; }
+.dark .bg-white\/30 { background-color: rgba(255, 255, 255, 0.06); }
+.dark .bg-white\/55 { background-color: rgba(255, 255, 255, 0.1); }
+.dark .bg-white\/80 { background-color: rgba(255, 255, 255, 0.16); }
+.dark .hover\:bg-white\/45:hover,
+.dark .hover\:bg-white\/50:hover { background-color: rgba(255, 255, 255, 0.1); }
+.dark .border-slate-100,
+.dark .border-slate-200 { border-color: #2a3b4d; }
+.dark .border-slate-300 { border-color: #3d5068; }
+.dark .border-slate-800 { border-color: #94a3b8; }
+.dark .border-white\/55,
+.dark .border-white\/70 { border-color: rgba(148, 163, 184, 0.2); }
+
+/* Tailwind text */
+.dark .text-slate-950,
+.dark .text-slate-900,
+.dark .text-slate-800 { color: #f1f5f9; }
+.dark .text-slate-700 { color: #e2e8f0; }
+.dark .text-slate-600 { color: #cbd5e1; }
+.dark .text-slate-500 { color: #aebbcb; }
+.dark .placeholder\:text-slate-500::placeholder { color: #8d9db0; }
+.dark .text-\[\#294a55\] { color: #dcebf0; }
+.dark .text-\[\#164e50\],
+.dark .hover\:text-\[\#164e50\]:hover { color: #a8dbe6; }
+.dark .text-\[\#356f83\] { color: #8fd0e2; }
+.dark .text-\[\#587775\],
+.dark .text-\[\#668584\],
+.dark .text-\[\#6f8987\],
+.dark .text-\[\#73908e\],
+.dark .text-\[\#76908f\],
+.dark .text-\[\#789391\],
+.dark .text-\[\#78908f\],
+.dark .text-\[\#87a09f\],
+.dark .text-\[\#4f8090\] { color: #9fbab8; }
+
+/* Tinted chips and icons */
+.dark .bg-blue-50,
+.dark .bg-blue-50\/40 { background-color: rgba(59, 130, 246, 0.16); }
+.dark .bg-teal-50,
+.dark .bg-teal-50\/40 { background-color: rgba(20, 184, 166, 0.14); }
+.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.16); }
+.dark .bg-amber-50,
+.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.18); }
+.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.18); }
+.dark .bg-violet-100 { background-color: rgba(139, 92, 246, 0.2); }
+.dark .text-blue-600,
+.dark .text-blue-700 { color: #93c5fd; }
+.dark .text-teal-700 { color: #5eead4; }
+.dark .text-red-600,
+.dark .text-red-700 { color: #fca5a5; }
+.dark .text-amber-700 { color: #fcd34d; }
+.dark .text-emerald-700 { color: #6ee7b7; }
+.dark .text-violet-700 { color: #c4b5fd; }
+.dark .border-teal-100 { border-color: rgba(20, 184, 166, 0.3); }
+.dark .border-red-100 { border-color: rgba(239, 68, 68, 0.3); }
+.dark .hover\:\!bg-red-50:hover { background-color: rgba(239, 68, 68, 0.2) !important; }
+
+.dark .badge-blue { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+.dark .badge-green { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+.dark .badge-amber { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+.dark .badge-red { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+.dark .badge-purple { background: rgba(139, 92, 246, 0.22); color: #c4b5fd; }
+.dark .badge-gray { background: rgba(148, 163, 184, 0.16); color: #cbd5e1; }
+
+/* Form controls inside the app (the login page has its own styling) */
+.dark main input,
+.dark main select,
+.dark main textarea { color: #e2e8f0; }
+.dark main option { background: #15212d; color: #e2e8f0; }
+.dark main input:disabled,
+.dark main select:disabled { background-color: #1a2836; color: #8d9db0; }
+.dark .shadow-card { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 24px -18px rgba(0, 0, 0, 0.6); }
+
+/* Phone cards */
+@media (max-width: 767px) {
+  .dark .rtable tbody tr { background: #15212d; border-color: #2a3b4d; }
+  .dark .rtable tbody td::before { color: #9fb0c2; }
+}

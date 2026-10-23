@@ -65,7 +65,7 @@ export default function Attendance() {
     try {
       const records = Object.entries(marks).map(([student_id, status]) => ({ student_id, status }));
       await api.post("/attendance", { class_id: classId, session_date: date, records });
-      toast.success("Attendance saved");
+      toast.success(t.toastAttendanceSaved);
       api.get("/attendance", { params: { class_id: classId } }).then((r) => setHistory(r.data || []));
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail));
@@ -137,7 +137,7 @@ export default function Attendance() {
       <Card title={`Recent records (${history.length})`} className="mt-5" testid="att-history">
         {history.length === 0 ? <Empty message={t.noData} /> : (
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
-            <table className="w-full min-w-[560px]">
+            <table className="rtable w-full min-w-[560px]">
               <thead>
                 <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
                   <th className="text-left px-5 py-3">{t.dueDate}</th>

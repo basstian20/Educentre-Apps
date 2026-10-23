@@ -1419,3 +1419,82 @@ body {
     margin: 16mm;
   }
 }
+
+/* Phones: list tables become stacked cards (labels come from Layout.jsx) */
+@media (max-width: 767px) {
+  table.rtable,
+  .rtable tbody,
+  .rtable tr,
+  .rtable td {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+  }
+  .rtable thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .rtable tbody tr {
+    width: auto;
+    margin: 0 1rem 0.75rem;
+    padding: 0.25rem 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    background: #fff;
+  }
+  .rtable tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.5rem 0.875rem !important;
+    border: 0 !important;
+    text-align: right;
+  }
+  .rtable tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 34%;
+    text-align: left;
+    font-family: "Outfit", system-ui, sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #475569;
+  }
+  .rtable tbody td[data-label=""]::before {
+    content: none;
+  }
+}
+
+/* Keyboard users: visible focus and a skip link */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #356f83;
+  outline-offset: 2px;
+}
+main:focus {
+  outline: none;
+}
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border-radius: 0.6rem;
+  background: #164e50;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: top 120ms ease;
+}
+.skip-link:focus {
+  top: 0.75rem;
+}

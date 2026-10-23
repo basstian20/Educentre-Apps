@@ -64,14 +64,14 @@ export default function Reports() {
   // Quick stats — memoised aggregation
   const quickMetrics = useMemo(
     () => [
-      { label: "Total Students", value: students.length },
-      { label: "Total Classes", value: classes.length },
-      { label: "Total Invoices", value: invoices.length },
-      { label: "Paid Invoices", value: invoices.filter((i) => i.status === "paid").length },
-      { label: "Overdue", value: invoices.filter((i) => i.status === "overdue").length },
-      { label: "Total Revenue", value: fmtIDR(invoices.reduce((s, i) => s + (i.amount_paid || 0), 0)) },
+      { label: t.rpTotalStudents, value: students.length },
+      { label: t.rpTotalClasses, value: classes.length },
+      { label: t.rpTotalInvoices, value: invoices.length },
+      { label: t.rpPaidInvoices, value: invoices.filter((i) => i.status === "paid").length },
+      { label: t.statusOverdue, value: invoices.filter((i) => i.status === "overdue").length },
+      { label: t.rpTotalRevenue, value: fmtIDR(invoices.reduce((s, i) => s + (i.amount_paid || 0), 0)) },
     ],
-    [students, classes, invoices]
+    [students, classes, invoices, t]
   );
 
   const exportClasses = () =>
@@ -87,8 +87,8 @@ export default function Reports() {
   return (
     <Layout
       title={t.reports}
-      subtitle="Business intelligence & operational metrics"
-      actions={<Btn variant="outline" size="sm" onClick={exportClasses} disabled={classes.length === 0} testid="export-report-btn"><Download className="w-4 h-4" />{t.exportCsv}</Btn>}
+      subtitle={t.rpSubtitle}
+      actions={<Btn variant="outline" size="sm" onClick={exportClasses} disabled={classes.length === 0} ariaLabel={t.exportCsv} testid="export-report-btn"><Download className="w-4 h-4" /><span className="hidden sm:inline">{t.exportCsv}</span></Btn>}
     >
       {state.loading ? (
         <>
@@ -107,7 +107,7 @@ export default function Reports() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">
-        <Card title="Class Utilisation" testid="report-utilisation">
+        <Card title={t.rpClassUtilisation} testid="report-utilisation">
           {utilData.length === 0 ? <Empty message={t.noData} /> : (
             <div style={{ width: "100%", height: 280 }}>
               <ResponsiveContainer>
@@ -122,7 +122,7 @@ export default function Reports() {
             </div>
           )}
         </Card>
-        <Card title="Invoice Status Breakdown" testid="report-status">
+        <Card title={t.rpInvoiceStatus} testid="report-status">
           {statusData.length === 0 ? <Empty message={t.noData} /> : (
             <div style={{ width: "100%", height: 280 }}>
               <ResponsiveContainer>
@@ -140,7 +140,7 @@ export default function Reports() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">
-        <Card title="Top Classes by Fee" testid="report-fees">
+        <Card title={t.rpTopClasses} testid="report-fees">
           <div className="space-y-2">
             {topClassesByFee.map((c) => (
                 <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-slate-100">
@@ -156,7 +156,7 @@ export default function Reports() {
               ))}
           </div>
         </Card>
-        <Card title="Quick Stats" testid="report-summary">
+        <Card title={t.rpQuickStats} testid="report-summary">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {quickMetrics.map((m) => (
               <div key={m.label} className="p-4 rounded-lg bg-slate-50">

@@ -1,7 +1,8 @@
 import { useLang } from "../lib/i18n";
 import { useAuth } from "../lib/auth";
 import { Link } from "react-router-dom";
-import { Menu, Search } from "lucide-react";
+import { Menu, Moon, Sun } from "lucide-react";
+import { useTheme } from "../lib/theme";
 import NotificationBell from "./NotificationBell";
 
 const ROLE_COLORS = {
@@ -21,6 +22,7 @@ const ROLE_LABELS = {
 export default function Topbar({ title, subtitle, actions, onMenuClick }) {
   const { lang, setLang, t } = useLang();
   const { user } = useAuth();
+  const { theme, toggle } = useTheme();
   const roleColor = user ? ROLE_COLORS[user.role] : "#2563EB";
   const roleLabel = user ? t[ROLE_LABELS[user.role]] : "";
 
@@ -34,7 +36,7 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
           type="button"
           onClick={onMenuClick}
           className="glass-icon-button md:hidden"
-          aria-label="Open navigation"
+          aria-label={t.openNav}
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -50,9 +52,6 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
 
       <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
         {actions && <div className="flex min-w-0 flex-wrap justify-end gap-2">{actions}</div>}
-        <button className="glass-icon-button hidden sm:inline-flex" title="Search" aria-label="Search">
-          <Search className="h-4 w-4" />
-        </button>
         <div className="lang-switcher flex rounded-full p-0.5" data-testid="lang-switcher">
           {["en", "id"].map((l) => (
             <button
@@ -68,6 +67,16 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
           ))}
         </div>
 
+        <button
+          type="button"
+          onClick={toggle}
+          className="glass-icon-button"
+          aria-label={t.themeToggle}
+          title={theme === "dark" ? t.themeLight : t.themeDark}
+          data-testid="theme-toggle"
+        >
+          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
         <NotificationBell />
         {user && (
           <Link to="/settings" className="profile-chip hidden items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 sm:flex" data-testid="role-pill" title={t.settingsTitle}>

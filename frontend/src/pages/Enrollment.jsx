@@ -29,7 +29,7 @@ export default function Enrollment() {
       for (const cid of selectedClasses) {
         await api.post("/enrollments", { student_id: studentId, class_id: cid });
       }
-      toast.success("Enrollment confirmed");
+      toast.success(t.toastEnrollmentConfirmed);
       setStep(1);
       setStudentId("");
       setSelectedClasses([]);
@@ -41,7 +41,7 @@ export default function Enrollment() {
   const steps = [t.studentInfo, t.selectCourses, t.feePlan, t.confirmStep];
 
   return (
-    <Layout title={t.enrollment} subtitle="4-step wizard">
+    <Layout title={t.enrollment} subtitle={t.subWizard}>
       {/* Stepper */}
       <Card className="mb-5" testid="enrollment-stepper">
         <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:justify-between">

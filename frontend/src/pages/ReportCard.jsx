@@ -85,7 +85,7 @@ export default function ReportCard() {
                     <th className="py-2">{t.assessmentName}</th>
                     <th className="py-2">{t.dueDate}</th>
                     <th className="py-2 text-right">{t.score}</th>
-                    <th className="py-2 text-right">Grade</th>
+                    <th className="py-2 text-right">{t.gradeLabel}</th>
                   </tr>
                 </thead>
                 <tbody>

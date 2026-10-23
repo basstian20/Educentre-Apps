@@ -67,7 +67,7 @@ export default function Students() {
         toast.success(t.saved);
       } else {
         await api.post("/students", form);
-        toast.success("Student added");
+        toast.success(t.toastStudentAdded);
       }
       setOpen(false);
       load();
@@ -120,13 +120,13 @@ export default function Students() {
       actions={
         isAdmin && (
           <>
-            <Btn onClick={exportStudents} testid="export-students-btn" size="sm" variant="outline" disabled={students.length === 0}>
+            <Btn onClick={exportStudents} testid="export-students-btn" size="sm" variant="outline" ariaLabel={t.exportCsv} disabled={students.length === 0}>
               <Download className="w-4 h-4" />
-              {t.exportCsv}
+              <span className="hidden sm:inline">{t.exportCsv}</span>
             </Btn>
-            <Btn onClick={() => setImportOpen(true)} testid="import-students-btn" size="sm" variant="outline">
+            <Btn onClick={() => setImportOpen(true)} testid="import-students-btn" size="sm" variant="outline" ariaLabel={t.importStudents}>
               <Upload className="w-4 h-4" />
-              {t.importStudents}
+              <span className="hidden sm:inline">{t.importStudents}</span>
             </Btn>
             <Btn onClick={openAdd} testid="add-student-btn" size="sm">
               <Plus className="w-4 h-4" />
@@ -163,7 +163,7 @@ export default function Students() {
         ) : (
           <>
             <div className="overflow-x-auto -mx-4 sm:-mx-5">
-              <table className="w-full min-w-[720px] text-left">
+              <table className="rtable w-full min-w-[720px] text-left">
                 <thead>
                   <tr className="bg-slate-50 text-[11px] text-slate-600 font-outfit">
                     <SortTh label={t.name} k="name" table={table} />
@@ -274,7 +274,7 @@ export default function Students() {
               value={form.parent_id}
               onChange={(e) => setForm({ ...form, parent_id: e.target.value })}
               testid="form-parent"
-              options={[{ value: "", label: "— None —" }, ...parents.map((p) => ({ value: p.id, label: p.full_name }))]}
+              options={[{ value: "", label: t.nonePlaceholder }, ...parents.map((p) => ({ value: p.id, label: p.full_name }))]}
               className="sm:col-span-2"
             />
           )}

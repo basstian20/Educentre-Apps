@@ -166,7 +166,7 @@ export default function Sidebar({ open = false, onClose }) {
             type="button"
             onClick={onClose}
             className="ml-auto rounded-lg p-2 text-[#668584] transition hover:bg-white/50 hover:text-[#164e50] md:hidden"
-            aria-label="Close navigation"
+            aria-label={t.closeNav}
           >
             <X className="h-4 w-4" />
           </button>

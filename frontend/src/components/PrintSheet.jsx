@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Printer } from "lucide-react";
 import { Btn, ErrorState, SkeletonRows } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
+import { useTheme, applyTheme } from "@/lib/theme";
 
 // Plain A4-style page for invoices, receipts and report cards.
 // The toolbar and everything marked .no-print disappear when printing,
@@ -9,6 +11,13 @@ import { useLang } from "@/lib/i18n";
 export default function PrintSheet({ loading, error, onRetry, children }) {
   const { t } = useLang();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+
+  // Documents are paper: always light, then back to the user's theme when leaving the page.
+  useEffect(() => {
+    applyTheme("light");
+    return () => applyTheme(theme);
+  }, [theme]);
 
   return (
     <div className="min-h-screen bg-slate-100 px-3 py-6 print:bg-white print:p-0 sm:px-6">

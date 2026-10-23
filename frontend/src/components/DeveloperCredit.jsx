@@ -1,6 +1,8 @@
 import { useEffect } from "react";
+import { useLang } from "@/lib/i18n";
 
 export default function DeveloperCredit() {
+  const { t } = useLang();
   useEffect(() => {
     document.getElementById("emergent-badge")?.remove();
     document.getElementById("noble-dev-badge")?.remove();
@@ -15,7 +17,7 @@ export default function DeveloperCredit() {
       aria-label="Visit Noble Dev website"
       data-testid="developer-credit"
     >
-      <span className="developer-credit-label">Developed by</span>
+      <span className="developer-credit-label">{t.developedBy}</span>
       <img
         className="developer-credit-logo"
         src="/noble-dev-logo.png"

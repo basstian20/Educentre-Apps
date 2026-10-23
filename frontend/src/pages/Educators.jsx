@@ -66,7 +66,7 @@ export default function Educators() {
         toast.success(t.saved);
       } else {
         await api.post("/educators", { ...form, subjects });
-        toast.success("Educator added");
+        toast.success(t.toastEducatorAdded);
       }
       setOpen(false);
       load();
@@ -118,13 +118,13 @@ export default function Educators() {
         ) : (
           <>
             <div className="overflow-x-auto -mx-4 sm:-mx-5">
-              <table className="w-full min-w-[760px]">
+              <table className="rtable w-full min-w-[760px]">
                 <thead>
                   <tr className="bg-slate-50 text-[11px] text-slate-600 font-outfit text-left">
                     <SortTh label={t.name} k="name" table={table} />
                     <SortTh label={t.code} k="code" table={table} />
                     <SortTh label={t.subject} k="subject" table={table} />
-                    <SortTh label="Type" k="type" table={table} />
+                    <SortTh label={t.fieldType} k="type" table={table} />
                     <SortTh label={t.status} k="status" table={table} />
                     {isAdmin && <th className="px-5 py-3"><span className="sr-only">{t.actions}</span></th>}
                   </tr>
@@ -151,7 +151,7 @@ export default function Educators() {
                           ))}
                         </div>
                       </td>
-                      <td className="px-5 py-3"><StatusBadge status={e.employment_type} label={e.employment_type?.replace("_", " ")} /></td>
+                      <td className="px-5 py-3"><StatusBadge status={e.employment_type} label={t[`emp_${e.employment_type}`] || e.employment_type?.replace("_", " ")} /></td>
                       <td className="px-5 py-3"><StatusBadge status={e.status} label={e.status === "active" ? t.statusActive : t.statusInactive} /></td>
                       {isAdmin && (
                         <td className="px-5 py-3">
@@ -202,13 +202,13 @@ export default function Educators() {
           )}
           <Input label={t.phone} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Select
-            label="Type"
+            label={t.fieldType}
             value={form.employment_type}
             onChange={(e) => setForm({ ...form, employment_type: e.target.value })}
-            options={EMPLOYMENT.map((v) => ({ value: v, label: v.replace("_", " ") }))}
+            options={EMPLOYMENT.map((v) => ({ value: v, label: t[`emp_${v}`] || v.replace("_", " ") }))}
           />
-          <Input label="Subjects (comma)" value={form.subjects} onChange={(e) => setForm({ ...form, subjects: e.target.value })} testid="edu-form-subjects" className="sm:col-span-2" />
-          <Input label="Qualifications" value={form.qualifications} onChange={(e) => setForm({ ...form, qualifications: e.target.value })} className="sm:col-span-2" />
+          <Input label={t.subjectsComma} value={form.subjects} onChange={(e) => setForm({ ...form, subjects: e.target.value })} testid="edu-form-subjects" className="sm:col-span-2" />
+          <Input label={t.qualifications} value={form.qualifications} onChange={(e) => setForm({ ...form, qualifications: e.target.value })} className="sm:col-span-2" />
           {editing && (
             <Select
               label={t.status}

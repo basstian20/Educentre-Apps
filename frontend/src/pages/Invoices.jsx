@@ -21,7 +21,7 @@ export default function Invoices() {
   const [editing, setEditing] = useState(null);
   const [removing, setRemoving] = useState(null);
   const [statusFilter, setStatusFilter] = useState("");
-  const blankForm = () => ({ student_id: "", billing_month: new Date().toISOString().slice(0, 7), description: "Monthly tuition", amount: 0, due_date: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10) });
+  const blankForm = () => ({ student_id: "", billing_month: new Date().toISOString().slice(0, 7), description: t.monthlyTuition, amount: 0, due_date: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10) });
   const [form, setForm] = useState(blankForm);
   const [payForm, setPayForm] = useState({ amount: 0, method: "cash" });
   const isAdmin = user?.role === "admin";
@@ -77,7 +77,7 @@ export default function Invoices() {
         toast.success(t.saved);
       } else {
         await api.post("/invoices", { student_id: form.student_id, billing_month: form.billing_month, items: [{ description: form.description, amount: parseFloat(form.amount) }], due_date: form.due_date });
-        toast.success("Invoice created");
+        toast.success(t.toastInvoiceCreated);
       }
       setOpen(false);
       load();
@@ -90,7 +90,7 @@ export default function Invoices() {
     if (!payOpen) return;
     try {
       await api.post("/payments", { invoice_id: payOpen.id, amount: parseFloat(payForm.amount), method: payForm.method });
-      toast.success("Payment recorded");
+      toast.success(t.toastPaymentRecorded);
       setPayOpen(null);
       load();
     } catch (e) {
@@ -124,11 +124,11 @@ export default function Invoices() {
   return (
     <Layout
       title={user?.role === "parent" ? t.fees : t.invoices}
-      subtitle={`${list.length} invoices`}
+      subtitle={`${list.length} ${t.unitInvoices}`}
       actions={isAdmin && (
         <>
-          <Btn variant="outline" size="sm" onClick={exportInvoices} testid="export-invoices-btn" disabled={list.length === 0}><Download className="w-4 h-4" />{t.exportCsv}</Btn>
-          <Btn onClick={openAdd} size="sm" testid="new-invoice-btn"><Plus className="w-4 h-4" />{t.invoices}</Btn>
+          <Btn variant="outline" size="sm" onClick={exportInvoices} testid="export-invoices-btn" ariaLabel={t.exportCsv} disabled={list.length === 0}><Download className="w-4 h-4" /><span className="hidden sm:inline">{t.exportCsv}</span></Btn>
+          <Btn onClick={openAdd} size="sm" testid="new-invoice-btn"><Plus className="w-4 h-4" />{t.newInvoice}</Btn>
         </>
       )}
     >
@@ -141,22 +141,22 @@ export default function Invoices() {
             testid="invoice-status-filter"
             options={[
               { value: "", label: t.allStatuses },
-              { value: "unpaid", label: t.statusUnpaid || "Unpaid" },
-              { value: "partial", label: t.statusPartial || "Partial" },
-              { value: "paid", label: t.statusPaid || "Paid" },
-              { value: "overdue", label: t.statusOverdue || "Overdue" },
+              { value: "unpaid", label: t.statusUnpaid },
+              { value: "partial", label: t.statusPartial },
+              { value: "paid", label: t.statusPaid },
+              { value: "overdue", label: t.statusOverdue },
             ]}
             className="md:w-48"
           />
         </div>
         {state.loading ? <SkeletonRows /> : state.error ? <ErrorState onRetry={load} /> : list.length === 0 ? (
-          <Empty message={t.noData} icon={Receipt} action={isAdmin && <Btn size="sm" onClick={openAdd}><Plus className="w-4 h-4" />{t.invoices}</Btn>} />
+          <Empty message={t.noData} icon={Receipt} action={isAdmin && <Btn size="sm" onClick={openAdd}><Plus className="w-4 h-4" />{t.newInvoice}</Btn>} />
         ) : table.total === 0 ? (
           <NoMatches onClear={() => { table.setQuery(""); setStatusFilter(""); }} />
         ) : (
           <>
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
-            <table className="w-full min-w-[900px]">
+            <table className="rtable w-full min-w-[900px]">
               <thead>
                 <tr className="bg-slate-50 text-[11px] text-slate-600 font-outfit text-left">
                   <SortTh label={t.invoiceNumber} k="number" table={table} />
@@ -219,7 +219,7 @@ export default function Invoices() {
         message={removing ? `${removing.invoice_number}. ${t.deleteHint}` : ""}
       />
 
-      <Modal open={open} onClose={() => setOpen(false)} title={editing ? `${t.edit}: ${editing.invoice_number}` : t.invoices}
+      <Modal open={open} onClose={() => setOpen(false)} title={editing ? `${t.edit}: ${editing.invoice_number}` : t.newInvoice}
         footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>{t.cancel}</Btn><Btn onClick={create} testid="submit-invoice">{t.save}</Btn></>}
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -228,8 +228,8 @@ export default function Invoices() {
           <Input label={t.billingMonth} type="month" value={form.billing_month} onChange={(e) => setForm({ ...form, billing_month: e.target.value })} />
           <Input label={t.dueDate} type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} />
           <Input label={t.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="sm:col-span-2" testid="inv-desc" disabled={amountLocked} />
-          <Input label="Amount (IDR)" type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="sm:col-span-2" testid="inv-amount" disabled={amountLocked} />
-          {amountLocked && <p className="sm:col-span-2 text-xs text-slate-600 font-jakarta">Amounts can't be changed after a payment was recorded.</p>}
+          <Input label={t.amountIdr} type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="sm:col-span-2" testid="inv-amount" disabled={amountLocked} />
+          {amountLocked && <p className="sm:col-span-2 text-xs text-slate-600 font-jakarta">{t.amountsLocked}</p>}
         </div>
       </Modal>
 
@@ -239,7 +239,7 @@ export default function Invoices() {
         {payOpen && (
           <div className="space-y-3">
             <div className="text-xs text-slate-500 font-jakarta">Balance: <span className="font-outfit font-bold text-slate-900">{fmtIDR(payOpen.balance_due)}</span></div>
-            <Input label="Amount" type="number" value={payForm.amount} onChange={(e) => setPayForm({ ...payForm, amount: e.target.value })} testid="pay-amount" />
+            <Input label={t.amount} type="number" value={payForm.amount} onChange={(e) => setPayForm({ ...payForm, amount: e.target.value })} testid="pay-amount" />
             <Select label={t.paymentMethod} value={payForm.method} onChange={(e) => setPayForm({ ...payForm, method: e.target.value })}
               options={[{ value: "cash", label: t.cash }, { value: "bank_transfer", label: t.bank }, { value: "qris", label: t.qris }, { value: "ewallet", label: t.ewallet }]} />
           </div>

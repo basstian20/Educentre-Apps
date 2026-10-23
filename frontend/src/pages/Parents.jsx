@@ -57,7 +57,7 @@ export default function Parents() {
         toast.success(t.saved);
       } else {
         await api.post("/parents", form);
-        toast.success("Parent added");
+        toast.success(t.toastParentAdded);
       }
       setOpen(false);
       load();
@@ -85,7 +85,7 @@ export default function Parents() {
       actions={
         <Btn onClick={openAdd} size="sm" testid="add-parent-btn">
           <Plus className="w-4 h-4" />
-          {t.parents}
+          {t.addParent}
         </Btn>
       }
     >
@@ -94,13 +94,13 @@ export default function Parents() {
           <SearchBox value={table.query} onChange={table.setQuery} testid="parent-search" />
         </div>
         {state.loading ? <SkeletonRows /> : state.error ? <ErrorState onRetry={load} /> : list.length === 0 ? (
-          <Empty message={t.noData} icon={Users} action={<Btn size="sm" onClick={openAdd}><Plus className="w-4 h-4" />{t.parents}</Btn>} />
+          <Empty message={t.noData} icon={Users} action={<Btn size="sm" onClick={openAdd}><Plus className="w-4 h-4" />{t.addParent}</Btn>} />
         ) : table.total === 0 ? (
           <NoMatches onClear={() => table.setQuery("")} />
         ) : (
           <>
             <div className="overflow-x-auto -mx-4 sm:-mx-5">
-              <table className="w-full min-w-[680px]">
+              <table className="rtable w-full min-w-[680px]">
                 <thead>
                   <tr className="bg-slate-50 text-[11px] text-slate-600 font-outfit text-left">
                     <SortTh label={t.name} k="name" table={table} />
@@ -140,7 +140,7 @@ export default function Parents() {
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title={editing ? `${t.edit}: ${editing.full_name}` : t.parents}
+        title={editing ? `${t.edit}: ${editing.full_name}` : t.addParent}
         footer={
           <>
             <Btn variant="ghost" onClick={() => setOpen(false)}>{t.cancel}</Btn>
@@ -157,7 +157,7 @@ export default function Parents() {
             </>
           )}
           <Input label={t.phone} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-          <Input label="Occupation" value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} />
+          <Input label={t.occupation} value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} />
           <div className="sm:col-span-2">
             <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.childrenLinked}</span>
             <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border border-slate-200 rounded-lg">

@@ -107,7 +107,7 @@ function Receipt({ doc, payment, t, methodLabel }) {
         <Field label={t.invoiceNumber}>{inv.invoice_number}</Field>
         <Field label={t.paidOn}>{fmtDate(payment.paid_at)}</Field>
         <Field label={t.paymentMethod}>{methodLabel(payment.method)}</Field>
-        <Field label="Ref">{payment.reference_number}</Field>
+        <Field label={t.refLabel}>{payment.reference_number}</Field>
       </section>
       <div className="mt-8 rounded-xl border-2 border-slate-800 p-6 text-center">
         <div className="text-[11px] font-bold uppercase tracking-wider text-slate-600 font-outfit">{t.amountPaid}</div>
