@@ -24,7 +24,7 @@ const writeSeen = (userId, ids) => {
 };
 
 const ICONS = { invoice_overdue: AlertTriangle, invoice_due_soon: CalendarClock, absent: UserX, classes_today: CalendarClock };
-const TONE = { danger: "text-red-600 bg-red-50", warning: "text-amber-700 bg-amber-50", info: "text-teal-700 bg-teal-50" };
+const TONE = { danger: "text-[color:var(--bad-ink)] bg-bad/15", warning: "text-[color:var(--warn-ink)] bg-warn/20", info: "text-[color:var(--pri-text)] bg-pri/10" };
 
 export default function NotificationBell() {
   const { t } = useLang();
@@ -107,7 +107,7 @@ export default function NotificationBell() {
         <Bell className="w-4 h-4" />
         {unread > 0 && (
           <span
-            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white"
+            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-bad px-1 text-[11px] font-bold text-white"
             data-testid="notif-count"
           >
             {unread > 9 ? "9+" : unread}
@@ -119,25 +119,25 @@ export default function NotificationBell() {
         <div
           role="dialog"
           aria-label={t.notifTitle}
-          className="absolute right-0 top-full z-50 mt-2 w-[min(92vw,22rem)] rounded-2xl border border-slate-200 bg-white shadow-2xl"
+          className="absolute right-0 top-full z-50 mt-2 w-[min(92vw,22rem)] clay-card"
           data-testid="notif-panel"
         >
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-            <h2 className="font-outfit text-sm font-semibold text-slate-900">{t.notifTitle}</h2>
+          <div className="flex items-center justify-between px-4 pt-4 pb-2">
+            <h2 className="font-outfit text-base font-extrabold text-slate-900">{t.notifTitle}</h2>
             {unread > 0 && (
-              <button type="button" onClick={markAllRead} className="text-xs font-semibold text-teal-700 hover:underline" data-testid="notif-mark-read">
+              <button type="button" onClick={markAllRead} className="text-xs font-bold text-pri hover:underline" data-testid="notif-mark-read">
                 {t.notifMarkAllRead}
               </button>
             )}
           </div>
-          <ul className="max-h-96 overflow-y-auto">
+          <ul className="max-h-96 overflow-y-auto pb-2">
             {items.length === 0 && <li className="px-4 py-8 text-center text-sm text-slate-600 font-jakarta">{t.notifEmpty}</li>}
             {items.map((n) => {
               const Icon = ICONS[n.kind] || Bell;
               const wa = whatsappHref(n);
               return (
-                <li key={n.id} className={`flex gap-3 border-b border-slate-50 px-4 py-3 last:border-0 ${seen.has(n.id) ? "" : "bg-teal-50/40"}`} data-testid="notif-item">
-                  <span className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${TONE[n.severity] || TONE.info}`}>
+                <li key={n.id} className={`flex gap-3 mx-2 rounded-2xl px-3 py-3 ${seen.has(n.id) ? "" : "bg-pri/10"}`} data-testid="notif-item">
+                  <span className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${TONE[n.severity] || TONE.info}`}>
                     <Icon className="h-4 w-4" />
                   </span>
                   <div className="min-w-0 flex-1">

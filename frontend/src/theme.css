@@ -464,3 +464,92 @@ summary:focus-visible,
   }
   .clay-card, .shadow-card, .shadow-clay, .btn-clay { box-shadow: none !important; }
 }
+
+/* ---------- Tahap 2 · Kerangka ---------- */
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+/* gelembung latar: melayang + bergeser mengikuti kursor (--px/--py diisi Layout.jsx) */
+.app-canvas::before {
+  animation: bob 9s ease-in-out infinite;
+  translate: calc(var(--px, 0) * -40px) calc(var(--py, 0) * -30px);
+}
+.app-canvas::after {
+  animation: bob 9s ease-in-out -3s infinite;
+  translate: calc(var(--px, 0) * 30px) calc(var(--py, 0) * 26px);
+}
+
+/* Sidebar: penanda aktif tunggal yang meluncur antar menu */
+.sidebar-glass nav .ni-ind {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  top: 0;
+  z-index: 0;
+  border-radius: 999px;
+  background: var(--side-act);
+  box-shadow: 0 10px 18px -8px rgba(var(--pg), 0.9), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.5s var(--spring), height 0.3s;
+  pointer-events: none;
+}
+.sidebar-glass nav .ni svg { flex-shrink: 0; }
+@media (min-width: 768px) {
+  .sidebar-glass { border-radius: 34px; }
+}
+
+/* Navigasi HP: bilah bawah (menu utama + "Lainnya" membuka menu geser) */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 35;
+  display: flex;
+  justify-content: space-around;
+  gap: 2px;
+  padding: 8px 6px max(8px, env(safe-area-inset-bottom));
+  border-radius: 24px 24px 0 0;
+  background: var(--surface);
+  box-shadow: 0 -10px 24px -12px rgba(var(--pg), 0.35);
+}
+.bottom-nav .bi {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: var(--mut);
+  font-family: var(--font);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+}
+.bottom-nav .bi span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bottom-nav .bi svg {
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border-radius: 12px;
+  transition: background 0.2s, transform 0.3s var(--spring);
+}
+.bottom-nav .bi.act { color: var(--pri-text); }
+.bottom-nav .bi.act svg { background: var(--soft); transform: translateY(-2px); }
+@media (min-width: 768px) {
+  .bottom-nav { display: none; }
+}
+@media (max-width: 767px) {
+  .developer-credit { bottom: calc(76px + env(safe-area-inset-bottom)) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-canvas::before, .app-canvas::after { animation: none; translate: none; }
+}
