@@ -1,0 +1,25 @@
+/* Arah A · Tenang & Terang: teal bersih, ruang lega, ikon jelas. */
+.th-a{--font:"Figtree",system-ui,sans-serif;--fh:"Figtree",system-ui,sans-serif;--fnum:"Figtree",system-ui,sans-serif;--hw:700;--fs:13.5px;--sw:236px;
+ --bg:#f4f8f7;--surface:#ffffff;--ink:#14302d;--mut:#567571;--line:#e0e9e7;--soft:#ecf3f2;--th-bg:#f4f8f7;--pri:#0f766e;--pri-ink:#ffffff;--ok:#1e9e5e;--warn:#d98a06;--bad:#d9473b;--info:#2f6fd1;
+ --c1:#0f766e;--c2:#2f6fd1;--c3:#d98a06;--c4:#7c4dd8;--c5:#d9473b;
+ --side-bg:#ffffff;--side-ink:#3f5e5a;--side-b:#14302d;--side-mut:#7e9a96;--side-line:#e0e9e7;--side-hov:#f0f6f5;--side-act:#dff2ef;--side-act-ink:#0b5d56;
+ --r:16px;--rs:10px;--shadow:0 1px 2px rgba(15,60,55,.05);--shadow-lg:0 18px 44px rgba(10,40,36,.24);--hero:linear-gradient(150deg,#0f766e,#14a094 62%,#74d3c3);--hero-ink:#fff;--bot-bg:#ffffff}
+.th-a[data-mode=dark]{--bg:#0d1615;--surface:#14201f;--ink:#e3f0ee;--mut:#8fadaa;--line:#243635;--soft:#1b2a29;--th-bg:#101b1a;--pri:#3dc2b2;--pri-ink:#06201d;--ok:#3ecf87;--warn:#f0b44a;--bad:#f06b5f;--info:#6aa3f0;
+ --c1:#3dc2b2;--c2:#6aa3f0;--c3:#f0b44a;--c4:#a98cf0;--c5:#f06b5f;--side-bg:#101b1a;--side-ink:#a9c4c1;--side-b:#e3f0ee;--side-mut:#6f8d8a;--side-line:#243635;--side-hov:#172625;--side-act:#1c3a37;--side-act-ink:#7fe0d3;--hero:linear-gradient(150deg,#0b3d39,#0f6d65);--bot-bg:#101b1a}
+.th-a .top{padding-top:20px}
+.th-a .tt h1{font-size:26px;letter-spacing:-.01em}
+.th-a .ni{padding:9px 11px}
+.th-a .ni.act{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pri) 22%,transparent)}
+.th-a .kpi{padding:16px 18px}
+.th-a .kv{font-size:28px}
+.th-a .btn.pri{box-shadow:0 2px 6px color-mix(in srgb,var(--pri) 32%,transparent)}
+.th-a .card{border-color:color-mix(in srgb,var(--line) 85%,transparent)}
+.th-a .ch{border-bottom-color:transparent;padding-bottom:4px}
+.th-a .ch+.cb{padding-top:10px}
+.th-a .tbl th{background:transparent;border-bottom:1px solid var(--line)}
+.th-a .tbl td{border-top-color:color-mix(in srgb,var(--line) 70%,transparent)}
+.th-a .list .li{border-top-color:color-mix(in srgb,var(--line) 70%,transparent)}
+.th-a .logo{border-radius:12px;background:linear-gradient(135deg,var(--pri),#14a094)}
+.th-a.mob .bot{box-shadow:0 -6px 18px rgba(10,40,36,.08);border-top-color:transparent}
+.th-a.mob .bi.act{color:var(--pri)}
+.th-a.mob .bi.act svg{background:var(--side-act);border-radius:8px;padding:3px;width:26px;height:26px}

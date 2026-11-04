@@ -1,0 +1,19 @@
+.mk{position:relative}
+.mk [data-act]{cursor:pointer}
+.mk button{font-family:inherit}
+.mk .mdl{position:absolute;inset:0;background:rgba(10,12,16,.5);display:grid;place-items:center;z-index:50;padding:14px;cursor:default}
+.mk .mbox{background:var(--mbg,#fff);color:var(--mink,#111);border-radius:var(--mr,14px);width:min(430px,100%);max-height:100%;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.4);font-size:13px;line-height:1.45;cursor:default}
+.mk .mbox h4{margin:0;padding:15px 18px 6px;font-size:17px}
+.mk .mbox .mb{padding:4px 18px 10px}
+.mk .mbox .mf{display:flex;gap:8px;justify-content:flex-end;padding:8px 18px 16px;flex-wrap:wrap}
+.mk .mbtn{border:1.5px solid var(--macc,#111);background:transparent;color:var(--macc,#111);font:700 13px/1 inherit;font-family:inherit;border-radius:var(--mrs,8px);padding:9px 14px;cursor:pointer}
+.mk .mbtn.p{background:var(--macc,#111);color:var(--maccink,#fff)}
+.mk .rost .rr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(128,128,128,.25)}
+.mk .chs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mk .mc{border:1.5px solid rgba(128,128,128,.4);background:transparent;color:inherit;font-weight:700;font-size:12px;border-radius:99px;padding:4px 12px;cursor:pointer;min-width:58px}
+.mk .mc.H{background:#d5f5e6;color:#0a6a43;border-color:#8fd7b4}.mk .mc.T{background:#fff0b8;color:#6b4a00;border-color:#e7c768}.mk .mc.A{background:#ffd4d9;color:#8a1630;border-color:#ef9aa5}.mk .mc.I{background:#e4e4ea;color:#444;border-color:#bbb}
+.mk .toast{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);background:#111;color:#fff;padding:9px 16px;border-radius:99px;font:600 13px/1.2 sans-serif;z-index:60;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.35);max-width:94%;overflow:hidden;text-overflow:ellipsis}
+.mk .ph .toast{bottom:74px}
+.mk ::-webkit-scrollbar{width:6px;height:6px}.mk ::-webkit-scrollbar-thumb{background:rgba(128,128,128,.4);border-radius:3px}
+.mk .scr{overflow-y:auto}
+.mk .hov:hover{filter:brightness(.96)}

@@ -1,0 +1,8 @@
+/* ========= mockup umum ========= */
+.mk *{box-sizing:border-box}
+.mk{line-height:1.35}
+.dk{width:1000px;height:620px;overflow:hidden;position:relative;font-size:13px}
+.ph{width:270px;height:560px;border:8px solid #15151a;border-radius:36px;overflow:hidden;position:relative;font-size:13px}
+.ph .sb{display:flex;justify-content:space-between;padding:7px 18px 2px;font-size:11px;font-weight:700}
+.credit{font-size:12px;opacity:.75}
+
