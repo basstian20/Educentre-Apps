@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>V4 — EduCentre: Tegas & Efisien, modern dan bergerak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#e9e9ec;color:#111;}
+  #switcher{position:sticky;top:0;z-index:100;display:flex;gap:0;background:#111;padding:10px 12px;overflow-x:auto;align-items:center;}
+  #switcher a.back{color:#888;font-size:12px;margin-right:14px;text-decoration:none;white-space:nowrap;}
+  #switcher button{font-family:inherit;font-size:13px;font-weight:600;padding:9px 16px;border:none;border-radius:8px;margin-right:8px;background:#2a2a2a;color:#ccc;cursor:pointer;white-space:nowrap;}
+  #switcher button.active{background:#fff;color:#111;}
+  #switcher .num{opacity:.55;margin-right:6px;font-weight:400;}
+  #switcher .sp{flex:1;min-width:10px}
+  #switcher button.reset{background:transparent;border:1px solid #444;color:#aaa;margin-right:0}
+  .stage{display:none;}
+  .stage.active{display:block;}
+  .bar2{display:flex;gap:18px;padding:12px 16px 0;flex-wrap:wrap;align-items:center}
+  .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .grp .k{font-size:11.5px;font-weight:700;color:#777;text-transform:uppercase;letter-spacing:.05em;margin-right:2px}
+  .bar2 button{font-family:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;border:1px solid #c9c9ce;border-radius:20px;background:#fff;color:#444;cursor:pointer;}
+  .bar2 button.active{background:#111;color:#fff;border-color:#111;}
+  .hint{font-size:12px;color:#666;padding:8px 16px 0;max-width:1100px}
+  .hint kbd{font:600 11px sans-serif;background:#fff;border:1px solid #c9c9ce;border-bottom-width:2px;border-radius:5px;padding:1px 6px}
+  .view{display:none;padding:12px 16px 0;}
+  .view.active{display:block;}
+  .fit{position:relative;margin:0 auto;}
+  .fit>.mk{position:absolute;left:0;top:0;transform-origin:0 0;}
+  .direction-note{font-size:12.5px;line-height:1.55;margin:16px;padding:14px 16px;border-radius:10px;background:#fff;border:1px dashed #b9b9c0;color:#333;}
+  .direction-note b{color:#111}
+  .comps{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .comps span{background:#f0f0f4;border:1px solid #e0e0e6;border-radius:99px;padding:3px 10px;font-size:12px;color:#444}
+</style>
+<script>var V=Date.now();['base','c','../v4/base4','../v4/c1','../v4/c2','../v4/c3'].forEach(function(f){document.write('<link rel="stylesheet" href="'+(f.indexOf('../')===0?f.slice(3):'v3/'+f)+'.css?v='+V+'">')});</script>
+</head>
+<body>
+<div id="switcher"><a class="back" href="../index.html">&larr; semua riwayat</a></div>
+<div id="stages"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" async onerror="window.THREE=undefined"></script>
+<script>['v3/data','v3/i18n','v3/app','v3/pages1','v3/pages2','v4/pages3','v4/motion'].forEach(function(f){document.write('<script src="'+f+'.js?v='+V+'"><\/script>')});</script>
+<script>
+var DIRS=[
+ {id:'c1',cls:'th-c1',name:'C1 · Aurora',note:'Kaca buram (glassmorphism) dengan gradien indigo-violet-cyan yang mengalir pelan di sidebar dan latar. Judul bergradien, kartu tembus pandang, tombol utama bergradien dengan kilau saat disentuh. Layar masuk: tumpukan panel kaca 3D yang melayang dan berputar.',
+  comps:['Sidebar aurora bergerak','Kartu kaca (backdrop blur)','Judul dan angka bergradien','Indikator menu meluncur','Hitung naik angka KPI','Grafik area menggambar diri','Donut dan cincin progres','Kartu rapor balik 3D','Palet perintah Ctrl K','Konfeti saat nilai terbit / lunas','Hero 3D tumpukan kaca']},
+ {id:'c2',cls:'th-c2',name:'C2 · Bento 3D',note:'Tata letak bento dengan kartu berlapis bayangan. Kartu dan KPI miring 3D mengikuti kursor, ada kilau cahaya yang mengikuti. Ikon KPI berupa blok 3D dan tombol bertekstur timbul. Sidebar melayang. Layar masuk: kota batang isometrik yang naik-turun.',
+  comps:['Tata letak bento asimetris','Tilt 3D + kilau mengikuti kursor','Ikon blok 3D','Tombol timbul (tekan menekan)','Sidebar melayang','Stagger masuk antarkartu','Grafik dan sparkline beranimasi','Kartu rapor balik 3D','Palet perintah Ctrl K','Hero 3D kota batang isometrik']},
+ {id:'c3',cls:'th-c3',name:'C3 · Midnight Neon',note:'Gelap lebih dulu dengan cahaya neon indigo dan cyan, kisi halus di latar, garis cahaya di atas KPI, grafik berpendar. Palet perintah dibuat menonjol di bilah atas. Layar masuk: bentuk 3D kawat (three.js) yang bereaksi pada kursor.',
+  comps:['Mode gelap neon + kisi latar','Garis cahaya KPI','Grafik berpendar (glow)','Chip berpendar','Palet perintah menonjol','Indikator menu meluncur','Hitung naik angka','Denyut penanda sesi berjalan','Konfeti','Hero 3D three.js (kawat + partikel)']}];
+var ROLES=[['login','Layar masuk'],['admin','Admin'],['educator','Educator'],['student','Siswa'],['parent','Orang tua']];
+var sw=document.getElementById('switcher'),st=document.getElementById('stages'),inst={};
+DIRS.forEach(function(d,i){
+  var b=document.createElement('button');b.innerHTML='<span class="num">'+(i+1)+'</span>'+d.name;b.onclick=function(){show(i+1)};sw.appendChild(b);
+  st.insertAdjacentHTML('beforeend','<div class="stage" id="s'+(i+1)+'"><div class="bar2"><div class="grp"><span class="k">Masuk sebagai</span>'+ROLES.map(function(r,j){return '<button type="button" data-role="'+r[0]+'" class="'+(j===0?'active':'')+'">'+r[1]+'</button>'}).join('')+'</div><div class="grp"><span class="k">Perangkat</span><button type="button" data-dev="d" class="active">Desktop</button><button type="button" data-dev="m">HP</button></div><div class="grp"><span class="k">Gerak</span><button type="button" data-motion="on" class="active">Penuh</button><button type="button" data-motion="off">Hemat</button></div></div>'+
+   '<div class="hint">Coba: tekan <kbd>Ctrl</kbd> + <kbd>K</kbd> untuk palet perintah. Gerakkan kursor di atas kartu. Pindah menu untuk melihat transisi dan angka naik. Di dasbor siswa atau orang tua, ketuk kartu rapor untuk membaliknya. Terbitkan nilai (Educator) atau catat pembayaran lunas (Admin) untuk konfeti. Saklar bulan di bilah atas mengganti mode gelap.</div>'+
+   '<div class="view active" data-dev="d"><div class="fit" data-w="1200" data-h="780"><div id="v-'+d.id+'-d"></div></div></div><div class="view" data-dev="m"><div class="fit" data-w="372" data-h="756"><div id="v-'+d.id+'-m"></div></div></div>'+
+   '<div class="direction-note"><b>'+d.name+'.</b> '+d.note+'<div class="comps">'+d.comps.map(function(c){return '<span>'+c+'</span>'}).join('')+'</div></div></div>');
+  inst[d.id]={d:EduApp.create(document.getElementById('v-'+d.id+'-d'),{theme:'c',cls:d.cls,mob:false}),m:EduApp.create(document.getElementById('v-'+d.id+'-m'),{theme:'c',cls:d.cls,mob:true})};
+});
+inst.c3.d.setMode('dark');inst.c3.m.setMode('dark');
+var rs=document.createElement('span');rs.className='sp';sw.appendChild(rs);
+var rb=document.createElement('button');rb.className='reset';rb.textContent='Reset data demo';rb.onclick=function(){EDUDATA.reset();DIRS.forEach(function(d){inst[d.id].d.showLogin();inst[d.id].m.showLogin()});document.querySelectorAll('.stage .bar2 [data-role]').forEach(function(x){x.classList.toggle('active',x.dataset.role==='login')})};sw.appendChild(rb);
+st.addEventListener('click',function(e){
+  var b=e.target.closest('.bar2 button');if(!b)return;var s=b.closest('.stage'),id=DIRS[+s.id.slice(1)-1].id;
+  if(b.dataset.role){s.querySelectorAll('[data-role]').forEach(function(x){x.classList.toggle('active',x===b)});['d','m'].forEach(function(k){if(b.dataset.role==='login')inst[id][k].showLogin();else inst[id][k].loginAs(b.dataset.role)})}
+  if(b.dataset.dev){s.querySelectorAll('[data-dev]').forEach(function(x){if(x.tagName==='BUTTON')x.classList.toggle('active',x===b);else x.classList.toggle('active',x.dataset.dev===b.dataset.dev)});fit()}
+  if(b.dataset.motion){document.querySelectorAll('[data-motion]').forEach(function(x){x.classList.toggle('active',x.dataset.motion===b.dataset.motion)});if(b.dataset.motion==='off')document.documentElement.setAttribute('data-motion','off');else document.documentElement.removeAttribute('data-motion')}
+});
+function show(n){
+  document.querySelectorAll('.stage').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('s'+n).classList.add('active');
+  document.querySelectorAll('#switcher button:not(.reset)').forEach(function(b,i){b.classList.toggle('active',i===n-1)});
+  try{history.replaceState(null,'','#'+n)}catch(e){}
+  fit();
+}
+function fit(){
+  var s=document.querySelector('.stage.active');if(!s)return;
+  var f=s.querySelector('.view.active .fit');if(!f)return;
+  var w=+f.dataset.w,h=+f.dataset.h,mobile=w<500,availW=innerWidth-32,availH=innerHeight-190;
+  var k=mobile?Math.min(availH/h,1.1):Math.min(availW/w,1.3);
+  f.style.width=(w*k)+'px';f.style.height=(h*k)+'px';f.firstElementChild.style.transform='scale('+k+')';
+}
+window.addEventListener('resize',fit);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+var n=parseInt((location.hash||'#1').slice(1),10);show(n>=1&&n<=DIRS.length?n:1);
+</script>
+</body>
+</html>

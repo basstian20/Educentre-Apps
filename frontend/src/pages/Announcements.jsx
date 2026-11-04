@@ -77,20 +77,20 @@ export default function Announcements() {
         {table.total === 0 ? <Card><NoMatches onClear={() => table.setQuery("")} /></Card> : (
         <div className="space-y-3">
           {table.rows.map((a) => (
-            <div key={a.id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-card" data-testid={`announce-${a.id}`}>
+            <div key={a.id} className="clay-card p-5" data-testid={`announce-${a.id}`}>
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+                <div className="clay-orb h-11 w-11 flex-shrink-0">
                   <Megaphone className="w-5 h-5" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <h3 className="font-outfit font-semibold text-base">{a.title}</h3>
-                      <div className="text-xs text-slate-600 font-jakarta mt-0.5">{a.created_by_name} · {fmtDate(a.created_at)} · <span className="badge badge-blue">{a.audience}</span></div>
+                      <h3 className="font-heading font-extrabold text-base tracking-tight">{a.title}</h3>
+                      <div className="text-xs text-slate-600 font-sans mt-0.5">{a.created_by_name} · {fmtDate(a.created_at)} · <span className="badge badge-blue">{a.audience}</span></div>
                     </div>
                     {canManage(a) && <RowActions testid={`announce-${a.id}`} onEdit={() => openEdit(a)} onDelete={() => setRemoving(a)} />}
                   </div>
-                  <p className="text-sm text-slate-700 mt-3 font-jakarta whitespace-pre-wrap">{a.body}</p>
+                  <p className="text-sm text-slate-700 mt-3 font-sans whitespace-pre-wrap">{a.body}</p>
                 </div>
               </div>
             </div>

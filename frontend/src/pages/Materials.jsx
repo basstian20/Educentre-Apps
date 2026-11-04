@@ -108,27 +108,27 @@ export default function Materials() {
             const Icon = ICON[m.type] || FileText;
             const c = findClass(m.class_id);
             return (
-              <div key={m.id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-card hover:-translate-y-0.5 transition" data-testid={`material-${m.id}`}>
+              <div key={m.id} className="clay-card clay-hover p-5" data-testid={`material-${m.id}`}>
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+                  <div className="clay-orb h-11 w-11 flex-shrink-0">
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-outfit font-semibold text-sm truncate">{m.title}</div>
-                    <div className="text-xs text-slate-600 mt-0.5 font-jakarta">{c?.subject_name || "—"}</div>
+                    <div className="font-heading font-semibold text-sm truncate">{m.title}</div>
+                    <div className="text-xs text-slate-600 mt-0.5 font-sans">{c?.subject_name || "—"}</div>
                   </div>
                   {canUpload && <RowActions testid={`material-${m.id}`} onDelete={() => setRemoving(m)} />}
                 </div>
-                {m.description && <div className="text-xs text-slate-600 mt-3 font-jakarta line-clamp-2">{m.description}</div>}
-                <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-slate-100">
-                  <span className="text-[10px] text-slate-500 font-jakarta">{fmtDate(m.created_at)} · {m.uploader_name || "—"}</span>
+                {m.description && <div className="text-xs text-slate-600 mt-3 font-sans line-clamp-2">{m.description}</div>}
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-line">
+                  <span className="text-xs text-slate-500 font-sans">{fmtDate(m.created_at)} · {m.uploader_name || "—"}</span>
                   {m.file_id ? (
-                    <button type="button" onClick={() => openUploaded(m)} className="inline-flex items-center gap-1 text-xs font-outfit font-semibold text-blue-700 hover:underline" data-testid={`material-open-${m.id}`}>
+                    <button type="button" onClick={() => openUploaded(m)} className="inline-flex items-center gap-1 text-xs font-heading font-semibold text-blue-700 hover:underline" data-testid={`material-open-${m.id}`}>
                       <Paperclip className="h-3.5 w-3.5" />
                       {m.file_name || t.downloadFile}
                     </button>
                   ) : (m.external_url || m.file_url) && (
-                    <a href={m.external_url || m.file_url} target="_blank" rel="noreferrer" className="text-xs font-outfit font-semibold text-blue-700 hover:underline" data-testid={`material-open-${m.id}`}>
+                    <a href={m.external_url || m.file_url} target="_blank" rel="noreferrer" className="text-xs font-heading font-semibold text-blue-700 hover:underline" data-testid={`material-open-${m.id}`}>
                       {t.openLink}
                     </a>
                   )}
@@ -158,14 +158,14 @@ export default function Materials() {
             options={[{ value: "link", label: t.matLink }, { value: "file", label: t.matFile }, { value: "video", label: t.matVideo }]} />
           {form.type === "file" ? (
             <label className="block">
-              <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.uploadFile}</span>
+              <span className="block text-xs font-medium text-slate-600 mb-1.5 font-heading">{t.uploadFile}</span>
               <input
                 type="file"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
                 data-testid="mat-file"
                 className="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-medium file:text-slate-700 hover:file:bg-slate-200"
               />
-              <span className="mt-1 block text-[11px] text-slate-600">{file ? file.name : t.chooseAFile}</span>
+              <span className="mt-1 block text-xs text-slate-600">{file ? file.name : t.chooseAFile}</span>
             </label>
           ) : (
             <Input label={t.materialUrl} value={form.external_url} onChange={(e) => setForm({ ...form, external_url: e.target.value })} testid="mat-url" />

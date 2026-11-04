@@ -100,9 +100,9 @@ export default function Parents() {
         ) : (
           <>
             <div className="overflow-x-auto -mx-4 sm:-mx-5">
-              <table className="rtable w-full min-w-[680px]">
+              <table className="rtable clay-table w-full min-w-[680px]">
                 <thead>
-                  <tr className="bg-slate-50 text-[11px] text-slate-600 font-outfit text-left">
+                  <tr className="text-left">
                     <SortTh label={t.name} k="name" table={table} />
                     <SortTh label={t.email} k="email" table={table} />
                     <SortTh label={t.phone} k="phone" table={table} />
@@ -112,13 +112,13 @@ export default function Parents() {
                 </thead>
                 <tbody>
                   {table.rows.map((p) => (
-                    <tr key={p.id} className="border-t border-slate-100 row-hover" data-testid={`parent-row-${p.id}`}>
+                    <tr key={p.id} className="row-hover" data-testid={`parent-row-${p.id}`}>
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-xs font-outfit font-semibold">
+                          <div className="avatar-clay" style={{ "--t": "var(--c2)" }}>
                             {p.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
                           </div>
-                          <div className="font-outfit font-semibold text-sm">{p.full_name}</div>
+                          <div className="font-heading font-semibold text-sm">{p.full_name}</div>
                         </div>
                       </td>
                       <td className="px-5 py-3 text-sm">{p.email}</td>
@@ -159,7 +159,7 @@ export default function Parents() {
           <Input label={t.phone} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input label={t.occupation} value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} />
           <div className="sm:col-span-2">
-            <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.childrenLinked}</span>
+            <span className="block text-xs font-medium text-slate-600 mb-1.5 font-heading">{t.childrenLinked}</span>
             <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border border-slate-200 rounded-lg">
               {students.map((s) => (
                 <label key={s.id} className="flex items-center gap-1.5 text-xs cursor-pointer">

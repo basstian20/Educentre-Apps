@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>EduCentre — Riwayat Redesign</title>
+<style>
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#f3f3f5;color:#111;padding:40px 24px;}
+  .wrap{max-width:760px;margin:0 auto;}
+  h1{font-size:22px;margin-bottom:4px;}
+  p.sub{color:#666;font-size:13.5px;margin-top:0;margin-bottom:28px;}
+  .ver{display:block;background:#fff;border:1px solid #e3e3e6;border-radius:14px;padding:20px 22px;margin-bottom:16px;text-decoration:none;color:inherit;transition:border-color .15s;}
+  .ver:hover{border-color:#111;}
+  .ver .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:5px;background:#eee;color:#555;margin-bottom:8px;}
+  .ver.current .tag{background:#111;color:#fff;}
+  .ver h2{font-size:16px;margin:0 0 6px;}
+  .ver p{font-size:13px;color:#555;margin:0;line-height:1.5;}
+  .ver .note{font-size:12px;color:#999;margin-top:8px;font-style:italic;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>EduCentre — Riwayat Eksplorasi Redesign</h1>
+  <p class="sub">Semua versi disimpan supaya bisa dibuka maju-mundur. Klik untuk membuka, lalu pakai tombol back browser untuk kembali ke sini.</p>
+
+  <a class="ver current" href="DESIGN.md">
+    <span class="tag">KEPUTUSAN DESAIN</span>
+    <h2>Clay Soft · Ocean Blue · Bricolage Grotesque + Instrument Sans</h2>
+    <p>Arah akhir yang dipilih setelah delapan putaran eksplorasi: struktur familiar (sidebar, dasbor, halaman per modul) dari arah C Tegas &amp; Efisien; gaya <b>Clay Soft</b> (3D lembut menggembung, gerak memantul, parallax); palet <b>Ocean Blue</b> (utama #3f6df2, terang dan gelap); font <b>F · Ekspresif Berkarakter</b> (judul dan angka Bricolage Grotesque 800, isi Instrument Sans). Mencakup seluruh fitur untuk empat peran (Admin, Educator, Siswa, Orang tua), Desktop dan HP, ID/EN, mode gelap. Token dan komponen dirangkum di DESIGN.md. Rujukan visual: <a href="mockups/v8-font-kombinasi-lain.html#2">V8 tab 2</a>.</p>
+    <div class="note">Dipilih pengguna. Berikutnya: menerapkan ke frontend aplikasi.</div>
+  </a>
+
+  <a class="ver" href="mockups/v8-font-kombinasi-lain.html">
+    <span class="tag">V8</span>
+    <h2>Empat kombinasi font lain</h2>
+    <p>Set kedua, berbeda dari V7, tetap Clay Soft Ocean Blue: <b>E · Teknologi Tenang</b> (Sora + Manrope), <b>F · Ekspresif Berkarakter</b> (Bricolage Grotesque + Instrument Sans), <b>G · Aksesibel</b> (Outfit + Atkinson Hyperlegible), <b>H · Klasik Aman</b> (Poppins + Inter). Sama seperti V7: seluruh aplikasi empat peran, Desktop/HP, Terang/Gelap, Bandingkan 4, dan spesimen teks proyek.</p>
+    <div class="note">Feedback: "aku gunakan Ekspresif Berkarakter." Font final: Bricolage Grotesque + Instrument Sans.</div>
+  </a>
+
+  <a class="ver" href="mockups/v7-font-kombinasi.html">
+    <span class="tag">V7</span>
+    <h2>Clay Soft Ocean Blue, 4 kombinasi font</h2>
+    <p>Palet Ocean Blue dipertahankan; yang dijelajahi adalah font. <b>A · Bulat Empuk</b> (Fredoka + Nunito), <b>B · Modern Jakarta</b> (Plus Jakarta Sans), <b>C · Mudah Dibaca</b> (Lexend), <b>D · Serif Hangat</b> (Fraunces + Figtree). Tiap font dilihat langsung di seluruh aplikasi (empat peran, Desktop/HP, Terang/Gelap), ada tampilan "Bandingkan 4" dan spesimen yang memakai teks proyek sebenarnya (judul, angka tagihan, isi, label kecil). Semua font gratis (Google Fonts, SIL OFL).</p>
+    <div class="note">Feedback: "berikan 4 variasi lain." Dijawab di V8.</div>
+  </a>
+
+  <a class="ver" href="mockups/v6-clay-palet.html">
+    <span class="tag">V6</span>
+    <h2>Clay Soft, 4 palet warna</h2>
+    <p>Dari pilihan C5 Clay Soft, dijelajahi empat palet dengan struktur dan gerak yang sama, masing-masing terang dan gelap: <b>A · Lavender &amp; Peach</b> (asli), <b>B · Mint &amp; Sky</b> (segar), <b>C · Sunset Coral</b> (hangat), <b>D · Ocean Blue</b> (tenang dan kredibel). Ada tampilan "Bandingkan 4" berdampingan, bisa ganti peran (termasuk Siswa dan Orang tua), Terang/Gelap, dan Desktop/HP. Warna teks redup sudah dicek kontrasnya.</p>
+    <div class="note">Feedback: "aku gunakan Ocean Blue." Dilanjutkan ke eksplorasi font di V7.</div>
+  </a>
+
+  <a class="ver" href="mockups/v5-variasi-baru.html">
+    <span class="tag">V5</span>
+    <h2>Tiga variasi baru dari Tegas &amp; Efisien</h2>
+    <p>Opsi tambahan setelah V4, dengan bahasa visual dan komponen gerak yang berbeda. <b>C4 · Kinetic Mono</b> (editorial hitam-putih + oranye, bayangan keras, ticker, judul kinetik, tombol magnetik, hero huruf E 3D). <b>C5 · Clay Soft</b> (3D lembut menggembung, pastel, gerak memantul, parallax, hero bentuk tanah liat). <b>C6 · Mission Control</b> (padat ala pusat kendali, jam LIVE, peta panas kehadiran, hero terrain 3D three.js). Semua fitur dan empat peran tetap lengkap, Desktop dan HP.</p>
+    <div class="note">Feedback: "aku suka Clay Soft, tapi masih ingin explore warna. Buat dalam 4 variasi palet." Dijawab di V6.</div>
+  </a>
+
+  <a class="ver" href="mockups/v4-tegas-modern.html">
+    <span class="tag">V4</span>
+    <h2>Tegas &amp; Efisien, tiga modifikasi modern dan bergerak</h2>
+    <p>Dari arah C di V3, dibuat tiga modifikasi dengan animasi, motion, dan 3D, tetap memuat seluruh fitur untuk empat peran di Desktop dan HP. <b>C1 · Aurora</b> (kaca buram, gradien mengalir, hero panel kaca 3D), <b>C2 · Bento 3D</b> (kartu miring 3D mengikuti kursor, ikon blok 3D, hero kota batang isometrik), <b>C3 · Midnight Neon</b> (gelap neon, kisi, grafik berpendar, hero three.js). Komponen bersama: indikator menu meluncur, hitung naik angka, grafik SVG menggambar diri, donut dan cincin progres, garis waktu dengan penanda berdenyut, kartu rapor balik 3D, palet perintah Ctrl+K, konfeti, stagger masuk, dan saklar gerak Penuh/Hemat (menghormati prefers-reduced-motion).</p>
+    <div class="note">Feedback: "berikan lagi 3 variasi yang baru, aku masih mau lihat opsi." Dijawab di V5.</div>
+  </a>
+
+  <a class="ver" href="mockups/v3-tiga-arah.html">
+    <span class="tag">V3</span>
+    <h2>Tiga arah, semua fitur, empat peran</h2>
+    <p>Arah baru yang tidak lagi berbasis metafora. Struktur tetap familiar (sidebar, dasbor, halaman per modul), visualnya dirombak: <b>A · Tenang &amp; Terang</b> (teal bersih), <b>B · Hangat &amp; Tertata</b> (kertas hangat, judul serif), <b>C · Tegas &amp; Efisien</b> (sidebar gelap, indigo, padat). Mencakup seluruh fitur aplikasi untuk Admin, Educator, Siswa, dan Orang tua, di Desktop dan HP, dengan mode gelap, ID/EN, dan notifikasi. Admin: dasbor, laporan, siswa (cari, urut, halaman, impor CSV, rapor), pendidik, orang tua, kelas + jadwal, pendaftaran 4 langkah, absensi, nilai + penerbitan, materi, tagihan (catat bayar, cetak), pengumuman, pengaturan. Siswa: dasbor, jadwal, hasil, materi, kehadiran, biaya, pengumuman.</p>
+    <div class="note">Feedback: "aku suka versi 3 yang tegas dan efisien, ingin melihat beberapa modifikasi. Ingin kesan modern dan estetis; gunakan animasi, motion, 3D, dan komponen apa saja yang perlu."</div>
+  </a>
+
+  <a class="ver" href="mockups/v2-prototipe-klik.html">
+    <span class="tag">V2</span>
+    <h2>Prototipe klik: 5 arah yang hidup</h2>
+    <p>Kelima arah dari V1 dibuat bisa diklik. Satu sumber data sintetis dipakai bersama oleh tiga peran (admin, educator, orang tua), jadi tindakan di satu peran langsung terlihat di peran lain: educator menyimpan absensi lalu admin melihatnya, orang tua melapor sudah bayar lalu admin mengonfirmasi, nilai diterbitkan lalu orang tua melihatnya. Ada modal catat bayar, daftar hadir, profil siswa, struk, dan tombol Reset data demo.</p>
+    <div class="note">Feedback: "belum ada yang sesuai. Redesign harus tetap memiliki semua fitur yang sudah ada, fitur untuk siswa belum terlihat." Jawaban atas pertanyaan: terlalu gimmick/metafora, fitur tidak lengkap, tampilan kurang menarik; struktur tetap familiar tapi tampil jauh lebih baik; siswa campuran semua jenjang; yang diminta 3 arah dengan peta fitur lengkap untuk 4 peran.</div>
+  </a>
+
+  <a class="ver" href="mockups/v1-eksplorasi-arah.html">
+    <span class="tag">V1</span>
+    <h2>Eksplorasi arah (5 konsep)</h2>
+    <p>Buku Induk (metafora buku absen sekolah), Linimasa Hari Ini (berpusat pada waktu), Ruang Obrolan (pengganti grup WhatsApp), Kartu Siswa 360 (berpusat pada siswa), Meja Kasir (berpusat pada uang). Tiap arah punya tiga layar: dasbor admin, absensi educator di HP, beranda orang tua di HP. Berangkat dari pelajaran Nyaytale: variasi warna saja tidak cukup, jadi yang dibedakan adalah cara kerja dan struktur layar.</p>
+    <div class="note">Feedback: "aku ingin semuanya bisa diklik, tidak hanya tampilan statis". V1 hanya potongan layar; V2 membuat semuanya interaktif.</div>
+  </a>
+
+  <a class="ver" href="mockups/v0-lima-gaya-awal.html">
+    <span class="tag">V0</span>
+    <h2>Lima gaya visual awal (13 layar × 5)</h2>
+    <p>Hangat &amp; Lokal, Operasional Tegas, Satu Sistem Empat Wajah, Playful Edukatif, Editorial Minimal. Kerangka layout sama untuk kelimanya; yang berbeda warna, font, dan kepadatan. Dilengkapi panel keputusan per arah.</p>
+    <div class="note">Feedback: "bukan seperti yang kubayangkan". Susunannya bukan seperti riwayat Nyaytale (hub versi + satu halaman penuh per arah dengan pengalih di atas), dan arahnya masih variasi gaya, bukan eksplorasi arah.</div>
+  </a>
+</div>
+</body>
+</html>

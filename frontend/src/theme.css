@@ -1,0 +1,711 @@
+/* Tahap 1 · Fondasi: token Ocean Blue (terang/gelap), bentuk Clay Soft, dan komponen dasar.
+   Semua warna aplikasi berasal dari variabel di sini. Mode gelap = kelas "dark" di <html>
+   (lihat lib/theme.jsx) yang hanya menimpa nilai variabel, bukan menambal kelas satu per satu.
+   Rujukan: mockup-redesign/DESIGN.md. */
+
+:root {
+  /* Font (dipasang sendiri lewat @fontsource-variable, lihat index.js) */
+  --font: "Instrument Sans Variable", "Instrument Sans", system-ui, -apple-system, sans-serif;
+  --fh: "Bricolage Grotesque Variable", "Bricolage Grotesque", system-ui, sans-serif;
+
+  /* Ocean Blue · terang */
+  --bg: #e9f0fd;
+  --surface: #ffffff;
+  --ink: #14264f;
+  --mut: #516697;
+  --line: #d9e5fa;
+  --soft: #e4edfc;
+  --pri: #3f6df2;
+  --pl: #7aa2ff;
+  --pd: #2447b8;
+  --pg: 63, 109, 242; /* rgb dari --pri, untuk rgba(var(--pg), a) */
+  --pri-ink: #ffffff;
+  --ok: #22b573;
+  --warn: #f1a31c;
+  --bad: #ee4d6a;
+  --info: #12b6d4;
+  --c1: #3f6df2;
+  --c2: #12b6d4;
+  --c3: #f1a31c;
+  --c4: #22b573;
+  --c5: #ee4d6a;
+  /* teks status di atas latar tint (kontras ≥ 4,5:1) */
+  --ok-ink: #0c7a4b;
+  --warn-ink: #8f5a00;
+  --bad-ink: #c2223f;
+  --info-ink: #0a7488;
+  --pri-text: #2447b8;
+
+  /* Skala "slate" Tailwind dipetakan ke token (rgb, agar /alpha tetap bekerja) */
+  --slate-50: 243 247 255;
+  --slate-100: 228 237 252;
+  --slate-200: 217 229 250;
+  --slate-300: 185 201 234;
+  --slate-400: 138 156 198;
+  --slate-500: 81 102 151;
+  --slate-600: 62 81 128;
+  --slate-700: 42 61 107;
+  --slate-800: 28 47 92;
+  --slate-900: 20 38 79;
+  --slate-950: 13 26 58;
+
+  /* Bentuk */
+  --r: 28px;
+  --rs: 16px;
+  --shadow:
+    0 24px 34px -20px rgba(var(--pg), 0.5),
+    0 2px 0 rgba(255, 255, 255, 0.95) inset,
+    0 -6px 0 rgba(var(--pg), 0.07) inset;
+  --shadow-lg: 0 34px 80px -20px rgba(var(--pg), 0.55);
+  --shadow-hover:
+    0 34px 44px -22px rgba(var(--pg), 0.62),
+    0 2px 0 rgba(255, 255, 255, 0.95) inset,
+    0 -6px 0 rgba(var(--pg), 0.07) inset;
+  --spring: cubic-bezier(0.3, 1.7, 0.5, 1);
+
+  /* Latar aplikasi */
+  --g1: 140, 190, 255;
+  --g2: 110, 220, 235;
+  --canvas:
+    radial-gradient(720px 520px at 100% 0, rgba(var(--g1), 0.3), transparent 62%),
+    radial-gradient(640px 520px at 0 100%, rgba(var(--g2), 0.3), transparent 62%),
+    var(--bg);
+
+  /* Sidebar / navigasi */
+  --side-bg: rgba(255, 255, 255, 0.74);
+  --side-ink: #5f73a3;
+  --side-mut: #7487b5;
+  --side-hov: rgba(63, 109, 242, 0.09);
+  --side-act: linear-gradient(135deg, var(--pl), var(--pri));
+
+  /* Peran & status kehadiran */
+  --role-management: #3f6df2;
+  --role-educator: #22b573;
+  --role-student: #f1a31c;
+  --role-parent: #8b5cf6;
+  --status-present: var(--ok);
+  --status-late: var(--warn);
+  --status-absent: var(--bad);
+  --status-excused: #6b7280;
+
+  /* shadcn/ui (HSL) dipetakan ke palet baru. Nama --primary-shad/--border-shad
+     dihapus: --primary dan --border kini HSL seperti yang diharapkan shadcn. */
+  --background: 222 80% 96%;
+  --foreground: 223 59% 20%;
+  --card: 0 0% 100%;
+  --card-foreground: 223 59% 20%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 223 59% 20%;
+  --primary: 227 87% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 80% 94%;
+  --secondary-foreground: 223 59% 20%;
+  --muted: 220 80% 94%;
+  --muted-foreground: 223 30% 45%;
+  --accent: 220 80% 94%;
+  --accent-foreground: 223 59% 20%;
+  --destructive: 350 83% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 219 74% 91%;
+  --input: 219 74% 91%;
+  --ring: 227 87% 60%;
+  --radius: 1rem;
+  color-scheme: light;
+}
+
+html.dark {
+  --bg: #0d1630;
+  --surface: #172345;
+  --ink: #e8efff;
+  --mut: #9fb1e0;
+  --line: rgba(255, 255, 255, 0.08);
+  --soft: rgba(255, 255, 255, 0.06);
+  --pri: #6f95ff;
+  --pl: #9bb7ff;
+  --pd: #3f63d6;
+  --pg: 111, 149, 255;
+  --pri-ink: #091330;
+  --ok: #4be0a0;
+  --warn: #ffc15a;
+  --bad: #ff7d97;
+  --info: #4fd3ee;
+  --c1: #6f95ff;
+  --c2: #4fd3ee;
+  --c3: #ffc15a;
+  --c4: #4be0a0;
+  --c5: #ff7d97;
+  --ok-ink: #4be0a0;
+  --warn-ink: #ffc15a;
+  --bad-ink: #ff7d97;
+  --info-ink: #4fd3ee;
+  --pri-text: #9bb7ff;
+
+  --slate-50: 29 42 80;
+  --slate-100: 36 51 94;
+  --slate-200: 48 66 114;
+  --slate-300: 66 86 140;
+  --slate-400: 120 138 186;
+  --slate-500: 159 177 224;
+  --slate-600: 190 203 237;
+  --slate-700: 214 224 245;
+  --slate-800: 232 239 255;
+  --slate-900: 232 239 255;
+  --slate-950: 243 247 255;
+
+  --shadow:
+    0 24px 34px -20px rgba(0, 0, 0, 0.75),
+    0 2px 0 rgba(255, 255, 255, 0.07) inset,
+    0 -6px 0 rgba(0, 0, 0, 0.18) inset;
+  --shadow-lg: 0 34px 80px -20px rgba(0, 0, 0, 0.8);
+  --shadow-hover:
+    0 34px 44px -22px rgba(0, 0, 0, 0.85),
+    0 2px 0 rgba(255, 255, 255, 0.09) inset,
+    0 -6px 0 rgba(0, 0, 0, 0.18) inset;
+
+  --g1: 111, 149, 255;
+  --g2: 79, 211, 238;
+  --canvas:
+    radial-gradient(720px 520px at 100% 0, rgba(var(--g1), 0.16), transparent 62%),
+    radial-gradient(640px 520px at 0 100%, rgba(var(--g2), 0.14), transparent 62%),
+    var(--bg);
+
+  --side-bg: rgba(23, 35, 69, 0.78);
+  --side-ink: #aebbe3;
+  --side-mut: #8c9cd0;
+  --side-hov: rgba(111, 149, 255, 0.13);
+
+  --background: 224 55% 12%;
+  --foreground: 224 100% 95%;
+  --card: 224 50% 18%;
+  --card-foreground: 224 100% 95%;
+  --popover: 224 50% 18%;
+  --popover-foreground: 224 100% 95%;
+  --primary: 224 100% 72%;
+  --primary-foreground: 224 80% 11%;
+  --secondary: 224 40% 22%;
+  --secondary-foreground: 224 100% 95%;
+  --muted: 224 40% 22%;
+  --muted-foreground: 224 55% 79%;
+  --accent: 224 40% 22%;
+  --accent-foreground: 224 100% 95%;
+  --destructive: 350 100% 74%;
+  --destructive-foreground: 224 80% 11%;
+  --border: 224 30% 26%;
+  --input: 224 30% 26%;
+  --ring: 224 100% 72%;
+  color-scheme: dark;
+}
+
+/* ---------- Dasar ---------- */
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--canvas);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--fh);
+}
+.num,
+.tabular {
+  font-family: var(--fh);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Permukaan putih Tailwind mengikuti token (satu-satunya kelas yang tidak bisa
+   dipetakan lewat skala slate karena text-white harus tetap putih). */
+.bg-white {
+  background-color: var(--surface);
+}
+.dark .bg-white\/30 { background-color: rgba(255, 255, 255, 0.06); }
+.dark .bg-white\/55 { background-color: rgba(255, 255, 255, 0.1); }
+.dark .bg-white\/80 { background-color: rgba(255, 255, 255, 0.16); }
+.dark .hover\:bg-white\/45:hover,
+.dark .hover\:bg-white\/50:hover { background-color: rgba(255, 255, 255, 0.1); }
+.dark .border-white\/55,
+.dark .border-white\/70 { border-color: rgba(255, 255, 255, 0.12); }
+
+/* ---------- Bayangan & permukaan Clay ---------- */
+.shadow-card,
+.shadow-clay {
+  box-shadow: var(--shadow);
+}
+.shadow-sm {
+  box-shadow: 0 6px 12px -8px rgba(var(--pg), 0.45);
+}
+
+.clay-card {
+  position: relative;
+  border: 0;
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+@media (hover: hover) {
+  .clay-hover {
+    transition: transform 0.45s var(--spring), box-shadow 0.3s;
+  }
+  .clay-hover:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-hover);
+  }
+}
+
+/* Bola ikon 3D (KPI, hero kecil). Warna lewat --t. */
+.clay-orb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: #fff;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.65) 0 11%, transparent 12%),
+    linear-gradient(150deg, color-mix(in srgb, var(--t, var(--pri)) 62%, #fff), var(--t, var(--pri)));
+  box-shadow:
+    0 10px 16px -6px var(--t, var(--pri)),
+    inset 0 -5px 0 rgba(0, 0, 0, 0.13),
+    inset 0 3px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* ---------- Tombol menggembung ---------- */
+.btn-clay {
+  position: relative;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow:
+    0 5px 0 color-mix(in srgb, var(--pri) 18%, var(--line)),
+    0 12px 16px -10px rgba(var(--pg), 0.45);
+  transform: translateY(-2px);
+  transition: transform 0.25s var(--spring), box-shadow 0.2s, filter 0.2s;
+}
+.btn-clay:hover {
+  transform: translateY(-4px) scale(1.03);
+}
+.btn-clay:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--pri) 25%, var(--line));
+}
+.btn-clay.is-pri {
+  background: linear-gradient(180deg, var(--pl), var(--pri));
+  color: var(--pri-ink);
+  box-shadow: 0 6px 0 var(--pd), 0 16px 20px -8px rgba(var(--pg), 0.7);
+}
+.btn-clay.is-pri:active { box-shadow: 0 1px 0 var(--pd); }
+.btn-clay.is-ok {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ok) 70%, #fff), var(--ok));
+  color: #06281a;
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--ok) 62%, #000), 0 14px 18px -8px rgba(34, 181, 115, 0.55);
+}
+.btn-clay.is-ok:active { box-shadow: 0 1px 0 color-mix(in srgb, var(--ok) 62%, #000); }
+.btn-clay.is-bad {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bad) 70%, #fff), var(--bad));
+  color: #fff;
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--bad) 66%, #000), 0 14px 18px -8px rgba(238, 77, 106, 0.55);
+}
+html.dark .btn-clay.is-bad { color: #2a0610; }
+.btn-clay.is-bad:active { box-shadow: 0 1px 0 color-mix(in srgb, var(--bad) 66%, #000); }
+.btn-clay.is-ghost {
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  border: 2px solid var(--line);
+  color: var(--mut);
+}
+.btn-clay.is-ghost:hover {
+  transform: none;
+  background: var(--soft);
+  color: var(--ink);
+}
+.btn-clay.is-soft {
+  background: var(--soft);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--soft) 80%, var(--pri) 20%);
+}
+.btn-clay:disabled {
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---------- Isian & kotak pencarian ---------- */
+.field-clay {
+  width: 100%;
+  border: 2px solid var(--line);
+  border-radius: var(--rs);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: inset 0 3px 0 rgba(var(--pg), 0.06);
+  font-family: var(--font);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field-clay::placeholder { color: var(--mut); opacity: 0.85; }
+.field-clay:focus {
+  outline: none;
+  border-color: var(--pri);
+  box-shadow: inset 0 3px 0 rgba(var(--pg), 0.06), 0 0 0 4px rgba(var(--pg), 0.18);
+}
+.field-clay:disabled {
+  background: var(--soft);
+  color: var(--mut);
+}
+.field-clay option { background: var(--surface); color: var(--ink); }
+
+/* Isian yang ditulis langsung di halaman (belum memakai <Input>) ikut tampil Clay.
+   Halaman dirapikan satu per satu di Tahap 4-5. */
+main input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]),
+main select,
+main textarea {
+  border: 2px solid var(--line);
+  border-radius: var(--rs);
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: var(--font);
+  box-shadow: inset 0 3px 0 rgba(var(--pg), 0.06);
+}
+main input:focus,
+main select:focus,
+main textarea:focus {
+  outline: none;
+  border-color: var(--pri);
+  box-shadow: inset 0 3px 0 rgba(var(--pg), 0.06), 0 0 0 4px rgba(var(--pg), 0.18);
+}
+
+/* ---------- Chip status ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+.badge-blue { background: rgba(var(--pg), 0.14); color: var(--pri-text); }
+.badge-green { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok-ink); }
+.badge-amber { background: color-mix(in srgb, var(--warn) 22%, transparent); color: var(--warn-ink); }
+.badge-red { background: color-mix(in srgb, var(--bad) 16%, transparent); color: var(--bad-ink); }
+.badge-purple { background: rgba(139, 92, 246, 0.15); color: #6d3fd6; }
+.badge-gray { background: var(--soft); color: var(--mut); }
+.dark .badge-purple { color: #c4b5fd; background: rgba(139, 92, 246, 0.22); }
+
+/* ---------- Tabel ---------- */
+main table thead th {
+  font-family: var(--font);
+}
+
+/* Tabel Clay: kepala berupa pita lembut, baris berpemisah tipis, hover halus. */
+.clay-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.clay-table thead th {
+  padding: 0.75rem 1.25rem;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mut);
+  background: var(--soft);
+  white-space: nowrap;
+}
+.clay-table thead th button { font-family: var(--font); font-weight: 700; letter-spacing: inherit; }
+.clay-table tbody td { border-top: 1px solid var(--line); }
+@media (min-width: 768px) {
+  .clay-table.is-dense thead th,
+  .clay-table.is-dense tbody td { padding-left: 0.875rem; padding-right: 0.875rem; }
+}
+.clay-table tbody tr:first-child td { border-top: 0; }
+.clay-table tbody tr { transition: background-color 0.15s; }
+.clay-table tbody tr:hover { background: color-mix(in srgb, var(--pri) 6%, transparent); }
+
+/* Avatar inisial: warna lewat --t (token), bukan kelas warna tetap. */
+.avatar-clay {
+  display: flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-family: var(--fh);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--t, var(--pri));
+  background: color-mix(in srgb, var(--t, var(--pri)) 16%, var(--surface));
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.55), 0 3px 8px -4px color-mix(in srgb, var(--t, var(--pri)) 60%, transparent);
+}
+.dark .avatar-clay { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12); }
+
+/* Tombol ikon kecil di kolom aksi. */
+.icon-btn {
+  display: inline-flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--mut);
+  transition: background-color 0.15s, color 0.15s, transform 0.15s;
+}
+.icon-btn:hover { background: var(--soft); color: var(--ink); }
+.icon-btn:active { transform: scale(0.92); }
+.icon-btn.is-danger:hover { background: color-mix(in srgb, var(--bad) 14%, transparent); color: var(--bad-ink); }
+
+/* Pita ringkas di dalam kartu (mis. pratinjau impor, petunjuk). */
+.clay-well {
+  border-radius: var(--rs);
+  background: var(--soft);
+  padding: 0.75rem 1rem;
+}
+
+/* ---------- Skeleton ---------- */
+.sk {
+  background: linear-gradient(90deg, var(--soft), color-mix(in srgb, var(--soft) 60%, var(--surface)), var(--soft));
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s linear infinite;
+}
+.dark .sk {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+  background-size: 200% 100%;
+}
+
+/* ---------- Fokus keyboard ---------- */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid rgba(var(--pg), 0.55);
+  outline-offset: 2px;
+}
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--mut) 45%, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--mut) 70%, transparent); }
+
+/* ---------- Cetak: tetap polos (tanpa efek Clay) ---------- */
+@media print {
+  :root, html.dark {
+    --surface: #fff;
+    --ink: #000;
+    --mut: #333;
+    --line: #ccc;
+    --shadow: none;
+    --canvas: #fff;
+  }
+  .clay-card, .shadow-card, .shadow-clay, .btn-clay { box-shadow: none !important; }
+}
+
+/* ---------- Tahap 2 · Kerangka ---------- */
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+/* gelembung latar: melayang + bergeser mengikuti kursor (--px/--py diisi Layout.jsx) */
+.app-canvas::before {
+  animation: bob 9s ease-in-out infinite;
+  translate: calc(var(--px, 0) * -40px) calc(var(--py, 0) * -30px);
+}
+.app-canvas::after {
+  animation: bob 9s ease-in-out -3s infinite;
+  translate: calc(var(--px, 0) * 30px) calc(var(--py, 0) * 26px);
+}
+
+/* Sidebar: penanda aktif tunggal yang meluncur antar menu */
+.sidebar-glass nav .ni-ind {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  top: 0;
+  z-index: 0;
+  border-radius: 999px;
+  background: var(--side-act);
+  box-shadow: 0 10px 18px -8px rgba(var(--pg), 0.9), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.5s var(--spring), height 0.3s;
+  pointer-events: none;
+}
+.sidebar-glass nav .ni svg { flex-shrink: 0; }
+@media (min-width: 768px) {
+  .sidebar-glass { border-radius: 34px; }
+}
+
+/* Navigasi HP: bilah bawah (menu utama + "Lainnya" membuka menu geser) */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 35;
+  display: flex;
+  justify-content: space-around;
+  gap: 2px;
+  padding: 8px 6px max(8px, env(safe-area-inset-bottom));
+  border-radius: 24px 24px 0 0;
+  background: var(--surface);
+  box-shadow: 0 -10px 24px -12px rgba(var(--pg), 0.35);
+}
+.bottom-nav .bi {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: var(--mut);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+.bottom-nav .bi span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bottom-nav .bi svg {
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border-radius: 12px;
+  transition: background 0.2s, transform 0.3s var(--spring);
+}
+.bottom-nav .bi.act { color: var(--pri-text); }
+.bottom-nav .bi.act svg { background: var(--soft); transform: translateY(-2px); }
+@media (min-width: 768px) {
+  .bottom-nav { display: none; }
+}
+@media (max-width: 767px) {
+  .developer-credit { bottom: calc(76px + env(safe-area-inset-bottom)) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-canvas::before, .app-canvas::after { animation: none; translate: none; }
+}
+html[data-motion="lite"] .app-canvas::before,
+html[data-motion="lite"] .app-canvas::after { animation: none; translate: none; }
+
+/* ---------- Tahap 5: halaman akademik ---------- */
+/* Kartu kelas: warna kelas (data) lewat --t, dipakai pita samping dan bola ikon. */
+.class-card { padding: 1.25rem; overflow: hidden; }
+.class-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: var(--t, var(--pri));
+}
+.class-meta { display: grid; gap: 0.35rem; font-size: 13px; color: var(--mut); }
+.class-meta > div { display: flex; align-items: center; gap: 0.5rem; }
+.class-meta svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--t, var(--pri)); }
+.fill-bar { height: 8px; border-radius: 999px; background: var(--soft); overflow: hidden; }
+.fill-bar > span {
+  display: block; height: 100%; border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--t, var(--pri)) 60%, #fff), var(--t, var(--pri)));
+}
+
+/* Jadwal mingguan */
+.tt-grid { border-radius: var(--rs); overflow: hidden; border: 1px solid var(--line); }
+.tt-head { background: var(--soft); color: var(--mut); font-size: 12px; font-weight: 700; text-align: center; padding: 0.6rem 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.tt-hour { text-align: center; font-size: 12px; color: var(--mut); padding: 0.25rem 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.tt-block {
+  position: absolute; overflow: hidden; border-radius: 14px; padding: 0.4rem 0.55rem;
+  border-left: 4px solid var(--t, var(--pri));
+  background: color-mix(in srgb, var(--t, var(--pri)) 16%, var(--surface));
+  box-shadow: 0 6px 12px -8px var(--t, var(--pri));
+  transition: transform 0.3s var(--spring), box-shadow 0.2s;
+}
+.tt-block:hover { transform: translateY(-2px); box-shadow: 0 10px 16px -8px var(--t, var(--pri)); }
+.tt-block .tt-n { font-size: 12px; font-weight: 800; color: var(--ink); font-family: var(--fh); }
+.tt-block .tt-s { font-size: 12px; color: var(--mut); line-height: 1.25; }
+.tt-day { border-radius: var(--rs); border: 1px solid var(--line); overflow: hidden; }
+.tt-day-h { background: var(--soft); padding: 0.5rem 0.75rem; font-size: 12px; font-weight: 700; color: var(--mut); }
+.tt-item {
+  border-radius: 14px; padding: 0.65rem 0.8rem; border-left: 4px solid var(--t, var(--pri));
+  background: color-mix(in srgb, var(--t, var(--pri)) 12%, var(--surface));
+}
+
+/* Langkah pendaftaran */
+.step-dot {
+  display: flex; height: 2rem; width: 2rem; flex-shrink: 0; align-items: center; justify-content: center;
+  border-radius: 999px; font-size: 13px; font-weight: 800; font-family: var(--fh);
+  background: var(--soft); color: var(--mut);
+  transition: background 0.2s, color 0.2s, transform 0.3s var(--spring);
+}
+.step-dot.is-on {
+  color: var(--pri-ink);
+  background: linear-gradient(150deg, var(--pl), var(--pri));
+  box-shadow: 0 8px 14px -6px var(--pri), inset 0 2px 0 rgba(255, 255, 255, 0.4);
+}
+.step-dot.is-now { transform: scale(1.12); }
+.step-line { height: 3px; border-radius: 99px; background: var(--soft); }
+.step-line.is-on { background: var(--pri); }
+
+/* Pilihan berbentuk kartu (pilih kelas) */
+.pick-card {
+  text-align: left; padding: 1rem; border-radius: var(--rs); border: 2px solid var(--line);
+  background: var(--surface); transition: border-color 0.15s, background 0.15s, transform 0.3s var(--spring);
+}
+.pick-card:hover { border-color: color-mix(in srgb, var(--pri) 45%, var(--line)); transform: translateY(-2px); }
+.pick-card.is-on { border-color: var(--pri); background: color-mix(in srgb, var(--pri) 8%, var(--surface)); }
+.line-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; padding: 0.75rem 1rem; border-radius: var(--rs); border: 1px solid var(--line); }
+
+/* Chip hari pada formulir kelas */
+.day-chip {
+  padding: 0.4rem 0.9rem; border-radius: 999px; border: 2px solid var(--line);
+  font-size: 12px; font-weight: 700; font-family: var(--fh); color: var(--mut);
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+}
+.day-chip:active { transform: scale(0.94); }
+.day-chip.is-on { border-color: var(--pri); background: color-mix(in srgb, var(--pri) 12%, transparent); color: var(--pri-text); }
+
+/* Baris siswa pada absensi dan angka ringkas laporan */
+.att-row { display: flex; flex-direction: column; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: var(--rs); background: var(--soft); }
+@media (min-width: 640px) { .att-row { flex-direction: row; align-items: center; justify-content: space-between; } }
+.metric-tile { border-radius: var(--rs); background: var(--soft); padding: 1rem; }
+.metric-tile .k { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mut); }
+.metric-tile .v { margin-top: 0.25rem; font-family: var(--fh); font-size: 1.6rem; font-weight: 800; color: var(--ink); }
+.legend-dot { display: inline-block; height: 10px; width: 10px; border-radius: 99px; margin-right: 6px; }
+
+/* ---------- Tahap 7 · Isian mode gelap (menggantikan dark.css) ---------- */
+html.dark { color-scheme: dark; }
+.dark main input,
+.dark main select,
+.dark main textarea { color: var(--ink); }
+.dark main option { background: var(--surface); color: var(--ink); }
+.dark main input:disabled,
+.dark main select:disabled { background-color: var(--soft); color: var(--mut); }
+
+/* Cetak: dokumen polos, tanpa latar, bayangan, sudut bulat, atau animasi */
+@media print {
+  .print-sheet, .print-sheet * { animation: none !important; transition: none !important; text-shadow: none !important; }
+  .print-sheet { background: #fff !important; color: #000 !important; border: 0 !important; }
+  .print-sheet table { break-inside: auto; }
+  .print-sheet tr, .print-sheet header, .print-sheet footer { break-inside: avoid; }
+  .app-canvas::before, .app-canvas::after { display: none !important; }
+}

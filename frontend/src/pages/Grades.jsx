@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { api, fmtDate, formatApiError } from "@/lib/api";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { fireConfetti } from "../lib/confetti";
 
 export default function Grades() {
   const { t } = useLang();
@@ -71,6 +72,7 @@ export default function Grades() {
     try {
       await api.post("/assessments/publish", { assessment_id: selectedAssId });
       toast.success(t.toastPublished);
+      fireConfetti();
       api.get("/assessments", { params: { class_id: classId } }).then((r) => setAssessments(r.data || []));
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail));
@@ -113,9 +115,9 @@ export default function Grades() {
         >
           {students.length === 0 ? <Empty message={t.noData} /> : (
             <div className="overflow-x-auto -mx-4 sm:-mx-5">
-              <table className="w-full min-w-[640px]">
+              <table className="clay-table w-full min-w-[640px]">
                 <thead>
-                  <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
+                  <tr>
                     <th className="text-left px-5 py-3">{t.student}</th>
                     <th className="text-left px-5 py-3">{t.score} / {ass.max_score}</th>
                     <th className="text-left px-5 py-3">{t.remark}</th>
@@ -123,10 +125,10 @@ export default function Grades() {
                 </thead>
                 <tbody>
                   {students.map((s) => (
-                    <tr key={s.id} className="border-t border-slate-100" data-testid={`grade-row-${s.id}`}>
+                    <tr key={s.id} className="row-hover" data-testid={`grade-row-${s.id}`}>
                       <td className="px-5 py-3">
-                        <div className="font-outfit font-semibold text-sm">{s.full_name}</div>
-                        <div className="text-xs text-slate-500 font-jakarta">{s.student_code}</div>
+                        <div className="font-heading font-semibold text-sm">{s.full_name}</div>
+                        <div className="text-xs text-slate-600 font-sans">{s.student_code}</div>
                       </td>
                       <td className="px-5 py-3 w-32">
                         <input
@@ -134,7 +136,7 @@ export default function Grades() {
                           value={grades[s.id]?.score ?? ""}
                           onChange={(e) => setGrades({ ...grades, [s.id]: { ...(grades[s.id] || {}), score: e.target.value } })}
                           data-testid={`grade-score-${s.id}`}
-                          className="w-24 h-9 px-2 rounded-lg border border-slate-300 text-sm"
+                          className="field-clay h-10 w-24 px-3 text-sm"
                           placeholder="—"
                         />
                       </td>
@@ -144,7 +146,7 @@ export default function Grades() {
                           value={grades[s.id]?.remark ?? ""}
                           onChange={(e) => setGrades({ ...grades, [s.id]: { ...(grades[s.id] || {}), remark: e.target.value } })}
                           data-testid={`grade-remark-${s.id}`}
-                          className="w-full h-9 px-2 rounded-lg border border-slate-300 text-sm"
+                          className="field-clay h-10 w-full px-3 text-sm"
                           placeholder="—"
                         />
                       </td>

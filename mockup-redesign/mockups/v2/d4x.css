@@ -1,0 +1,36 @@
+.d4{--mbg:#fff;--mink:#1e2433;--macc:#6c5ce7;--maccink:#fff;--mr:24px;--mrs:14px}
+.d4 .dk{grid-template-columns:1fr 290px}
+.d4 .main{min-height:0;overflow:hidden}
+.d4 .ch span{cursor:pointer}
+.d4 .ch2{display:flex;gap:6px;flex-wrap:wrap}
+.d4 .ch2 span{padding:5px 13px;border-radius:99px;background:#fff;border:1px solid #e3def0;font-weight:500;font-size:13px;cursor:pointer}
+.d4 .ch2 span.on{background:#1e2433;color:#fff;border-color:#1e2433}
+.d4 .ch2 span.att{background:#ffe3e0;border-color:#ffc9c3;color:#8a2b20}.d4 .ch2 span.on.att{background:#ef4565;color:#fff;border-color:#ef4565}
+.d4 .grid{overflow-y:auto;min-height:0;max-height:480px;align-content:start;padding:2px}
+.d4 .grid.two{grid-template-columns:repeat(2,1fr)}
+.d4 .s{cursor:pointer}
+.d4 .s:hover{border-color:#cfc8f5}
+.d4 .s.sel{border-color:#6c5ce7}
+.d4 .mini{display:inline-block;margin-left:4px;font-size:12px;font-weight:700;color:#fff;background:#6c5ce7;border-radius:99px;padding:3px 11px;cursor:pointer}
+.d4 .dr{overflow-y:auto}
+.d4 .dr .cta{cursor:pointer}
+.d4 .dr .cta.alt{background:#fff;color:#6c5ce7;border:2px solid #6c5ce7;margin-top:0}
+.d4 .dr .cta+.cta{margin-top:8px}
+.d4 .dr .cta:first-of-type{margin-top:auto}
+.d4 .ph .ptabs{display:flex;gap:6px;padding:0 12px 6px}
+.d4 .ph .ptabs span{padding:5px 14px;border-radius:99px;background:#fff;border:1px solid #e3def0;font-weight:600;font-size:12.5px;cursor:pointer}
+.d4 .ph .ptabs span.on{background:#1e2433;color:#fff;border-color:#1e2433}
+.d4 .ph .tile{cursor:pointer}
+.d4 .ph .tile.n{background:#eceaf4}
+.d4 .ph .tile.n small{color:#6b6b80}
+.d4 .ph .tile .stp{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:6px}
+.d4 .ph .tile .stp b{width:26px;height:26px;border-radius:50%;background:#fff;display:grid;place-items:center;cursor:pointer;color:#6c5ce7}
+.d4 .ph .tile .stp i{font-style:normal;font-weight:700;min-width:26px}
+.d4 .ph .save{cursor:pointer}
+.d4 .ph .save.done{background:#16a870}
+.d4 .ph .kidsw{display:flex;gap:6px;padding:0 12px 4px}
+.d4 .ph .kidsw span{padding:5px 14px;border-radius:99px;background:#fff;border:1px solid #e3def0;font-weight:600;font-size:12.5px;cursor:pointer}
+.d4 .ph .kidsw span.on{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
+.d4 .ph .need[data-act]{cursor:pointer}
+.d4 .ph .need .pay{display:block;margin-top:8px;background:#6c5ce7;color:#fff;text-align:center;font-weight:600;border-radius:12px;padding:7px}
+.d4 .ph .save{position:absolute;left:12px;right:12px;bottom:12px}

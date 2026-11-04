@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { Download, Plus, Printer, Receipt } from "lucide-react";
 import { exportCsv } from "@/lib/csv";
 import { toast } from "sonner";
+import { fireConfetti } from "../lib/confetti";
 
 export default function Invoices() {
   const { t } = useLang();
@@ -92,6 +93,8 @@ export default function Invoices() {
     try {
       await api.post("/payments", { invoice_id: payOpen.id, amount: parseFloat(payForm.amount), method: payForm.method });
       toast.success(t.toastPaymentRecorded);
+      // Konfeti hanya bila pembayaran ini melunasi tagihan.
+      if (parseFloat(payForm.amount) >= Number(payOpen.balance_due)) fireConfetti();
       setPayOpen(null);
       load();
     } catch (e) {
@@ -157,32 +160,32 @@ export default function Invoices() {
         ) : (
           <>
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
-            <table className="rtable w-full min-w-[900px]">
+            <table className="rtable clay-table is-dense w-full min-w-[900px]">
               <thead>
-                <tr className="bg-slate-50 text-[11px] text-slate-600 font-outfit text-left">
+                <tr className="text-left">
                   <SortTh label={t.invoiceNumber} k="number" table={table} />
                   {isAdmin && <SortTh label={t.student} k="student" table={table} />}
-                  <th className="px-5 py-3 uppercase tracking-wider">{t.description}</th>
+                  <th className="px-5 py-3">{t.description}</th>
                   <SortTh label={t.amount} k="amount" table={table} />
                   <SortTh label={t.dueDate} k="due" table={table} />
                   <SortTh label={t.status} k="status" table={table} />
-                  <th className="px-5 py-3 uppercase tracking-wider">{t.actions}</th>
+                  <th className="px-5 py-3">{t.actions}</th>
                 </tr>
               </thead>
               <tbody>
                 {table.rows.map((inv) => (
-                  <tr key={inv.id} className="border-t border-slate-100 row-hover" data-testid={`invoice-row-${inv.id}`}>
-                    <td className="px-5 py-3 font-mono text-xs text-slate-600">{inv.invoice_number}</td>
-                    {isAdmin && <td className="px-5 py-3 text-sm font-jakarta">{studentName(inv.student_id)}</td>}
-                    <td className="px-5 py-3 text-sm font-jakarta">{(inv.items || []).map((i) => i.description).join(", ")}</td>
-                    <td className="px-5 py-3 font-outfit font-semibold">{fmtIDR(inv.total_amount)}</td>
-                    <td className="px-5 py-3 text-sm font-jakarta">{fmtDate(inv.due_date)}</td>
+                  <tr key={inv.id} className="row-hover" data-testid={`invoice-row-${inv.id}`}>
+                    <td className="px-5 py-3 font-mono text-xs text-slate-600 whitespace-nowrap">{inv.invoice_number}</td>
+                    {isAdmin && <td className="px-5 py-3 text-sm font-sans">{studentName(inv.student_id)}</td>}
+                    <td className="px-5 py-3 text-sm font-sans md:min-w-[9rem]">{(inv.items || []).map((i) => i.description).join(", ")}</td>
+                    <td className="px-5 py-3 font-heading font-semibold whitespace-nowrap">{fmtIDR(inv.total_amount)}</td>
+                    <td className="px-5 py-3 text-sm font-sans">{fmtDate(inv.due_date)}</td>
                     <td className="px-5 py-3"><StatusBadge status={inv.status} label={t[`status${inv.status?.charAt(0).toUpperCase()}${inv.status?.slice(1)}`] || inv.status} /></td>
                     <td className="px-5 py-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 whitespace-nowrap">
                         <Link
                           to={`/invoices/${inv.id}/print`}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                          className="icon-btn"
                           aria-label={t.printInvoice}
                           title={t.printInvoice}
                           data-testid={`print-${inv.id}`}
@@ -230,7 +233,7 @@ export default function Invoices() {
           <Input label={t.dueDate} type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} />
           <Input label={t.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="sm:col-span-2" testid="inv-desc" disabled={amountLocked} />
           <Input label={t.amountIdr} type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="sm:col-span-2" testid="inv-amount" disabled={amountLocked} />
-          {amountLocked && <p className="sm:col-span-2 text-xs text-slate-600 font-jakarta">{t.amountsLocked}</p>}
+          {amountLocked && <p className="sm:col-span-2 text-xs text-slate-600 font-sans">{t.amountsLocked}</p>}
         </div>
       </Modal>
 
@@ -239,7 +242,7 @@ export default function Invoices() {
       >
         {payOpen && (
           <div className="space-y-3">
-            <div className="text-xs text-slate-500 font-jakarta">Balance: <span className="font-outfit font-bold text-slate-900">{fmtIDR(payOpen.balance_due)}</span></div>
+            <div className="text-xs text-slate-500 font-sans">Balance: <span className="font-heading font-bold text-slate-900">{fmtIDR(payOpen.balance_due)}</span></div>
             <Input label={t.amount} type="number" value={payForm.amount} onChange={(e) => setPayForm({ ...payForm, amount: e.target.value })} testid="pay-amount" />
             <Select label={t.paymentMethod} value={payForm.method} onChange={(e) => setPayForm({ ...payForm, method: e.target.value })}
               options={[{ value: "cash", label: t.cash }, { value: "bank_transfer", label: t.bank }, { value: "qris", label: t.qris }, { value: "ewallet", label: t.ewallet }]} />

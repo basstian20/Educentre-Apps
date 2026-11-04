@@ -1,0 +1,33 @@
+/* V6: empat palet untuk Clay Soft. Dipilih lewat atribut data-pal pada akar aplikasi. */
+
+/* A · Lavender & Peach (asli) */
+.th-c5[data-pal=a]{--bg:#f0ecfb;--surface:#ffffff;--ink:#2a2552;--mut:#655f96;--line:#e7e2f7;--soft:#f0ecfb;--pri:#7c6cf0;--pl:#a093fb;--pd:#5b4cd1;--pg:124,108,240;--ok:#27b98a;--warn:#f2a21e;--bad:#ee5f7b;--info:#46a4ee;
+ --c1:#7c6cf0;--c2:#46a4ee;--c3:#f2a21e;--c4:#27b98a;--c5:#ee5f7b;--side-bg:rgba(255,255,255,.72);--side-ink:#6b6599;--side-b:#2a2552;--side-mut:#a39ec9;--side-hov:rgba(124,108,240,.09);--bot-bg:#ffffff;
+ --hero:linear-gradient(150deg,#8f81f7,#6f5ee8 55%,#ff9b7a);--g1:255,155,122;--g2:106,195,255;--b1a:#ffc2ad;--b1b:#ff9b7a;--b2a:#bba9ff;
+ --s1a:#ffbfa9;--s1b:#ff7a59;--s1d:160,40,10;--s2:#ffd166;--s3a:#8ef0cf;--s3b:#27b98a;--s4a:#9ad8ff;--s4b:#46a4ee;--s5a:#e6defc;--s6a:#ffe9a8;--s6b:#ffc03a}
+.th-c5[data-pal=a][data-mode=dark]{--bg:#16132e;--surface:#211d46;--ink:#eeeaff;--mut:#a39ecf;--line:rgba(255,255,255,.08);--soft:rgba(255,255,255,.06);--pri:#9a8cff;--pl:#b9aeff;--pd:#6f5fe0;--pg:154,140,255;--ok:#4be0b0;--warn:#ffc15a;--bad:#ff7d97;--info:#6cbcff;
+ --c1:#9a8cff;--c2:#6cbcff;--c3:#ffc15a;--c4:#4be0b0;--c5:#ff7d97;--side-bg:rgba(33,29,70,.75);--side-ink:#b4afdb;--side-b:#eeeaff;--side-hov:rgba(154,140,255,.12);--bot-bg:#211d46;--pri-ink:#16132e;--g1:255,125,151;--g2:108,188,255;--hero:linear-gradient(150deg,#5b4cd1,#3a2f9e 60%,#8a4a7a)}
+
+/* B · Mint & Sky (segar) */
+.th-c5[data-pal=b]{--bg:#e9f7f4;--surface:#ffffff;--ink:#0f3b3a;--mut:#46706b;--line:#d5eee8;--soft:#e4f5f1;--pri:#10a897;--pl:#4fd6c4;--pd:#0a7a6d;--pg:16,168,151;--ok:#2fb86a;--warn:#f0a020;--bad:#ef5870;--info:#33a8ee;
+ --c1:#10a897;--c2:#33a8ee;--c3:#f0a020;--c4:#7bc62d;--c5:#ef5870;--side-bg:rgba(255,255,255,.74);--side-ink:#4f807b;--side-b:#0f3b3a;--side-mut:#8fb8b2;--side-hov:rgba(16,168,151,.1);--bot-bg:#ffffff;
+ --hero:linear-gradient(150deg,#3fd3c1,#0e9a8b 55%,#38b6f2);--g1:120,226,205;--g2:130,200,255;--b1a:#b8f0e4;--b1b:#4fd6c4;--b2a:#a7dcff;
+ --s1a:#8ff0dc;--s1b:#10a897;--s1d:0,80,70;--s2:#ffe066;--s3a:#bdeb7a;--s3b:#6fbf2a;--s4a:#a9deff;--s4b:#33a8ee;--s5a:#d3f5ee;--s6a:#ffe9a8;--s6b:#ffbf3a}
+.th-c5[data-pal=b][data-mode=dark]{--bg:#0a1e1d;--surface:#112f2d;--ink:#e2fbf6;--mut:#8fc4bb;--line:rgba(255,255,255,.08);--soft:rgba(255,255,255,.06);--pri:#3fd9c4;--pl:#7ff0de;--pd:#17998a;--pg:63,217,196;--ok:#5be39a;--warn:#ffc65a;--bad:#ff7d92;--info:#6cc3ff;
+ --c1:#3fd9c4;--c2:#6cc3ff;--c3:#ffc65a;--c4:#9be35a;--c5:#ff7d92;--side-bg:rgba(17,47,45,.78);--side-ink:#a8d4cc;--side-b:#e2fbf6;--side-hov:rgba(63,217,196,.12);--bot-bg:#112f2d;--pri-ink:#062321;--g1:63,217,196;--g2:108,195,255;--hero:linear-gradient(150deg,#0e6f64,#0a4b45 60%,#1a6f94)}
+
+/* C · Sunset Coral (hangat) */
+.th-c5[data-pal=c]{--bg:#fdefe7;--surface:#ffffff;--ink:#4a2a22;--mut:#865c4d;--line:#f6dfd2;--soft:#fbe9de;--pri:#f26a47;--pl:#ff9b7a;--pd:#c2431f;--pg:242,106,71;--ok:#2fb98d;--warn:#f0a020;--bad:#e8496b;--info:#4aa3ee;
+ --c1:#f26a47;--c2:#f0a020;--c3:#ec4899;--c4:#2fb98d;--c5:#8b5cf6;--side-bg:rgba(255,255,255,.76);--side-ink:#8e6558;--side-b:#4a2a22;--side-mut:#c4a193;--side-hov:rgba(242,106,71,.1);--bot-bg:#ffffff;
+ --hero:linear-gradient(150deg,#ff9b7a,#f26a47 52%,#ec4899);--g1:255,182,140;--g2:255,140,190;--b1a:#ffd9a8;--b1b:#ffb36b;--b2a:#ffb3cf;
+ --s1a:#ffd0a6;--s1b:#f26a47;--s1d:150,40,10;--s2:#ffd166;--s3a:#ffc0d6;--s3b:#ec4899;--s4a:#ffe2a8;--s4b:#f0a020;--s5a:#ffe3d6;--s6a:#c8f2e2;--s6b:#2fb98d}
+.th-c5[data-pal=c][data-mode=dark]{--bg:#221310;--surface:#33201a;--ink:#ffeee6;--mut:#d0a898;--line:rgba(255,255,255,.08);--soft:rgba(255,255,255,.06);--pri:#ff8a68;--pl:#ffb097;--pd:#d4552f;--pg:255,138,104;--ok:#4be0b0;--warn:#ffc15a;--bad:#ff7d97;--info:#6cbcff;
+ --c1:#ff8a68;--c2:#ffc15a;--c3:#ff7fbd;--c4:#4be0b0;--c5:#b79aff;--side-bg:rgba(51,32,26,.8);--side-ink:#d8b9ab;--side-b:#ffeee6;--side-hov:rgba(255,138,104,.12);--bot-bg:#33201a;--pri-ink:#2a120a;--g1:255,138,104;--g2:255,127,189;--hero:linear-gradient(150deg,#a83a1c,#7a2a14 60%,#8a2a5a)}
+
+/* D · Ocean Blue (tenang) */
+.th-c5[data-pal=d]{--bg:#e9f0fd;--surface:#ffffff;--ink:#14264f;--mut:#516697;--line:#d9e5fa;--soft:#e4edfc;--pri:#3f6df2;--pl:#7aa2ff;--pd:#2447b8;--pg:63,109,242;--ok:#22b573;--warn:#f1a31c;--bad:#ee4d6a;--info:#12b6d4;
+ --c1:#3f6df2;--c2:#12b6d4;--c3:#f1a31c;--c4:#22b573;--c5:#ee4d6a;--side-bg:rgba(255,255,255,.74);--side-ink:#5f73a3;--side-b:#14264f;--side-mut:#9aaed6;--side-hov:rgba(63,109,242,.09);--bot-bg:#ffffff;
+ --hero:linear-gradient(150deg,#7aa2ff,#3f6df2 55%,#12b6d4);--g1:140,190,255;--g2:110,220,235;--b1a:#cfe0ff;--b1b:#8fb4ff;--b2a:#a8ecf5;
+ --s1a:#9fc2ff;--s1b:#3f6df2;--s1d:10,40,140;--s2:#ffd166;--s3a:#8ff0dc;--s3b:#12b6d4;--s4a:#ffb3a0;--s4b:#ee5b4a;--s5a:#dbe6ff;--s6a:#ffe9a8;--s6b:#ffc03a}
+.th-c5[data-pal=d][data-mode=dark]{--bg:#0d1630;--surface:#172345;--ink:#e8efff;--mut:#9fb1e0;--line:rgba(255,255,255,.08);--soft:rgba(255,255,255,.06);--pri:#6f95ff;--pl:#9bb7ff;--pd:#3f63d6;--pg:111,149,255;--ok:#4be0a0;--warn:#ffc15a;--bad:#ff7d97;--info:#4fd3ee;
+ --c1:#6f95ff;--c2:#4fd3ee;--c3:#ffc15a;--c4:#4be0a0;--c5:#ff7d97;--side-bg:rgba(23,35,69,.78);--side-ink:#aebbe3;--side-b:#e8efff;--side-hov:rgba(111,149,255,.13);--bot-bg:#172345;--pri-ink:#091330;--g1:111,149,255;--g2:79,211,238;--hero:linear-gradient(150deg,#2447b8,#183584 60%,#0e6a86)}

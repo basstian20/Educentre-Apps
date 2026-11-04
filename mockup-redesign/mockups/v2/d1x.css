@@ -1,0 +1,16 @@
+.d1{--mbg:#fbf6e6;--mink:#1d3a6b;--macc:#1d3a6b;--maccink:#fff;--mr:4px;--mrs:3px}
+.d1 .dk .page{overflow:auto}
+.d1 .stamp{cursor:default}.d1 .stamp[data-act]{cursor:pointer}
+.d1 .stamp.wt{color:#a86b00;border-color:#a86b00}
+.d1 .tabs span{cursor:pointer}
+.d1 .tabs span:hover{filter:brightness(1.06)}
+.d1 .sticky div{cursor:pointer}
+.d1 .sticky div:hover{text-decoration:underline}
+.d1 .ph .pt{display:flex;gap:6px;padding:6px 14px 6px 44px;background:var(--paper);border-bottom:1px solid var(--line);position:relative;z-index:1}
+.d1 .ph .pt span{font:600 14px Newsreader;padding:3px 10px;border:1.5px solid var(--ink);border-radius:99px;cursor:pointer}
+.d1 .ph .pt span.on{background:var(--ink);color:#fff}
+.d1 .ph .sign{cursor:pointer}
+.d1 .ph .sign2{margin-top:8px;background:var(--ink);color:#fff;text-align:center;font:600 15px Newsreader;padding:8px;border-radius:3px;cursor:pointer}
+.d1 .ph .r i{cursor:pointer}
+.d1 .ph .rp{overflow:auto;max-height:340px}
+.d1 .hov:hover{background:rgba(29,58,107,.06)}

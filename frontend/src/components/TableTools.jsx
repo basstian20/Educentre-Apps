@@ -74,7 +74,7 @@ export function SearchBox({ value, onChange, testid, className = "" }) {
   const { t } = useLang();
   return (
     <div className={`relative flex-1 ${className}`}>
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" aria-hidden="true" />
+      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" aria-hidden="true" />
       <input
         type="search"
         value={value}
@@ -82,7 +82,7 @@ export function SearchBox({ value, onChange, testid, className = "" }) {
         placeholder={`${t.search}…`}
         aria-label={t.search}
         data-testid={testid}
-        className="w-full h-10 pl-9 pr-3 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-jakarta"
+        className="field-clay h-11 pl-10 pr-4 text-sm"
       />
     </div>
   );
@@ -97,7 +97,7 @@ export function SortTh({ label, k, table, className = "px-5 py-3" }) {
       <button
         type="button"
         onClick={() => table.toggleSort(k)}
-        className={`inline-flex items-center gap-1 uppercase tracking-wider font-outfit hover:text-slate-900 ${active ? "text-slate-900" : ""}`}
+        className={`inline-flex items-center gap-1 uppercase tracking-wider font-heading hover:text-slate-900 ${active ? "text-slate-900" : ""}`}
       >
         {label}
         <Icon className="h-3 w-3" aria-hidden="true" />
@@ -112,7 +112,7 @@ export function Pagination({ table }) {
   const from = (table.page - 1) * table.pageSize + 1;
   const to = Math.min(table.total, table.page * table.pageSize);
   return (
-    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600 font-jakarta" data-testid="pagination">
+    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4 text-xs font-semibold text-slate-600 font-sans" data-testid="pagination">
       <span>
         {t.showing} {from}–{to} {t.of} {table.total}
       </span>
@@ -120,7 +120,7 @@ export function Pagination({ table }) {
         <Btn size="sm" variant="outline" disabled={table.page <= 1} onClick={() => table.setPage(table.page - 1)} testid="page-prev">
           {t.previous}
         </Btn>
-        <span className="tabular-nums">
+        <span className="num tabular-nums font-bold text-slate-900">
           {table.page} / {table.pageCount}
         </span>
         <Btn size="sm" variant="outline" disabled={table.page >= table.pageCount} onClick={() => table.setPage(table.page + 1)} testid="page-next">
@@ -131,8 +131,7 @@ export function Pagination({ table }) {
   );
 }
 
-const iconBtn =
-  "inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500";
+const iconBtn = "icon-btn";
 
 // Edit / delete icon buttons for the last column of a row.
 export function RowActions({ onEdit, onDelete, deleteLabel, deleteIcon: DeleteIcon = Trash2, testid }) {
@@ -148,7 +147,7 @@ export function RowActions({ onEdit, onDelete, deleteLabel, deleteIcon: DeleteIc
         <button
           type="button"
           onClick={onDelete}
-          className={`${iconBtn} hover:!bg-red-50 hover:text-red-600`}
+          className={`${iconBtn} is-danger`}
           aria-label={deleteLabel || t.delete}
           title={deleteLabel || t.delete}
           data-testid={testid && `${testid}-delete`}
@@ -178,7 +177,7 @@ export function ConfirmModal({ open, onClose, onConfirm, title, message, confirm
         </>
       }
     >
-      <p className="text-sm leading-6 text-slate-600 font-jakarta">{message || t.deleteHint}</p>
+      <p className="text-sm leading-6 text-slate-600 font-sans">{message || t.deleteHint}</p>
     </Modal>
   );
 }
@@ -188,8 +187,8 @@ export function NoMatches({ onClear }) {
   const { t } = useLang();
   return (
     <div className="py-12 text-center" data-testid="no-matches">
-      <div className="text-sm font-semibold text-slate-700 font-outfit">{t.noResults}</div>
-      <div className="mt-1 text-xs text-slate-600 font-jakarta">{t.noResultsHint}</div>
+      <div className="text-sm font-semibold text-slate-700 font-heading">{t.noResults}</div>
+      <div className="mt-1 text-xs text-slate-600 font-sans">{t.noResultsHint}</div>
       {onClear && (
         <div className="mt-4">
           <Btn size="sm" variant="outline" onClick={onClear}>{t.clearFilters}</Btn>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>V1 — EduCentre: 5 Arah (eksplorasi)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Nunito:wght@500;700;800&family=Outfit:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#e9e9ec;color:#111;}
+  #switcher{position:sticky;top:0;z-index:100;display:flex;gap:0;background:#111;padding:10px 12px;overflow-x:auto;align-items:center;}
+  #switcher a.back{color:#888;font-size:12px;margin-right:14px;text-decoration:none;white-space:nowrap;}
+  #switcher button{font-family:inherit;font-size:13px;font-weight:600;padding:9px 16px;border:none;border-radius:8px;margin-right:8px;background:#2a2a2a;color:#ccc;cursor:pointer;white-space:nowrap;}
+  #switcher button.active{background:#fff;color:#111;}
+  #switcher .num{opacity:.55;margin-right:6px;font-weight:400;}
+  .stage{display:none;}
+  .stage.active{display:block;}
+  .views{display:flex;gap:8px;padding:12px 16px 0;background:#e9e9ec;}
+  .views button{font-family:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;border:1px solid #c9c9ce;border-radius:20px;background:#fff;color:#444;cursor:pointer;}
+  .views button.active{background:#111;color:#fff;border-color:#111;}
+  .view{display:none;padding:14px 16px 0;}
+  .view.active{display:block;}
+  .view.m{display:none;justify-content:center;}
+  .view.m.active{display:flex;}
+  .fit{position:relative;margin:0 auto;}
+  .fit>.mk{position:absolute;left:0;top:0;transform-origin:0 0;}
+  .direction-note{font-size:12.5px;line-height:1.55;margin:16px;padding:14px 16px;border-radius:10px;background:#fff;border:1px dashed #b9b9c0;color:#333;}
+  .direction-note b{color:#111}
+  .direction-note .sw{display:inline-flex;gap:4px;vertical-align:middle;margin-left:8px}
+  .direction-note .sw i{width:16px;height:16px;border-radius:4px;border:1px solid rgba(0,0,0,.2);display:block}
+  .mk *{box-sizing:border-box}
+/* ========= mockup umum ========= */
+.mk *{box-sizing:border-box}
+.mk{line-height:1.35}
+.dk{width:1000px;height:620px;overflow:hidden;position:relative;font-size:13px}
+.ph{width:270px;height:560px;border:8px solid #15151a;border-radius:36px;overflow:hidden;position:relative;font-size:13px}
+.ph .sb{display:flex;justify-content:space-between;padding:7px 18px 2px;font-size:11px;font-weight:700}
+.credit{font-size:12px;opacity:.75}
+
+/* ===== D1 Buku Induk ===== */
+.d1{--paper:#fbf6e6;--ink:#1d3a6b;--red:#b3261e;--green:#2a6b3a;--line:#c9d6ea;font-family:"Newsreader",serif;color:var(--ink)}
+.d1 .dk{background:#d9cba8}
+.d1 .page{position:absolute;left:28px;top:22px;right:70px;bottom:22px;background:var(--paper);box-shadow:0 2px 0 #b9a77a,0 10px 24px rgba(60,40,10,.25);padding:20px 30px 18px 64px;background-image:repeating-linear-gradient(transparent 0 31px,var(--line) 31px 32px);background-position:0 54px}
+.d1 .page::before{content:"";position:absolute;left:46px;top:0;bottom:0;width:2px;background:#e29a94}
+.d1 .hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px double var(--ink);padding-bottom:6px;margin-bottom:8px;background:var(--paper);margin-left:-18px;padding-left:18px}
+.d1 .hd h5{margin:0;font:600 30px/1 "Newsreader";letter-spacing:.02em}
+.d1 .hd small{font:italic 14px "Newsreader"}
+.d1 .tally{display:flex;gap:26px;margin:4px 0 6px;font:600 17px "Newsreader";background:var(--paper);padding:2px 0;margin-left:-18px;padding-left:18px}
+.d1 .tally b{font:600 28px/1 "Caveat";color:var(--red);margin-right:4px}
+.d1 table{border-collapse:collapse;width:100%;font-size:15px}
+.d1 th{font:600 12px "Newsreader";text-transform:uppercase;letter-spacing:.08em;text-align:left;border-bottom:2px solid var(--ink);padding:4px 8px;background:var(--paper)}
+.d1 td{height:32px;padding:0 8px;vertical-align:middle;border-bottom:1px solid transparent}
+.d1 td.no{width:32px}
+.d1 .hand{font:600 20px/1 "Caveat";color:#25458a}
+.d1 .stamp{display:inline-block;font:700 12px "IBM Plex Mono";letter-spacing:.1em;border:2px solid;border-radius:4px;padding:1px 7px;transform:rotate(-6deg)}
+.d1 .stamp.ok{color:var(--green);border-color:var(--green)}.d1 .stamp.no{color:var(--red);border-color:var(--red)}
+.d1 .sticky{position:absolute;right:26px;bottom:26px;width:210px;background:#fff1a8;padding:12px 14px;transform:rotate(2deg);box-shadow:0 4px 10px rgba(0,0,0,.2);font:600 20px/1.15 "Caveat";color:#4a3a00}
+.d1 .tabs{position:absolute;right:0;top:46px;display:flex;flex-direction:column;gap:6px}
+.d1 .tabs span{width:76px;padding:9px 6px 9px 12px;font:600 13px "Newsreader";background:#c9b88b;color:#3d2f10;border-radius:0 10px 10px 0;box-shadow:inset -3px 0 0 rgba(0,0,0,.12)}
+.d1 .tabs span.on{background:var(--paper);width:82px;font-weight:700;color:var(--ink)}
+.d1 .dk .credit{position:absolute;left:92px;bottom:26px;background:var(--paper);padding:0 6px}
+.d1 .ph{background:var(--paper);background-image:repeating-linear-gradient(transparent 0 27px,var(--line) 27px 28px);background-position:0 60px}
+.d1 .ph .sb{background:var(--paper)}
+.d1 .ph h5{margin:0;font:600 24px/1.1 "Newsreader"}
+.d1 .ph .top{padding:6px 18px 8px 44px;border-bottom:3px double var(--ink);background:var(--paper);position:relative}
+.d1 .ph .top small{font:italic 14px "Newsreader"}
+.d1 .ph::after{content:"";position:absolute;left:34px;top:0;bottom:0;width:2px;background:#e29a94;z-index:0}
+.d1 .ph .rows{padding:8px 14px 0 44px;position:relative;z-index:1}
+.d1 .ph .r{height:28px;display:flex;align-items:center;gap:8px;font-size:16px}
+.d1 .ph .r i{margin-left:auto;font:600 20px "Caveat";font-style:normal;width:26px;height:26px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;color:#25458a}
+.d1 .ph .r i.t{color:#a86b00;border-color:#a86b00}.d1 .ph .r i.a{color:var(--red);border-color:var(--red)}.d1 .ph .r i.iz{color:#666;border-color:#666}
+.d1 .ph .sign{position:absolute;left:44px;right:16px;bottom:14px;text-align:center;background:var(--ink);color:#fff;font:600 16px "Newsreader";padding:10px;border-radius:3px;z-index:2}
+.d1 .ph .rp{padding:6px 14px 0 44px;position:relative;z-index:1}
+.d1 .ph .rp table{font-size:15px}
+.d1 .ph .rp td{height:28px;padding:0 4px}
+
+/* ===== D2 Linimasa ===== */
+.d2{--bg:#eef3f1;--ink:#0d2d33;--mut:#53717a;--teal:#0f4c58;--amber:#f2a33a;--line:#cfdcd9;font-family:"Plus Jakarta Sans",sans-serif;color:var(--ink)}
+.d2 .dk{background:var(--bg)}
+.d2 .topbar{height:56px;background:var(--teal);color:#e9f5f3;display:flex;align-items:center;gap:20px;padding:0 20px}
+.d2 .topbar b{font:700 18px "Space Grotesk"}
+.d2 .topbar .st{display:flex;gap:18px;margin-left:auto;font-size:13px}.d2 .topbar .st span b{font:700 16px "Space Grotesk";color:var(--amber);margin-right:4px}
+.d2 .days{display:flex;gap:6px;padding:12px 20px 8px}
+.d2 .days span{padding:6px 14px;border-radius:99px;background:#fff;border:1px solid var(--line);font-weight:600;color:var(--mut)}
+.d2 .days span.on{background:var(--amber);color:#2c1b00;border-color:var(--amber)}
+.d2 .body{display:grid;grid-template-columns:1fr 262px;gap:16px;padding:0 20px;height:476px}
+.d2 .grid{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.d2 .lanes{display:grid;grid-template-columns:56px repeat(3,1fr);height:30px;border-bottom:1px solid var(--line);background:#f7faf9;font:600 12px "Space Grotesk";color:var(--mut)}
+.d2 .lanes span{padding:8px 10px}
+.d2 .tl{position:absolute;left:0;right:0;top:30px;bottom:0;background-image:repeating-linear-gradient(transparent 0 36px,#e5eeec 36px 37px)}
+.d2 .hr{position:absolute;left:8px;font:500 12px "DM Mono";color:var(--mut)}
+.d2 .ev{position:absolute;border-radius:10px;padding:7px 10px;font-weight:700;line-height:1.25;color:#fff;font-size:13px;overflow:hidden}
+.d2 .ev small{display:block;font-weight:500;opacity:.9;font-size:12px}
+.d2 .ev.done{background:#6f8f95}.d2 .ev.now{background:var(--teal);box-shadow:0 0 0 3px var(--amber)}.d2 .ev.next{background:#2c7a88}
+.d2 .now-line{position:absolute;left:0;right:0;height:2px;background:var(--amber);z-index:2}
+.d2 .now-line::before{content:"15.42";position:absolute;left:4px;top:-9px;background:var(--amber);color:#2c1b00;font:700 11px "DM Mono";padding:1px 5px;border-radius:4px}
+.d2 .side h4{margin:0 0 8px;font:700 14px "Space Grotesk"}
+.d2 .it{background:#fff;border:1px solid var(--line);border-left:5px solid var(--amber);border-radius:10px;padding:9px 12px;margin-bottom:10px}
+.d2 .it b{display:block}.d2 .it small{color:var(--mut)}
+.d2 .it .go{display:inline-block;margin-top:6px;background:var(--teal);color:#fff;font-weight:700;font-size:12px;border-radius:99px;padding:4px 12px}
+.d2 .dk .credit{position:absolute;right:20px;bottom:6px}
+.d2 .ph{background:var(--bg)}
+.d2 .ph .hd{background:var(--teal);color:#e9f5f3;padding:10px 16px 14px}
+.d2 .ph .hd h5{margin:0;font:700 20px "Space Grotesk"}.d2 .ph .hd small{opacity:.8}
+.d2 .ph .tlm{padding:12px 14px 0 18px;position:relative}
+.d2 .ph .tlm::before{content:"";position:absolute;left:41px;top:20px;bottom:60px;width:2px;background:var(--line)}
+.d2 .ph .e{display:flex;gap:12px;margin-bottom:12px;position:relative}
+.d2 .ph .e time{font:500 12px "DM Mono";width:42px;color:var(--mut);padding-top:2px}
+.d2 .ph .e .dot{position:absolute;left:44px;top:4px;width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid #6f8f95;z-index:1}
+.d2 .ph .e.now .dot{border-color:var(--amber);background:var(--amber)}
+.d2 .ph .e .c{margin-left:20px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 11px;flex:1}
+.d2 .ph .e.now .c{border:2px solid var(--teal)}
+.d2 .ph .e .c b{display:block}.d2 .ph .e .c small{color:var(--mut)}
+.d2 .ph .btn{display:block;margin-top:8px;background:var(--teal);color:#fff;text-align:center;font-weight:700;border-radius:10px;padding:9px}
+.d2 .ph .chipx{display:inline-block;background:#fdeacb;color:#6a4400;font-weight:700;font-size:12px;border-radius:99px;padding:2px 9px}
+
+/* ===== D3 Obrolan ===== */
+.d3{--ink:#13251d;--mut:#5a6e65;--green:#0b6b4f;--bub:#e3f1e9;--bg:#f4f1ea;--line:#dcd8cc;font-family:"Nunito",sans-serif;color:var(--ink)}
+.d3 .dk{display:grid;grid-template-columns:230px 1fr 230px;background:var(--bg)}
+.d3 .l{background:#fff;border-right:1px solid var(--line);padding:14px 10px;display:flex;flex-direction:column;gap:2px}
+.d3 .l .brand{font:800 18px "Nunito";padding:0 8px 10px;display:flex;gap:8px;align-items:center}.d3 .l .brand b{width:24px;height:24px;border-radius:8px;background:var(--green);display:block}
+.d3 .l .s{font:800 11px "Nunito";text-transform:uppercase;letter-spacing:.08em;color:var(--mut);padding:8px 8px 4px}
+.d3 .room{display:flex;justify-content:space-between;align-items:center;padding:7px 8px;border-radius:10px;font-weight:700}
+.d3 .room.on{background:var(--bub);color:var(--green)}
+.d3 .room em{font-style:normal;background:var(--green);color:#fff;font-size:11px;border-radius:99px;padding:1px 7px}
+.d3 .c{display:flex;flex-direction:column;background:#efe9db;background-image:radial-gradient(#e2dac6 1px,transparent 1px);background-size:14px 14px}
+.d3 .c .h{background:#fff;border-bottom:1px solid var(--line);padding:11px 18px;font-weight:800;display:flex;justify-content:space-between}
+.d3 .c .h small{font-weight:600;color:var(--mut)}
+.d3 .feed{flex:1;padding:14px 22px;display:flex;flex-direction:column;gap:11px;overflow:hidden}
+.d3 .day{align-self:center;background:#fff;border-radius:99px;padding:2px 12px;font-size:12px;color:var(--mut);font-weight:700}
+.d3 .m{max-width:70%;background:#fff;border-radius:4px 16px 16px 16px;padding:8px 12px;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.d3 .m .who{font-weight:800;font-size:12px;color:var(--green)}.d3 .m time{float:right;margin-left:12px;font-size:11px;color:var(--mut)}
+.d3 .m.me{align-self:flex-end;background:var(--bub);border-radius:16px 4px 16px 16px}
+.d3 .card{align-self:flex-start;width:78%;background:#fff;border-radius:14px;border-left:6px solid var(--green);padding:10px 14px;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.d3 .card.warn{border-color:#d98a00}.d3 .card b{display:block}
+.d3 .card .acts{display:flex;gap:8px;margin-top:8px}
+.d3 .card .acts span{border:1.5px solid var(--green);color:var(--green);font-weight:800;border-radius:99px;padding:3px 13px;font-size:12px}
+.d3 .card .acts span.p{background:var(--green);color:#fff}
+.d3 .comp{background:#fff;border-top:1px solid var(--line);padding:10px 14px}
+.d3 .comp .q{display:flex;gap:8px;margin-bottom:8px}.d3 .comp .q span{background:var(--bub);color:var(--green);font-weight:800;font-size:12px;border-radius:99px;padding:3px 12px}
+.d3 .comp .in{background:#f4f1ea;border-radius:99px;padding:9px 16px;color:var(--mut)}
+.d3 .r{background:#fff;border-left:1px solid var(--line);padding:16px;font-size:13px}
+.d3 .r h4{margin:0 0 8px;font:800 14px "Nunito"}
+.d3 .r .kv{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line)}.d3 .r .kv span{color:var(--mut)}
+.d3 .dk .credit{position:absolute;left:12px;bottom:10px}
+.d3 .ph{background:#efe9db;background-image:radial-gradient(#e2dac6 1px,transparent 1px);background-size:14px 14px;display:flex;flex-direction:column}
+.d3 .ph .hd{background:var(--green);color:#fff;padding:8px 14px 10px;display:flex;gap:10px;align-items:center}
+.d3 .ph .hd b{display:block;font-weight:800;font-size:16px}.d3 .ph .hd small{opacity:.85}
+.d3 .ph .av{width:34px;height:34px;border-radius:50%;background:#fff;color:var(--green);display:grid;place-items:center;font-weight:800}
+.d3 .ph .f{flex:1;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.d3 .ph .m{max-width:88%;font-size:13px}.d3 .ph .card{width:92%;font-size:13px}
+.d3 .ph .stu{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.d3 .ph .stu span{background:var(--bub);color:var(--green);font-weight:800;font-size:12px;border-radius:99px;padding:2px 9px}
+.d3 .ph .stu span.t{background:#fdeacb;color:#6a4400}.d3 .ph .stu span.a{background:#fbd9d4;color:#7a1d12}
+.d3 .ph .in{background:#fff;margin:0;padding:9px 12px;display:flex;gap:6px;border-top:1px solid var(--line)}.d3 .ph .in span{background:var(--bub);color:var(--green);font-weight:800;font-size:12px;border-radius:99px;padding:3px 10px}
+
+/* ===== D4 Kartu Siswa ===== */
+.d4{--ink:#1e2433;--mut:#667089;--bg:#f6f4fb;font-family:"Outfit",sans-serif;color:var(--ink)}
+.d4 .dk{background:var(--bg);display:grid;grid-template-columns:1fr 290px}
+.d4 .main{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.d4 .top{display:flex;gap:10px;align-items:center}
+.d4 .top b{font:700 20px "Outfit"}.d4 .top .ch{margin-left:auto;display:flex;gap:6px}
+.d4 .ch span{padding:5px 13px;border-radius:99px;background:#fff;border:1px solid #e3def0;font-weight:500;font-size:13px}
+.d4 .ch span.on{background:#1e2433;color:#fff;border-color:#1e2433}.d4 .ch span.att{background:#ffe3e0;border-color:#ffc9c3;color:#8a2b20}
+.d4 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.d4 .s{background:#fff;border-radius:20px;padding:12px 14px;border:2px solid transparent;box-shadow:0 2px 0 rgba(30,36,51,.06)}
+.d4 .s.sel{border-color:#6c5ce7}.d4 .s.warn{background:#fff4f2}.d4 .s.good{background:#f2fbf6}
+.d4 .s .t{display:flex;gap:10px;align-items:center}
+.d4 .av{width:38px;height:38px;border-radius:14px;background:var(--c,#dcd5ff);display:grid;place-items:center;font-weight:700}
+.d4 .s b{display:block;font-weight:600}.d4 .s small{color:var(--mut);font-size:12px}
+.d4 .ring{margin-left:auto;width:42px;height:42px;border-radius:50%;background:conic-gradient(var(--rc,#16a870) calc(var(--p)*1%),#ece9f5 0);display:grid;place-items:center;position:relative}
+.d4 .ring::after{content:"";position:absolute;inset:5px;border-radius:50%;background:#fff}.d4 .s.warn .ring::after{background:#fff4f2}.d4 .s.good .ring::after{background:#f2fbf6}
+.d4 .ring i{position:relative;z-index:1;font:600 11px "Outfit";font-style:normal}
+.d4 .bars{display:flex;gap:4px;align-items:flex-end;height:24px;margin:10px 0 8px}.d4 .bars i{flex:1;background:#b9aef7;border-radius:4px 4px 0 0}
+.d4 .tag{display:inline-block;font-size:12px;font-weight:600;border-radius:99px;padding:2px 10px}
+.d4 .tag.ok{background:#d5f5e6;color:#0a6a43}.d4 .tag.w{background:#fff0b8;color:#6b4a00}.d4 .tag.b{background:#ffd4d9;color:#8a1630}
+.d4 .dr{background:#fff;border-left:1px solid #e9e4f5;padding:18px 18px;display:flex;flex-direction:column;gap:10px}
+.d4 .dr .big{width:64px;height:64px;border-radius:22px;background:#ffd4d9;display:grid;place-items:center;font:700 22px "Outfit"}
+.d4 .dr h4{margin:0;font:700 20px "Outfit"}.d4 .dr small{color:var(--mut)}
+.d4 .dr .row{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #efeaf8}
+.d4 .dr .cta{margin-top:auto;background:#6c5ce7;color:#fff;font-weight:600;border-radius:14px;padding:10px;text-align:center}
+.d4 .dk .credit{position:absolute;left:18px;bottom:8px}
+.d4 .ph{background:var(--bg)}
+.d4 .ph .hd{padding:10px 16px 6px}.d4 .ph .hd h5{margin:0;font:700 22px "Outfit"}.d4 .ph .hd small{color:var(--mut)}
+.d4 .ph .g2{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:6px 12px}
+.d4 .ph .tile{border-radius:20px;padding:12px;text-align:center;font-weight:600;background:#d5f5e6}
+.d4 .ph .tile .av{margin:0 auto 6px;background:#fff;width:44px;height:44px}.d4 .ph .tile small{display:block;font-weight:500;color:#37574a}
+.d4 .ph .tile.t{background:#fff0b8}.d4 .ph .tile.a{background:#ffd4d9}.d4 .ph .tile.i{background:#e6e1ff}
+.d4 .ph .save{position:absolute;left:12px;right:12px;bottom:12px;background:#6c5ce7;color:#fff;text-align:center;font-weight:600;border-radius:18px;padding:12px}
+.d4 .ph .hero{margin:6px 12px;background:#6c5ce7;color:#fff;border-radius:26px;padding:14px}
+.d4 .ph .hero .t{display:flex;gap:10px;align-items:center}.d4 .ph .hero .av{background:#fff;color:#6c5ce7}
+.d4 .ph .rings{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;text-align:center;font-size:12px}
+.d4 .ph .rings .ring{margin:0 auto 4px;width:54px;height:54px;background:conic-gradient(#ffd24a calc(var(--p)*1%),rgba(255,255,255,.25) 0)}.d4 .ph .rings .ring::after{background:#6c5ce7}
+.d4 .ph .need{margin:8px 12px;background:#fff;border-radius:18px;padding:10px 14px}.d4 .ph .need b{display:block;margin-bottom:4px}
+
+/* ===== D5 Meja Kasir ===== */
+.d5{--ink:#141414;--paper:#fcfbf6;--hl:#ffe14d;--mut:#666;font-family:"IBM Plex Mono",monospace;color:var(--ink)}
+.d5 .dk{background:#dedbd0;padding:16px;display:grid;grid-template-columns:1fr 330px;gap:16px;grid-template-rows:96px 1fr}
+.d5 .led{grid-column:1/-1;background:#15130f;border-radius:10px;display:flex;gap:34px;align-items:center;padding:0 26px;color:#ffb347;box-shadow:inset 0 0 0 3px #2a2620}
+.d5 .led div small{display:block;color:#a07a3e;font-size:12px;letter-spacing:.14em}
+.d5 .led div b{font:500 36px/1.05 "DM Mono";letter-spacing:.04em;text-shadow:0 0 12px rgba(255,160,40,.5)}
+.d5 .led .nbd{margin-left:auto;color:#a07a3e;font-size:12px}
+.d5 .tape{background:var(--paper);padding:14px 22px 24px;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.2);overflow:hidden}
+.d5 .tape::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:10px;background:linear-gradient(135deg,#dedbd0 25%,transparent 25%) -5px 0/10px 10px,linear-gradient(225deg,#dedbd0 25%,transparent 25%) -5px 0/10px 10px}
+.d5 .tape h5{margin:0 0 2px;font:600 14px "IBM Plex Mono";letter-spacing:.14em;text-align:center}
+.d5 .tape .sub{text-align:center;color:var(--mut);font-size:12px;border-bottom:2px dashed var(--ink);padding-bottom:8px;margin-bottom:6px}
+.d5 .ln{display:flex;gap:10px;padding:7px 0;border-bottom:1px dashed #b9b6a8;font-size:13px}
+.d5 .ln time{width:46px;color:var(--mut)}.d5 .ln .n{flex:1}.d5 .ln .n small{display:block;color:var(--mut)}.d5 .ln .am{font-weight:600}
+.d5 .tot{display:flex;justify-content:space-between;border-top:2px solid var(--ink);margin-top:8px;padding-top:8px;font-weight:600}
+.d5 .rt{display:flex;flex-direction:column;gap:12px}
+.d5 .keys{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.d5 .keys span{background:var(--paper);border:2px solid var(--ink);border-radius:8px;padding:11px 10px;font-weight:600;font-size:13px;box-shadow:0 3px 0 var(--ink)}
+.d5 .keys span.p{background:var(--hl)}
+.d5 .nota{background:var(--paper);padding:12px 16px;flex:1;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.d5 .nota h6{margin:0 0 6px;font:600 13px "IBM Plex Mono";letter-spacing:.1em}
+.d5 .nota .it{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #b9b6a8;font-size:12.5px}.d5 .nota mark{background:var(--hl);padding:0 4px}
+.d5 .ph{background:#dedbd0}
+.d5 .ph .led2{margin:8px;background:#15130f;border-radius:8px;display:flex;justify-content:space-around;padding:10px 4px;color:#ffb347;text-align:center}
+.d5 .ph .led2 b{display:block;font:500 28px/1 "DM Mono"}.d5 .ph .led2 small{font-size:11px;color:#a07a3e;letter-spacing:.1em}
+.d5 .ph .paper{background:var(--paper);margin:0 8px;padding:10px 14px}
+.d5 .ph .paper .ln{font-size:13px;padding:7px 0}
+.d5 .ph .paper .ln i{font-style:normal;font-weight:600;border:1.5px solid var(--ink);border-radius:6px;padding:0 7px;font-size:12px}
+.d5 .ph .paper .ln i.t{background:var(--hl)}
+.d5 .ph .go{position:absolute;left:12px;right:12px;bottom:12px;background:var(--ink);color:#fff;text-align:center;font-weight:600;border-radius:8px;padding:12px;box-shadow:0 3px 0 #777}
+.d5 .ph .strk{background:var(--paper);margin:10px 10px 0;padding:14px 16px;position:relative}
+.d5 .ph .strk h6{margin:0;text-align:center;font:600 13px "IBM Plex Mono";letter-spacing:.14em}
+.d5 .ph .strk .sub{text-align:center;color:var(--mut);font-size:12px;border-bottom:2px dashed var(--ink);padding-bottom:8px;margin-bottom:6px}
+.d5 .ph .strk .row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+.d5 .ph .strk .tt{border-top:2px solid var(--ink);margin-top:6px;padding-top:6px;font-weight:600;font-size:15px}
+.d5 .ph .hlt{background:var(--hl);padding:2px 6px;font-weight:600}
+
+</style>
+</head>
+<body>
+<div id="switcher"><a class="back" href="../index.html">&larr; semua riwayat</a></div>
+<div id="stages"></div>
+
+<script>
+var DIRS=[
+ {id:'d1',kick:'Arah 1 · Metafora buku induk',name:'Buku Induk',
+  thesis:'Aplikasi dibaca seperti buku induk dan buku absen tradisional sekolah: halaman bergaris, stempel LUNAS/BELUM, tanda centang tulisan tangan. Yang dirasakan pemilik bimbel: "ini buku saya, hanya sekarang tidak bisa hilang atau salah hitung".',
+  pal:['#fbf6e6','#1d3a6b','#b3261e','#2a6b3a','#d9cba8'],mat:'Kertas bergaris, tinta biru, stempel merah/hijau, tab pembatas di tepi kanan. Serif Newsreader + tulisan tangan Caveat hanya untuk tanda/angka.',
+  beda:'Berpusat pada halaman dan tabel. Modul diakses lewat tab pembatas, bukan sidebar. Status berupa stempel.',risk:'Skeuomorfisme bisa terasa tua atau "kekanak-kanakan" jika tulisan tangan dipakai di mana-mana. Tabel besar di HP butuh versi khusus.'},
+ {id:'d2',kick:'Arah 2 · Berpusat pada waktu',name:'Linimasa Hari Ini',
+  thesis:'Bimbel hidup dari jadwal. Layar utama bukan daftar modul, melainkan hari itu: ruang × jam. Tindakan (absen, tagih, rapor) menempel pada sesi yang relevan, sehingga admin dan educator selalu tahu "apa yang harus dikerjakan sekarang".',
+  pal:['#eef3f1','#0f4c58','#f2a33a','#0d2d33','#2c7a88'],mat:'Teal tua dengan amber untuk "sekarang", garis waktu, blok sesi berwarna menurut status. Space Grotesk + DM Mono untuk jam.',
+  beda:'Navigasi utama adalah waktu, bukan menu. Modul lain jadi tindakan di dalam sesi. Garis "sekarang" selalu terlihat.',risk:'Kurang cocok untuk tugas lintas-waktu seperti laporan bulanan atau daftar tunggakan; butuh tampilan sekunder.'},
+ {id:'d3',kick:'Arah 3 · Menggantikan grup WhatsApp',name:'Ruang Obrolan',
+  thesis:'Produk menggantikan grup WhatsApp, jadi pakai bahasa yang sudah dikenal: ruang per kelas, umpan berisi kartu tindakan (absensi disimpan, tagihan terbit) dan pesan. Orang tua langsung paham tanpa pelatihan; admin melihat semuanya mengalir di satu tempat.',
+  pal:['#f4f1ea','#0b6b4f','#e3f1e9','#d98a00','#13251d'],mat:'Latar krem berpola titik, gelembung pesan, kartu bergaris hijau. Nunito yang ramah dan bulat.',
+  beda:'Strukturnya umpan (feed) per ruang, bukan modul. Tindakan muncul sebagai kartu dan tombol cepat di kotak tulis.',risk:'Terlalu mirip WhatsApp bisa memancing pembandingan; data terstruktur (nilai, tagihan) sulit ditelusuri jika tertimbun di umpan.'},
+ {id:'d4',kick:'Arah 4 · Berpusat pada siswa',name:'Kartu Siswa 360',
+  thesis:'Semua pertanyaan bimbel berujung pada satu siswa: hadirkah, nilainya, sudah bayar? Layar utama adalah kumpulan kartu siswa dengan cincin kehadiran dan sparkline nilai; panel samping membuka profil 360°. Orang tua mendapat versi satu anak.',
+  pal:['#f6f4fb','#6c5ce7','#ffd4d9','#d5f5e6','#1e2433'],mat:'Kartu pastel dengan sudut besar, cincin progres, warna menandai perlu perhatian. Outfit.',
+  beda:'Entitas utamanya siswa, bukan menu atau waktu. Filter "Perlu perhatian" jadi pintu masuk kerja admin.',risk:'Educator yang bekerja per kelas (bukan per siswa) butuh jalur cepat; 128 kartu harus tetap bisa dipindai.'},
+ {id:'d5',kick:'Arah 5 · Berpusat pada uang',name:'Meja Kasir',
+  thesis:'Hal yang paling dirasakan pemilik adalah kas masuk dan tunggakan. Layar utama seperti meja kasir: angka besar bergaya layar LED, pita transaksi seperti struk, dan nota belum lunas yang ditandai stabilo. Absensi dan nilai disajikan dengan irama yang sama (hitungan, lalu daftar).',
+  pal:['#fcfbf6','#141414','#ffe14d','#ffb347','#dedbd0'],mat:'Kertas struk bergerigi, garis putus-putus, layar LED amber, stabilo kuning. IBM Plex Mono + DM Mono.',
+  beda:'Berpusat pada transaksi dan hitungan. Semua layar memakai pola "angka besar di atas, pita rinci di bawah".',risk:'Memberi kesan EduCentre hanya aplikasi keuangan; layar akademik harus tetap terasa hangat dan tidak kaku.'}
+];
+
+/* ----- mockup ----- */
+function d1dk(){var R=[['Aiman Haziq','5 SD','✓','ok','—'],['Nadia Putri','6 SD','✓','no','Tagih 20 Okt'],['Raka Pratama','8 SMP','✓','no','UTBK Rp 1,2 jt'],['Salsa Amelia','7 SMP','✓','ok','—'],['Dimas Arya','11 SMA','T','no','Telat 15 mnt'],['Kirana Haziq','3 SD','✓','ok','—'],['Bayu Santoso','9 SMP','A','no','Hubungi ortu'],['Putri Lestari','10 SMA','✓','ok','—']];
+ return '<div class="mk d1"><div class="dk"><div class="tabs"><span class="on">Hari ini</span><span>Siswa</span><span>Absensi</span><span>Nilai</span><span>Kas</span><span>Laporan</span></div><div class="page"><div class="hd"><h5>Buku Induk · Bimbel Cerdas</h5><small>Jumat, 23 Oktober 2026</small></div><div class="tally"><span><b>128</b>siswa</span><span><b>92%</b>hadir</span><span><b>Rp 9,4 jt</b>belum lunas</span></div>'+
+ '<table><thead><tr><th>No</th><th>Nama siswa</th><th>Kelas</th><th>Hadir</th><th>Iuran Okt</th><th>Catatan</th></tr></thead><tbody>'+R.map(function(r,i){return '<tr><td class="no">'+(i+1)+'.</td><td>'+r[0]+'</td><td>'+r[1]+'</td><td class="hand">'+r[2]+'</td><td><span class="stamp '+r[3]+'">'+(r[3]==='ok'?'LUNAS':'BELUM')+'</span></td><td class="hand" style="font-size:18px">'+r[4]+'</td></tr>'}).join('')+'</tbody></table>'+
+ '<div class="sticky">Hari ini: 2 kelas belum diabsen, 5 tagihan jatuh tempo ≤ 3 hari</div></div><div class="credit">Dikembangkan oleh NobleDev</div></div></div>'}
+function d1edu(){var R=[['Aiman Haziq','✓',''],['Nadia Putri','✓',''],['Raka Pratama','T','t'],['Bayu Santoso','A','a'],['Dimas Arya','I','iz'],['Salsa Amelia','✓',''],['Kirana Haziq','✓','']];
+ return '<div class="mk d1"><div class="ph"><div class="sb"><span>09:41</span><span>●●● 87%</span></div><div class="top"><small>Pak Fariz · 23 Okt</small><h5>Buku Absen<br>Matematika K5</h5></div><div class="rows">'+R.map(function(r,i){return '<div class="r"><span>'+(i+1)+'. '+r[0]+'</span><i class="'+r[2]+'">'+r[1]+'</i></div>'}).join('')+'<div class="r" style="margin-top:6px;font-style:italic;font-size:14px">Ketuk bulatan untuk ganti: ✓ T A I</div></div><div class="sign">Simpan &amp; paraf</div></div></div>'}
+function d1par(){return '<div class="mk d1"><div class="ph"><div class="sb"><span>09:41</span><span>●●● 87%</span></div><div class="top"><small>Ibu Nurhayati · 2 anak</small><h5>Buku Rapor<br>Aiman Haziq</h5></div><div class="rp"><table><thead><tr><th style="font-size:12px;text-align:left;border-bottom:2px solid #1d3a6b">Pelajaran</th><th style="font-size:12px;border-bottom:2px solid #1d3a6b">Nilai</th></tr></thead><tbody><tr><td>Matematika</td><td class="hand">88</td></tr><tr><td>IPA</td><td class="hand">92</td></tr><tr><td>B. Inggris</td><td class="hand">79</td></tr><tr><td>Kehadiran</td><td class="hand">92%</td></tr></tbody></table><div style="margin:12px 0 0;font:italic 15px/1.3 Newsreader">“Aiman makin percaya diri saat presentasi.”<br><small style="font-style:normal;font-size:12px">— Pak Fariz, wali kelas</small></div><div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center"><span>Iuran Oktober<br><small style="font-size:12px">jatuh tempo 25 Okt</small></span><span class="stamp no" style="font-size:14px">BELUM</span></div></div></div></div>'}
+
+function d2dk(){var Y=function(h){return (h-8)*37};
+ function ev(c,l,t,e,n,s){return '<div class="ev '+c+'" style="left:calc(56px + (100% - 56px)/3*'+l+' + 6px);width:calc((100% - 56px)/3 - 12px);top:'+(Y(t)+2)+'px;height:'+((e-t)*37-4)+'px">'+n+'<small>'+s+'</small></div>'}
+ var hrs='';for(var h=8;h<=19;h++){hrs+='<span class="hr" style="top:'+(Y(h)-8)+'px">'+(h<10?'0':'')+h+'.00</span>'}
+ return '<div class="mk d2"><div class="dk"><div class="topbar"><b>EduCentre</b><span>Jumat, 23 Okt</span><div class="st"><span><b>128</b>siswa</span><span><b>92%</b>hadir</span><span><b>Rp 9,4 jt</b>belum lunas</span></div></div>'+
+ '<div class="days"><span>Sen 19</span><span>Sel 20</span><span>Rab 21</span><span>Kam 22</span><span class="on">Jum 23</span><span>Sab 24</span></div>'+
+ '<div class="body"><div class="grid"><div class="lanes"><span></span><span>Ruang A</span><span>Ruang B</span><span>Ruang C</span></div><div class="tl">'+hrs+
+ ev('done',2,9,10.5,'Calistung K3','Bu Sinta · absen ✓')+ev('done',0,13,14.5,'IPA Kelas 6','Bu Rina · absen ✓ · 16/16')+ev('now',1,15.5,17,'Matematika K5','Pak Fariz · absen belum disimpan')+ev('next',2,16,17.5,'B. Inggris SMP','Miss Dita · 2 tagihan jatuh tempo')+ev('next',0,17.5,19,'Fisika SMA','Pak Hendra · rapor menunggu')+
+ '<div class="now-line" style="top:'+(Y(15.7))+'px"></div></div></div>'+
+ '<div class="side"><h4>Menempel pada sesi</h4><div class="it"><b>Matematika K5 · 15.30</b><small>Absensi belum disimpan (5 dari 7)</small><br><span class="go">Isi absensi</span></div><div class="it"><b>B. Inggris SMP · 16.00</b><small>2 tagihan jatuh tempo ≤ 3 hari</small><br><span class="go">Lihat tagihan</span></div><div class="it"><b>Fisika SMA · 17.30</b><small>1 rapor menunggu persetujuan</small><br><span class="go">Tinjau</span></div></div></div><div class="credit">Dikembangkan oleh NobleDev</div></div></div>'}
+function d2edu(){return '<div class="mk d2"><div class="ph"><div class="sb" style="background:#0f4c58;color:#e9f5f3"><span>09:41</span><span>●●● 87%</span></div><div class="hd"><small>Pak Fariz · Jumat, 23 Okt</small><h5>Jadwal hari ini</h5></div><div class="tlm">'+
+ '<div class="e"><time>13.00</time><span class="dot"></span><div class="c"><b>IPA Kelas 6</b><small>Ruang A · selesai</small></div></div>'+
+ '<div class="e now"><time>15.30</time><span class="dot"></span><div class="c"><b>Matematika K5</b><small>Ruang B · sedang berjalan</small><br><span class="chipx">Absensi 5/7</span><span class="btn">Isi absensi sekarang</span></div></div>'+
+ '<div class="e"><time>17.30</time><span class="dot"></span><div class="c"><b>UTBK Dasar</b><small>Ruang C · 6 siswa</small></div></div>'+
+ '<div class="e"><time>—</time><span class="dot"></span><div class="c"><b>Nilai menunggu</b><small>Ulangan 3 · 2 siswa belum dinilai</small></div></div></div></div></div>'}
+function d2par(){return '<div class="mk d2"><div class="ph"><div class="sb" style="background:#0f4c58;color:#e9f5f3"><span>09:41</span><span>●●● 87%</span></div><div class="hd"><small>Ibu Nurhayati · Aiman</small><h5>Pekan ini</h5></div><div class="tlm">'+
+ '<div class="e"><time>Sen</time><span class="dot"></span><div class="c"><b>Matematika</b><small>15.30 · hadir ✓</small></div></div>'+
+ '<div class="e"><time>Rab</time><span class="dot"></span><div class="c"><b>IPA</b><small>13.00 · hadir ✓ · kuis 92</small></div></div>'+
+ '<div class="e now"><time>Hari ini</time><span class="dot"></span><div class="c"><b>Matematika</b><small>15.30 · berjalan</small></div></div>'+
+ '<div class="e"><time>25 Okt</time><span class="dot"></span><div class="c"><b>SPP Oktober jatuh tempo</b><small>Rp 495.000</small><span class="btn">Lihat tagihan</span></div></div>'+
+ '<div class="e"><time>28 Okt</time><span class="dot"></span><div class="c"><b>Libur kelas</b><small>Hari Sumpah Pemuda</small></div></div></div></div></div>'}
+
+function d3dk(){return '<div class="mk d3"><div class="dk"><div class="l"><div class="brand"><b></b>EduCentre</div><div class="s">Umum</div><div class="room"><span>Pengumuman</span><em>1</em></div><div class="room"><span>Tagihan</span><em>5</em></div><div class="s">Kelas</div><div class="room on"><span>Matematika K5</span><em>2</em></div><div class="room"><span>IPA K6</span></div><div class="room"><span>B. Inggris SMP</span></div><div class="room"><span>Fisika SMA</span></div><div class="credit" style="margin-top:auto">Dikembangkan oleh NobleDev</div></div>'+
+ '<div class="c"><div class="h"><span>Matematika K5</span><small>7 siswa · Pak Fariz · Ruang B</small></div><div class="feed"><span class="day">Jumat, 23 Oktober</span>'+
+ '<div class="card"><b>Absensi disimpan oleh Pak Fariz</b><span style="color:#5a6e65">15.52 · 4 hadir · 1 telat · 1 absen · 1 izin</span><div class="acts"><span class="p">Lihat daftar</span><span>Hubungi ortu Bayu</span></div></div>'+
+ '<div class="m"><div class="who">Pak Fariz <time>15.55</time></div>Ulangan 3 sudah dinilai, tinggal 2 siswa susulan.</div>'+
+ '<div class="card warn"><b>Tagihan SPP Oktober · Aiman Haziq</b><span style="color:#5a6e65">Rp 495.000 · jatuh tempo 25 Okt</span><div class="acts"><span class="p">Catat bayar</span><span>Kirim pengingat</span></div></div>'+
+ '<div class="m me"><div class="who">Sari (Admin) <time>16.01</time></div>Libur 28 Okt (Sumpah Pemuda). Jadwal pengganti Sabtu.</div></div>'+
+ '<div class="comp"><div class="q"><span>Absensi</span><span>Nilai</span><span>Tagihan</span><span>Pengumuman</span></div><div class="in">Tulis pesan ke Matematika K5…</div></div></div>'+
+ '<div class="r"><h4>Konteks ruang</h4><div class="kv"><span>Educator</span><b>Pak Fariz</b></div><div class="kv"><span>Jadwal</span><b>Sen &amp; Rab 15.30</b></div><div class="kv"><span>Kehadiran bulan ini</span><b>91%</b></div><div class="kv"><span>Rata-rata nilai</span><b>81,9</b></div><div class="kv"><span>Tagihan belum lunas</span><b>3</b></div></div></div></div>'}
+function d3edu(){return '<div class="mk d3"><div class="ph"><div class="sb" style="background:#0b6b4f;color:#fff"><span>09:41</span><span>●●● 87%</span></div><div class="hd"><span class="av">M5</span><div><b>Matematika K5</b><small>7 siswa · Ruang B</small></div></div><div class="f"><span class="day" style="align-self:center;background:#fff;border-radius:99px;padding:2px 12px;font-size:12px;font-weight:700;color:#5a6e65">Hari ini</span>'+
+ '<div class="card warn"><b>Absensi 15.30 belum diisi</b><span style="color:#5a6e65">Ketuk nama untuk ganti status</span><div class="stu"><span>Aiman ✓</span><span>Nadia ✓</span><span class="t">Raka T</span><span class="a">Bayu A</span><span>Dimas I</span><span>Salsa ✓</span><span>Kirana ✓</span></div><div class="acts" style="display:flex;gap:6px;margin-top:8px"><span style="background:#0b6b4f;color:#fff;font-weight:800;border-radius:99px;padding:3px 13px;font-size:12px">Simpan absensi</span></div></div>'+
+ '<div class="m"><div class="who">Sari (Admin) <time>14.20</time></div>Mohon kirim nilai Ulangan 3 hari ini.</div></div><div class="in"><span>Absensi</span><span>Nilai</span><span>Pesan</span></div></div></div>'}
+function d3par(){return '<div class="mk d3"><div class="ph"><div class="sb" style="background:#0b6b4f;color:#fff"><span>09:41</span><span>●●● 87%</span></div><div class="hd"><span class="av">AH</span><div><b>Info Aiman</b><small>Kelas 5 SD · Bimbel Cerdas</small></div></div><div class="f">'+
+ '<div class="m"><div class="who">Pengumuman <time>08.00</time></div>Libur 28 Okt. Jadwal pengganti Sabtu 31 Okt.</div>'+
+ '<div class="card"><b>Aiman hadir · Matematika</b><span style="color:#5a6e65">15.52 · hari ini</span></div>'+
+ '<div class="card"><b>Nilai baru · Ulangan 3</b><span style="color:#5a6e65">Matematika: 88</span></div>'+
+ '<div class="card warn"><b>Tagihan SPP Oktober</b><span style="color:#5a6e65">Rp 495.000 · jatuh tempo 25 Okt</span><div style="display:flex;gap:6px;margin-top:8px"><span style="background:#0b6b4f;color:#fff;font-weight:800;border-radius:99px;padding:3px 13px;font-size:12px">Lihat tagihan</span></div></div></div><div class="in"><span>Aiman</span><span>Kirana</span><span>Tanya admin</span></div></div></div>'}
+
+function d4dk(){var S=[['Aiman Haziq','5 SD',92,'Belum bayar','w','',[10,14,12]],['Nadia Putri','6 SD',88,'Terlambat','b','warn',[16,12,14]],['Raka Pratama','8 SMP',95,'Belum bayar','w','good',[12,17,20]],['Salsa Amelia','7 SMP',97,'Lunas','ok','good',[14,15,16]],['Dimas Arya','11 SMA',84,'Belum bayar','w','sel',[18,12,8]],['Kirana Haziq','3 SD',100,'Lunas','ok','good',[12,16,18]],['Bayu Santoso','9 SMP',79,'Terlambat','b','warn',[14,10,8]],['Putri Lestari','10 SMA',91,'Lunas','ok','good',[15,16,17]],['Mira Anjani','4 SD',96,'Lunas','ok','good',[12,14,15]]];
+ return '<div class="mk d4"><div class="dk"><div class="main"><div class="top"><b>Siswa</b><div class="ch"><span>Semua 128</span><span class="att on">Perlu perhatian 9</span><span>Tunggakan 14</span><span>Hadir rendah 6</span></div></div><div class="grid">'+
+ S.map(function(s,i){var cl=['#dcd5ff','#ffd4d9','#d5f5e6','#fff0b8','#ffd4d9','#d5f5e6','#ffd4d9','#dcd5ff','#fff0b8'][i];return '<div class="s '+s[5]+'"><div class="t"><span class="av" style="--c:'+cl+'">'+s[0].split(' ').map(function(w){return w[0]}).join('')+'</span><div><b>'+s[0]+'</b><small>'+s[1]+'</small></div><span class="ring" style="--p:'+s[2]+';--rc:'+(s[2]<86?'#ef4565':'#16a870')+'"><i>'+s[2]+'</i></span></div><div class="bars">'+s[6].map(function(h){return '<i style="height:'+h+'px"></i>'}).join('')+'</div><span class="tag '+s[4]+'">'+s[3]+'</span></div>'}).join('')+'</div></div>'+
+ '<div class="dr"><div class="big">DA</div><div><h4>Dimas Arya</h4><small>11 SMA · Fisika SMA · wali: Bapak Joko</small></div><div class="row"><span>Kehadiran</span><b>84% ▼ 6 poin</b></div><div class="row"><span>Nilai terakhir</span><b>62 (Ulangan 3)</b></div><div class="row"><span>Tagihan</span><b>Rp 600.000 · 30 Okt</b></div><div class="row"><span>Catatan</span><b>Telat 3x bulan ini</b></div><div class="cta">Hubungi orang tua</div></div><div class="credit">Dikembangkan oleh NobleDev</div></div></div>'}
+function d4edu(){var T=[['AH','Aiman','Hadir',''],['NP','Nadia','Hadir',''],['RP','Raka','Telat','t'],['BS','Bayu','Absen','a'],['DA','Dimas','Izin','i'],['SA','Salsa','Hadir','']];
+ return '<div class="mk d4"><div class="ph"><div class="sb"><span>09:41</span><span>●●● 87%</span></div><div class="hd"><small>Pak Fariz · Matematika K5</small><h5>Siapa yang hadir?</h5></div><div class="g2">'+T.map(function(t){return '<div class="tile '+t[3]+'"><span class="av">'+t[0]+'</span>'+t[1]+'<small>'+t[2]+'</small></div>'}).join('')+'</div><div class="save">Simpan absensi · 3 hadir</div></div></div>'}
+function d4par(){return '<div class="mk d4"><div class="ph"><div class="sb"><span>09:41</span><span>●●● 87%</span></div><div class="hd"><small>Ibu Nurhayati</small><h5>Aiman &amp; Kirana</h5></div><div class="hero"><div class="t"><span class="av">AH</span><div><b>Aiman Haziq</b><br><small>Kelas 5 SD</small></div></div><div class="rings"><div><div class="ring" style="--p:92"><i>92%</i></div>Hadir</div><div><div class="ring" style="--p:88"><i>88</i></div>Nilai</div><div><div class="ring" style="--p:50"><i>1</i></div>Tagihan</div></div></div><div class="need"><b>Perlu perhatian</b>SPP Oktober Rp 495.000 jatuh tempo 25 Okt</div><div class="need"><b>Terbaru</b>Matematika Ulangan 3: 88 · Hadir hari ini</div></div></div>'}
+
+function d5dk(){var L=[['10.12','Salsa Amelia','SPP Okt · Tunai','450.000'],['11.30','Kirana Haziq','SPP Okt · Transfer','350.000'],['12.45','Putri Lestari','Kimia SMA · Tunai','600.000'],['13.20','Mira Anjani','Pendaftaran · Transfer','150.000'],['14.05','Bayu Santoso','SPP Sep · Tunai','450.000'],['14.40','Dimas Arya','Fisika SMA · Transfer','600.000']];
+ return '<div class="mk d5"><div class="dk"><div class="led"><div><small>MASUK HARI INI</small><b>2.600.000</b></div><div><small>TERTUNGGAK</small><b>9.400.000</b></div><div><small>HADIR</small><b>92%</b></div><span class="nbd">Dikembangkan oleh NobleDev</span></div>'+
+ '<div class="tape"><h5>BIMBEL CERDAS</h5><div class="sub">Pita transaksi · Jumat, 23 Okt 2026</div>'+L.map(function(l){return '<div class="ln"><time>'+l[0]+'</time><span class="n">'+l[1]+'<small>'+l[2]+'</small></span><span class="am">'+l[3]+'</span></div>'}).join('')+'<div class="tot"><span>TOTAL MASUK</span><span>2.600.000</span></div></div>'+
+ '<div class="rt"><div class="keys"><span class="p">Catat bayar</span><span>Buat tagihan</span><span>Cetak struk</span><span>Kirim pengingat</span><span>Siswa baru</span><span>Tutup kas</span></div><div class="nota"><h6>NOTA BELUM LUNAS</h6><div class="it"><span><mark>Nadia Putri</mark> terlambat</span><b>450.000</b></div><div class="it"><span><mark>Bayu Santoso</mark> terlambat</span><b>450.000</b></div><div class="it"><span>Aiman Haziq · 25 Okt</span><b>495.000</b></div><div class="it"><span>Raka Pratama · 28 Okt</span><b>1.200.000</b></div><div class="it"><span>Dimas Arya · 30 Okt</span><b>600.000</b></div></div></div></div></div>'}
+function d5edu(){var L=[['Aiman Haziq','H'],['Nadia Putri','H'],['Raka Pratama','T'],['Bayu Santoso','A'],['Dimas Arya','I']];
+ return '<div class="mk d5"><div class="ph"><div class="sb"><span>09:41</span><span>●●● 87%</span></div><div class="led2"><div><b>2</b><small>HADIR</small></div><div><b>1</b><small>TELAT</small></div><div><b>1</b><small>ABSEN</small></div><div><b>1</b><small>IZIN</small></div></div><div class="paper"><div style="text-align:center;font-weight:600;letter-spacing:.1em;border-bottom:2px dashed #141414;padding-bottom:6px;font-size:13px">MATEMATIKA K5 · 23 OKT</div>'+L.map(function(l){return '<div class="ln"><span class="n" style="flex:1">'+l[0]+'</span><i class="'+(l[1]==='T'?'t':'')+'">'+l[1]+'</i></div>'}).join('')+'</div><div class="go">Simpan absensi</div></div></div>'}
+function d5par(){return '<div class="mk d5"><div class="ph"><div class="sb"><span>09:41</span><span>●●● 87%</span></div><div class="strk"><h6>STRUK TAGIHAN</h6><div class="sub">Bimbel Cerdas · INV-2026-10-041</div><div class="row"><span>Aiman Haziq</span><span>5 SD</span></div><div class="row"><span>SPP Matematika</span><span>200.000</span></div><div class="row"><span>SPP IPA</span><span>200.000</span></div><div class="row"><span>SPP B. Inggris</span><span>150.000</span></div><div class="row"><span>Diskon saudara</span><span>-55.000</span></div><div class="row tt"><span>TOTAL</span><span>495.000</span></div><div style="margin-top:10px;font-size:12px;color:#666">Jatuh tempo <span class="hlt">25 Okt 2026</span></div></div><div class="go">Konfirmasi sudah bayar</div></div></div>'}
+var B={d1:[d1dk,d1edu,d1par],d2:[d2dk,d2edu,d2par],d3:[d3dk,d3edu,d3par],d4:[d4dk,d4edu,d4par],d5:[d5dk,d5edu,d5par]};
+
+
+var CAP=['Admin · dasbor desktop','Educator · absensi di HP','Orang tua · beranda di HP'];
+var NOTE={
+ d1:'Metafora buku induk dan buku absen sekolah. Kerangka bukan sidebar + kartu, tapi halaman bergaris dengan tab pembatas.',
+ d2:'Navigasi utama adalah waktu, bukan menu: ruang × jam, dengan tindakan menempel pada sesi.',
+ d3:'Menggantikan grup WhatsApp: ruang per kelas, umpan kartu tindakan, tombol cepat di kotak tulis.',
+ d4:'Entitas utamanya siswa. Kartu dengan cincin kehadiran, panel profil 360° di samping.',
+ d5:'Berpusat pada uang: layar LED, pita transaksi seperti struk, nota belum lunas ditandai stabilo.'
+};
+var sw=document.getElementById('switcher'),st=document.getElementById('stages');
+DIRS.forEach(function(d,i){
+  var b=document.createElement('button');b.innerHTML='<span class="num">'+(i+1)+'</span>'+d.name;b.onclick=function(){show(i+1)};sw.appendChild(b);
+  var f=B[d.id];
+  var html='<div class="stage" id="s'+(i+1)+'"><div class="views">'+CAP.map(function(c,j){return '<button class="'+(j?'':'active')+'" data-v="'+j+'">'+c+'</button>'}).join('')+'</div>'+
+   f.map(function(fn,j){return '<div class="view'+(j?' m':'')+(j?'':' active')+'" data-j="'+j+'"><div class="fit" data-w="'+(j?270:1000)+'" data-h="'+(j?560:620)+'">'+fn()+'</div></div>'}).join('')+
+   '<div class="direction-note"><b>'+d.kick+' — '+d.name+'.</b> '+d.thesis+'<br><br><b>Apa yang berbeda:</b> '+d.beda+'<br><b>Risiko:</b> '+d.risk+'<br><b>Bahan:</b> '+d.mat+' <span class="sw">'+d.pal.map(function(c){return '<i style="background:'+c+'" title="'+c+'"></i>'}).join('')+'</span></div></div>';
+  st.insertAdjacentHTML('beforeend',html);
+});
+st.addEventListener('click',function(e){var b=e.target.closest('.views button');if(!b)return;var s=b.closest('.stage');
+  s.querySelectorAll('.views button').forEach(function(x){x.classList.toggle('active',x===b)});
+  s.querySelectorAll('.view').forEach(function(v){v.classList.toggle('active',v.dataset.j===b.dataset.v)});fit()});
+function show(n){
+  document.querySelectorAll('.stage').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('s'+n).classList.add('active');
+  document.querySelectorAll('#switcher button').forEach(function(b,i){b.classList.toggle('active',i===n-1)});
+  try{history.replaceState(null,'','#'+n)}catch(e){}
+  fit();
+}
+function fit(){
+  var s=document.querySelector('.stage.active');if(!s)return;
+  var f=s.querySelector('.view.active .fit');if(!f)return;
+  var w=+f.dataset.w,h=+f.dataset.h,mobile=w<400,availW=innerWidth-32,availH=innerHeight-150;
+  var k=mobile?Math.min(availH/h,1.3):Math.min(availW/w,1.6);
+  f.style.width=(w*k)+'px';f.style.height=(h*k)+'px';f.firstElementChild.style.transform='scale('+k+')';
+}
+window.addEventListener('resize',fit);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+var n=parseInt((location.hash||'#1').slice(1),10);show(n>=1&&n<=DIRS.length?n:1);
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+/* V8: empat kombinasi font lain untuk Clay Soft + Ocean Blue. */
+/* E · Teknologi Tenang: Sora (judul, angka) + Manrope (isi) */
+.th-c5[data-font=e],.spec[data-font=e]{--font:"Manrope",system-ui,sans-serif;--fh:"Sora",system-ui,sans-serif;--fnum:"Sora",system-ui,sans-serif;--hw:700;--bw:700}
+.th-c5[data-font=e] .tt h1{letter-spacing:-.025em;font-size:27px}
+.th-c5[data-font=e] .kv{letter-spacing:-.04em;font-size:27px}
+.th-c5[data-font=e] .ch h3{font-size:15px}
+/* F · Ekspresif Berkarakter: Bricolage Grotesque (judul, angka) + Instrument Sans (isi) */
+.th-c5[data-font=f],.spec[data-font=f]{--font:"Instrument Sans",system-ui,sans-serif;--fh:"Bricolage Grotesque",system-ui,sans-serif;--fnum:"Bricolage Grotesque",system-ui,sans-serif;--hw:800;--bw:600}
+.th-c5[data-font=f] .tt h1{letter-spacing:-.035em;font-size:33px;line-height:1.05}
+.th-c5[data-font=f] .kv{letter-spacing:-.04em;font-size:33px}
+.th-c5[data-font=f] .ch h3{font-size:17px;letter-spacing:-.01em}
+.th-c5[data-font=f] .ni{font-size:13.5px}
+/* G · Aksesibel: Outfit (judul, angka) + Atkinson Hyperlegible (isi) */
+.th-c5[data-font=g],.spec[data-font=g]{--font:"Atkinson Hyperlegible",system-ui,sans-serif;--fh:"Outfit",system-ui,sans-serif;--fnum:"Outfit",system-ui,sans-serif;--hw:600;--bw:700;--fs:14px}
+.th-c5[data-font=g] .tt h1{letter-spacing:-.01em}
+.th-c5[data-font=g] .btn,.th-c5[data-font=g] .chip,.th-c5[data-font=g] .fc{font-weight:700}
+/* H · Klasik Aman: Poppins (judul, angka) + Inter (isi) */
+.th-c5[data-font=h],.spec[data-font=h]{--font:"Inter",system-ui,sans-serif;--fh:"Poppins",system-ui,sans-serif;--fnum:"Poppins",system-ui,sans-serif;--hw:600;--bw:600}
+.th-c5[data-font=h] .tt h1{letter-spacing:-.02em;font-size:27px}
+.th-c5[data-font=h] .kv{letter-spacing:-.03em;font-size:27px}
+.th-c5[data-font=h] .ni{font-size:13px}

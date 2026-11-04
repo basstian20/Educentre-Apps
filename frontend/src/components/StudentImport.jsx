@@ -75,15 +75,15 @@ export default function StudentImport({ open, onClose, onDone }) {
         </>
       }
     >
-      <p className="text-sm leading-6 text-slate-600 font-jakarta">{t.importHint}</p>
-      <p className="mt-1 text-xs text-slate-600 font-jakarta">{t.importDefaultPassword}</p>
+      <p className="text-sm leading-6 text-slate-600 font-sans">{t.importHint}</p>
+      <p className="mt-1 text-xs text-slate-600 font-sans">{t.importDefaultPassword}</p>
 
       <div className="mt-4 flex flex-wrap gap-2">
         <Btn variant="outline" size="sm" onClick={() => downloadText("students-template.csv", TEMPLATE)}>
           <Download className="h-4 w-4" />
           {t.downloadTemplate}
         </Btn>
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 font-outfit focus-within:ring-2 focus-within:ring-teal-500">
+        <label className="btn-clay is-pri inline-flex cursor-pointer items-center justify-center gap-2 px-3.5 py-1.5 text-xs font-bold font-sans focus-within:ring-2 focus-within:ring-teal-500">
           <FileUp className="h-4 w-4" />
           {t.chooseFile}
           <input type="file" accept=".csv,text/csv" className="sr-only" onChange={onFile} data-testid="import-file" />
@@ -92,12 +92,12 @@ export default function StudentImport({ open, onClose, onDone }) {
 
       {fileName && rows.length > 0 && (
         <div className="mt-4" data-testid="import-preview">
-          <div className="mb-2 text-xs font-semibold text-slate-700 font-outfit">
+          <div className="mb-2 text-xs font-semibold text-slate-700 font-heading">
             {fileName}: {rows.length} {t.importPreview}
           </div>
-          <div className="max-h-56 overflow-auto rounded-lg border border-slate-200">
-            <table className="w-full min-w-[520px] text-left text-xs">
-              <thead className="bg-slate-50 text-slate-600">
+          <div className="max-h-56 overflow-auto rounded-[16px] border-2 border-line">
+            <table className="clay-table w-full min-w-[520px] text-left text-xs">
+              <thead>
                 <tr>
                   <th className="px-3 py-2">full_name</th>
                   <th className="px-3 py-2">email</th>
@@ -106,7 +106,7 @@ export default function StudentImport({ open, onClose, onDone }) {
               </thead>
               <tbody>
                 {rows.slice(0, 20).map((r, i) => (
-                  <tr key={i} className="border-t border-slate-100">
+                  <tr key={i} className="">
                     <td className="px-3 py-1.5">{r.full_name || "—"}</td>
                     <td className="px-3 py-1.5">{r.email || "—"}</td>
                     <td className="px-3 py-1.5">{r.school_year || "—"}</td>
@@ -120,13 +120,13 @@ export default function StudentImport({ open, onClose, onDone }) {
       )}
 
       {result && (
-        <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-jakarta" data-testid="import-result" role="status">
+        <div className="mt-4 clay-well text-sm font-sans" data-testid="import-result" role="status">
           <div className="font-semibold text-slate-800">
             {result.created} {t.importDone}
             {result.errors.length > 0 && `, ${result.errors.length} ${t.importSkipped}`}
           </div>
           {result.errors.length > 0 && (
-            <ul className="mt-2 max-h-32 list-disc space-y-0.5 overflow-auto pl-5 text-xs text-red-700">
+            <ul className="mt-2 max-h-32 list-disc space-y-0.5 overflow-auto pl-5 text-xs text-[color:var(--bad-ink)]">
               {result.errors.map((er) => (
                 <li key={er.row}>
                   #{er.row} {er.email}: {er.reason}

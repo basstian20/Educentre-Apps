@@ -1,0 +1,62 @@
+/* C2 · Bento 3D: kartu berlapis dengan kedalaman, miring mengikuti kursor, ikon blok 3D, tata letak bento. */
+.th-c2{--font:"Plus Jakarta Sans",system-ui,sans-serif;--fh:"Sora","Space Grotesk",system-ui,sans-serif;--fnum:"Sora","Space Grotesk",system-ui,sans-serif;--hw:700;--fs:13.5px;--sw:224px;
+ --bg:#e8ebf4;--surface:#ffffff;--ink:#0f1330;--mut:#596083;--line:#e3e7f3;--soft:#eef0f9;--th-bg:#f6f7fc;--pri:#4f46e5;--pri-ink:#fff;--ok:#12a36a;--warn:#e8890c;--bad:#e23d4d;--info:#1e88e5;
+ --c1:#4f46e5;--c2:#0ea5b7;--c3:#f08a0a;--c4:#12a36a;--c5:#e23d4d;--side-bg:linear-gradient(170deg,#141a45,#0b0f2c);--side-ink:#b4bbe0;--side-b:#fff;--side-mut:#727aa6;--side-line:rgba(255,255,255,.08);--side-hov:rgba(255,255,255,.07);--side-act:rgba(129,140,248,.24);--side-act-ink:#fff;
+ --r:22px;--rs:12px;--shadow:0 1px 1px rgba(15,19,48,.04),0 10px 24px -10px rgba(15,19,48,.16),0 30px 56px -30px rgba(79,70,229,.34);--shadow-lg:0 30px 70px -16px rgba(15,19,48,.5);--hero:linear-gradient(150deg,#141a45,#2b2f9e 70%,#4f46e5);--hero-ink:#fff;--bot-bg:#0f1438}
+.th-c2[data-mode=dark]{--bg:#080b1f;--surface:#121739;--ink:#e9ebff;--mut:#9da5cc;--line:rgba(255,255,255,.08);--soft:rgba(255,255,255,.05);--th-bg:rgba(255,255,255,.03);--pri:#8f8bff;--pri-ink:#0b0c2a;--ok:#34d399;--warn:#fbbf24;--bad:#fb7185;--info:#38bdf8;--c1:#8f8bff;--c2:#22d3ee;--c3:#fbbf24;--c4:#34d399;--c5:#fb7185;--shadow:0 1px 1px rgba(0,0,0,.3),0 14px 30px -12px rgba(0,0,0,.7),0 30px 56px -34px rgba(143,139,255,.35)}
+.th-c2.app:not(.mob){padding:12px;gap:12px}
+.th-c2 .side{border-radius:22px;border:0;box-shadow:0 24px 50px -20px rgba(8,10,40,.7);height:100%}
+.th-c2 .main{background:transparent}
+.th-c2 .content{padding:6px 14px 20px 6px}
+.th-c2 .top{padding:8px 14px 8px 6px}
+.th-c2 .logo{background:linear-gradient(145deg,#818cf8,#4f46e5);box-shadow:0 8px 16px -4px rgba(79,70,229,.8),inset 0 1px 0 rgba(255,255,255,.45)}
+.th-c2 .ni-ind{background:linear-gradient(100deg,rgba(129,140,248,.36),rgba(129,140,248,.1));box-shadow:inset 3px 0 0 #a5b4fc}
+.th-c2 .tt h1{font-size:25px;letter-spacing:-.015em}
+.th-c2 .card,.th-c2 .kpi,.th-c2 .cc,.th-c2 .mc2,.th-c2 .ac,.th-c2 .child,.th-c2 .kidc,.th-c2 .opt{border:0;box-shadow:var(--shadow)}
+.th-c2 .ch{background:transparent;border-bottom:0;padding-bottom:2px}
+.th-c2 .ch h3{text-transform:none;letter-spacing:0;font-size:15px}
+.th-c2 .ch+.cb{padding-top:10px}
+/* kemiringan 3D */
+.th-c2 .tilt{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateZ(0);transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .3s;will-change:transform}
+.th-c2 .tilt:hover{box-shadow:0 2px 2px rgba(15,19,48,.05),0 22px 40px -12px rgba(15,19,48,.28),0 40px 70px -34px rgba(79,70,229,.55)}
+.th-c2 .tilt::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.28),transparent 55%);opacity:0;transition:opacity .3s;mix-blend-mode:soft-light}
+.th-c2 .tilt:hover::after{opacity:1}
+/* ikon blok 3D */
+.th-c2 .ki{width:42px;height:42px;border-radius:13px;background:linear-gradient(150deg,color-mix(in srgb,var(--t) 70%,#fff),var(--t));color:#fff;box-shadow:0 10px 18px -6px var(--t),inset 0 1px 0 rgba(255,255,255,.5),inset 0 -3px 0 rgba(0,0,0,.14);transform:translateZ(30px)}
+.th-c2 .kv{font-size:27px;letter-spacing:-.02em}
+.th-c2 .kpi{padding:16px 18px}
+.th-c2 .btn.pri{background:linear-gradient(180deg,color-mix(in srgb,var(--pri) 88%,#fff),var(--pri));border:0;box-shadow:0 8px 16px -6px color-mix(in srgb,var(--pri) 80%,transparent),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 0 rgba(0,0,0,.14)}
+.th-c2 .btn.pri:active{box-shadow:inset 0 3px 6px rgba(0,0,0,.25)}
+.th-c2 .btn:not(.pri):not(.ok):not(.danger){box-shadow:0 1px 0 rgba(15,19,48,.06),0 4px 10px -6px rgba(15,19,48,.2)}
+.th-c2 .btn,.th-c2 .fc,.th-c2 .inp,.th-c2 .sbox{border-radius:12px}
+.th-c2 .chip{border-radius:10px}
+.th-c2 .av{border-radius:14px}
+.th-c2 .logo{border-radius:12px}
+.th-c2 .tbl th{border-radius:0;background:var(--th-bg)}
+.th-c2 .tbl tr:nth-child(even) td{background:transparent}
+.th-c2 .mbox,.th-c2 .pal,.th-c2 .pop{border:0;box-shadow:var(--shadow-lg)}
+.th-c2 .rg svg{filter:drop-shadow(0 6px 8px color-mix(in srgb,var(--pri) 25%,transparent))}
+.th-c2 .dg-hero{background:linear-gradient(135deg,color-mix(in srgb,var(--pri) 90%,#000),#7c3aed);color:#fff}
+.th-c2 .dg-hero .hero-c{background:transparent;border-left:0}
+.th-c2 .dg-hero .hero-c h2,.th-c2 .dg-hero .hero-c .who{color:#fff}.th-c2 .dg-hero .hero-c p,.th-c2 .dg-hero .eyebrow{color:rgba(255,255,255,.82)}
+.th-c2 .dg-hero .rg>span{color:rgba(255,255,255,.8)}.th-c2 .dg-hero .rg-bg{stroke:rgba(255,255,255,.2)}.th-c2 .dg-hero .rg-v{stroke:#fff!important}
+/* bento */
+.th-c2 .dg{gap:16px}
+.th-c2 .r-admin{grid-template-areas:"kpis kpis kpis kpis kpis kpis" "today today trend trend trend trend" "today today donut donut cap cap" "act act inv inv ann ann"}
+.th-c2 .r-edu{grid-template-areas:"kpis kpis kpis kpis kpis kpis" "today today trend trend trend donut" "today today act act act act" "ann ann ann ann ann ann"}
+.th-c2 .stu{grid-template-areas:"hero hero hero hero flip flip" "rings rings rings res res res" "inv inv mat mat ann ann"}
+.th-c2 .rep{grid-template-areas:"kpis kpis kpis kpis kpis kpis" "trend trend trend trend donut donut" "cap cap cap att att att"}
+/* hero 3D: kota batang isometrik */
+.th-c2 .lg-hero::before{display:none}
+.th-c2 .lg-hero{background:radial-gradient(520px 380px at 80% 10%,rgba(129,140,248,.5),transparent 60%),linear-gradient(150deg,#141a45,#1f2380 70%,#3730a3)}
+.th-c2 .h3d-2{display:grid;place-items:center;perspective:1400px}
+.th-c2 .iso{position:relative;width:260px;height:260px;transform-style:preserve-3d;transform:rotateX(58deg) rotateZ(45deg) translateY(-30px);animation:isospin 16s ease-in-out infinite}
+@keyframes isospin{0%,100%{transform:rotateX(58deg) rotateZ(45deg) translateY(-30px)}50%{transform:rotateX(58deg) rotateZ(75deg) translateY(-30px)}}
+.th-c2 .bx{position:absolute;left:calc(var(--c)*52px);top:calc(var(--r)*52px);width:40px;height:40px;transform-style:preserve-3d;animation:bxrise 3.6s ease-in-out infinite;animation-delay:calc((var(--r) + var(--c))*-.35s)}
+@keyframes bxrise{0%,100%{transform:translateZ(0)}50%{transform:translateZ(18px)}}
+.th-c2 .bx i{position:absolute;display:block}
+.th-c2 .bx .t{left:0;top:0;width:40px;height:40px;background:#a5b4fc;transform:translateZ(var(--h))}
+.th-c2 .bx .l{left:0;top:40px;width:40px;height:var(--h);background:#6366f1;transform-origin:top;transform:rotateX(-90deg)}
+.th-c2 .bx .rr{left:40px;top:0;width:var(--h);height:40px;background:#4338ca;transform-origin:left;transform:rotateY(90deg)}
+.th-c2 .bx:nth-child(3n) .t{background:#67e8f9}.th-c2 .bx:nth-child(3n) .l{background:#06b6d4}.th-c2 .bx:nth-child(3n) .rr{background:#0e7490}
+.th-c2 .bx:nth-child(5n) .t{background:#f9a8d4}.th-c2 .bx:nth-child(5n) .l{background:#ec4899}.th-c2 .bx:nth-child(5n) .rr{background:#be185d}

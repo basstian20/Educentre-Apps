@@ -5,6 +5,7 @@ import "@/App.css";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { LangProvider } from "@/lib/i18n";
 import { ThemeProvider } from "@/lib/theme";
+import { MotionProvider } from "@/lib/motion";
 
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
@@ -29,7 +30,7 @@ function LoadingScreen() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: "var(--bg)" }} role="status">
       <div className="h-10 w-10 animate-spin rounded-full border-4 border-teal-100 border-t-teal-600" />
-      <div className="text-sm text-slate-600 font-jakarta">Loading…</div>
+      <div className="text-sm text-slate-600 font-sans">Loading…</div>
     </div>
   );
 }
@@ -52,6 +53,7 @@ export default function App() {
   return (
     <LangProvider>
       <ThemeProvider>
+      <MotionProvider>
       <AuthProvider>
         <BrowserRouter>
           <Toaster richColors position="top-right" />
@@ -79,6 +81,7 @@ export default function App() {
           <DeveloperCredit />
         </BrowserRouter>
       </AuthProvider>
+      </MotionProvider>
       </ThemeProvider>
     </LangProvider>
   );
