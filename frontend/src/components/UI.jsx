@@ -11,9 +11,9 @@ export function StatTile({ label, value, sub, icon: Icon, color = "var(--c1)", t
     >
       <div className="flex min-w-0 items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-xs font-semibold text-slate-500 tracking-wide font-jakarta">{label}</div>
+          <div className="text-xs font-semibold text-slate-500 tracking-wide font-sans">{label}</div>
           <div className="num break-words text-2xl font-extrabold text-slate-900 mt-2 leading-none tracking-tight sm:text-3xl">{value}</div>
-          {sub && <div className="text-xs text-slate-500 mt-2 font-jakarta">{sub}</div>}
+          {sub && <div className="text-xs text-slate-500 mt-2 font-sans">{sub}</div>}
         </div>
         {Icon && (
           <div className="clay-orb h-11 w-11">
@@ -30,7 +30,7 @@ export function Card({ title, action, children, testid, className = "" }) {
     <div className={`clay-card ${className}`} data-testid={testid}>
       {(title || action) && (
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 pb-1 sm:px-5">
-          {title && <h3 className="min-w-0 font-outfit font-extrabold text-slate-900 text-[17px] tracking-tight">{title}</h3>}
+          {title && <h3 className="min-w-0 font-heading font-extrabold text-slate-900 text-[17px] tracking-tight">{title}</h3>}
           {action && <div className="flex min-w-0 flex-wrap items-center gap-2">{action}</div>}
         </div>
       )}
@@ -82,8 +82,8 @@ export function Empty({ message, hint, icon: Icon = Sparkles, action }) {
       <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-pri/10 text-pri">
         <Icon className="h-5 w-5" strokeWidth={1.8} />
       </div>
-      <div className="text-sm font-semibold text-slate-700 font-outfit">{message}</div>
-      <div className="mx-auto mt-1 max-w-xs text-xs leading-5 text-slate-600 font-jakarta">{hint || t.emptyHint}</div>
+      <div className="text-sm font-semibold text-slate-700 font-heading">{message}</div>
+      <div className="mx-auto mt-1 max-w-xs text-xs leading-5 text-slate-600 font-sans">{hint || t.emptyHint}</div>
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
@@ -96,8 +96,8 @@ export function ErrorState({ onRetry }) {
       <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-bad/15 text-bad">
         <AlertTriangle className="h-5 w-5" strokeWidth={1.8} />
       </div>
-      <div className="text-sm font-semibold text-slate-700 font-outfit">{t.loadFailed}</div>
-      <div className="mx-auto mt-1 max-w-xs text-xs leading-5 text-slate-600 font-jakarta">{t.loadFailedHint}</div>
+      <div className="text-sm font-semibold text-slate-700 font-heading">{t.loadFailed}</div>
+      <div className="mx-auto mt-1 max-w-xs text-xs leading-5 text-slate-600 font-sans">{t.loadFailedHint}</div>
       {onRetry && (
         <div className="mt-4">
           <Btn variant="outline" size="sm" onClick={onRetry} testid="retry-btn">
@@ -160,10 +160,10 @@ export function RoleHero({ eyebrow, title, subtitle, color = "var(--pri)", icon:
           )}
           <div className="min-w-0">
             {eyebrow && (
-              <div className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500 font-jakarta">{eyebrow}</div>
+              <div className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500 font-sans">{eyebrow}</div>
             )}
-            <h2 className="text-2xl font-outfit font-extrabold tracking-tight text-slate-950 sm:text-3xl">{title}</h2>
-            {subtitle && <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 font-jakarta">{subtitle}</p>}
+            <h2 className="text-2xl font-heading font-extrabold tracking-tight text-slate-950 sm:text-3xl">{title}</h2>
+            {subtitle && <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 font-sans">{subtitle}</p>}
           </div>
         </div>
         {children && <div className="relative min-w-0 lg:max-w-md">{children}</div>}
@@ -182,8 +182,8 @@ export function ActionPanel({ title, subtitle, color = "var(--pri)", icon: Icon,
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <div className="font-outfit text-sm font-semibold text-slate-950">{title}</div>
-          {subtitle && <div className="mt-1 text-xs leading-5 text-slate-500 font-jakarta">{subtitle}</div>}
+          <div className="font-heading text-sm font-semibold text-slate-950">{title}</div>
+          {subtitle && <div className="mt-1 text-xs leading-5 text-slate-500 font-sans">{subtitle}</div>}
           {children && <div className="mt-3">{children}</div>}
         </div>
       </div>
@@ -191,7 +191,7 @@ export function ActionPanel({ title, subtitle, color = "var(--pri)", icon: Icon,
         <button
           type="button"
           onClick={onAction}
-          className="mt-4 inline-flex items-center gap-2 text-xs font-semibold font-outfit"
+          className="mt-4 inline-flex items-center gap-2 text-xs font-semibold font-heading"
           style={{ color }}
         >
           {actionLabel}
@@ -207,10 +207,10 @@ export function InsightCard({ label, value, detail, color = "var(--pri)", testid
     <div className="clay-card p-4" data-testid={testid}>
       <div className="flex items-center gap-2">
         <span className="h-2 w-2 rounded-full" style={{ background: color }} />
-        <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-jakarta">{label}</div>
+        <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-sans">{label}</div>
       </div>
       <div className="num mt-2 break-words text-xl font-extrabold text-slate-950">{value}</div>
-      {detail && <div className="mt-1 text-xs leading-5 text-slate-500 font-jakarta">{detail}</div>}
+      {detail && <div className="mt-1 text-xs leading-5 text-slate-500 font-sans">{detail}</div>}
     </div>
   );
 }
@@ -237,7 +237,7 @@ export function Btn({ children, onClick, variant = "primary", size = "md", disab
       aria-label={ariaLabel}
       title={ariaLabel}
       data-testid={testid}
-      className={`btn-clay inline-flex max-w-full items-center justify-center gap-2 text-center font-bold disabled:opacity-50 disabled:pointer-events-none font-jakarta ${sizes[size]} ${variants[variant]} ${className}`}
+      className={`btn-clay inline-flex max-w-full items-center justify-center gap-2 text-center font-bold disabled:opacity-50 disabled:pointer-events-none font-sans ${sizes[size]} ${variants[variant]} ${className}`}
     >
       {children}
     </button>
@@ -247,7 +247,7 @@ export function Btn({ children, onClick, variant = "primary", size = "md", disab
 export function Input({ label, type = "text", value, onChange, placeholder, testid, className = "", ...rest }) {
   return (
     <label className={`block ${className}`}>
-      {label && <span className="block text-xs font-bold text-slate-600 mb-1.5 font-jakarta">{label}</span>}
+      {label && <span className="block text-xs font-bold text-slate-600 mb-1.5 font-sans">{label}</span>}
       <input
         type={type}
         value={value}
@@ -264,7 +264,7 @@ export function Input({ label, type = "text", value, onChange, placeholder, test
 export function Select({ label, value, onChange, options, testid, className = "", disabled }) {
   return (
     <label className={`block ${className}`}>
-      {label && <span className="block text-xs font-bold text-slate-600 mb-1.5 font-jakarta">{label}</span>}
+      {label && <span className="block text-xs font-bold text-slate-600 mb-1.5 font-sans">{label}</span>}
       <select
         value={value}
         onChange={onChange}
@@ -285,7 +285,7 @@ export function Select({ label, value, onChange, options, testid, className = ""
 export function Textarea({ label, value, onChange, rows = 3, testid, placeholder, className = "" }) {
   return (
     <label className={`block ${className}`}>
-      {label && <span className="block text-xs font-bold text-slate-600 mb-1.5 font-jakarta">{label}</span>}
+      {label && <span className="block text-xs font-bold text-slate-600 mb-1.5 font-sans">{label}</span>}
       <textarea
         value={value}
         onChange={onChange}
@@ -360,7 +360,7 @@ export function Modal({ open, onClose, title, children, testid, footer, size = "
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-4 pt-5 pb-2 flex items-center justify-between gap-3 sm:px-6">
-          <h2 id={titleId} className="min-w-0 font-outfit font-extrabold text-lg text-slate-900 tracking-tight sm:text-xl">{title}</h2>
+          <h2 id={titleId} className="min-w-0 font-heading font-extrabold text-lg text-slate-900 tracking-tight sm:text-xl">{title}</h2>
           <button type="button" onClick={onClose} aria-label={t.close} className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-700 text-xl leading-none" data-testid="modal-close">
             <span aria-hidden="true">×</span>
           </button>

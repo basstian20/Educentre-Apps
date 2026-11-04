@@ -183,8 +183,8 @@ export default function Students() {
                             {s.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
                           </div>
                           <div>
-                            <div className="font-outfit font-semibold text-sm">{s.full_name}</div>
-                            <div className="text-xs text-slate-600 font-jakarta">{s.email}</div>
+                            <div className="font-heading font-semibold text-sm">{s.full_name}</div>
+                            <div className="text-xs text-slate-600 font-sans">{s.email}</div>
                           </div>
                         </div>
                       </td>

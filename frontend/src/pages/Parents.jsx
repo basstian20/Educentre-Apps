@@ -118,7 +118,7 @@ export default function Parents() {
                           <div className="avatar-clay" style={{ "--t": "var(--c2)" }}>
                             {p.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
                           </div>
-                          <div className="font-outfit font-semibold text-sm">{p.full_name}</div>
+                          <div className="font-heading font-semibold text-sm">{p.full_name}</div>
                         </div>
                       </td>
                       <td className="px-5 py-3 text-sm">{p.email}</td>
@@ -159,7 +159,7 @@ export default function Parents() {
           <Input label={t.phone} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input label={t.occupation} value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} />
           <div className="sm:col-span-2">
-            <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.childrenLinked}</span>
+            <span className="block text-xs font-medium text-slate-600 mb-1.5 font-heading">{t.childrenLinked}</span>
             <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border border-slate-200 rounded-lg">
               {students.map((s) => (
                 <label key={s.id} className="flex items-center gap-1.5 text-xs cursor-pointer">

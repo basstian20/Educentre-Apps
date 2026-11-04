@@ -47,7 +47,7 @@ export default function Results() {
         <Link
           key={k.id}
           to={`/students/${k.id}/report`}
-          className="btn-clay inline-flex items-center gap-2 px-4 py-2 text-xs font-bold font-outfit"
+          className="btn-clay inline-flex items-center gap-2 px-4 py-2 text-xs font-bold font-heading"
           data-testid={`report-link-${k.id}`}
         >
           <FileText className="h-4 w-4" />
@@ -72,12 +72,12 @@ export default function Results() {
               <tbody>
                 {enriched.map((g) => (
                   <tr key={g.id} className="row-hover" data-testid={`result-row-${g.id}`}>
-                    <td className="px-5 py-3 font-outfit font-semibold text-sm">{g.classObj?.subject_name || "—"}</td>
+                    <td className="px-5 py-3 font-heading font-semibold text-sm">{g.classObj?.subject_name || "—"}</td>
                     <td className="px-5 py-3 text-sm">{g.assessment.name}</td>
-                    <td className="px-5 py-3 font-outfit font-semibold">{g.score}/{g.max_score}</td>
+                    <td className="px-5 py-3 font-heading font-semibold">{g.score}/{g.max_score}</td>
                     <td className="px-5 py-3"><span className="badge badge-blue">{g.letter_grade || "—"}</span></td>
-                    <td className="px-5 py-3 text-sm font-jakarta">{fmtDate(g.assessment.assessment_date)}</td>
-                    <td className="px-5 py-3 text-xs text-slate-600 font-jakarta">{g.remark || "—"}</td>
+                    <td className="px-5 py-3 text-sm font-sans">{fmtDate(g.assessment.assessment_date)}</td>
+                    <td className="px-5 py-3 text-xs text-slate-600 font-sans">{g.remark || "—"}</td>
                   </tr>
                 ))}
               </tbody>

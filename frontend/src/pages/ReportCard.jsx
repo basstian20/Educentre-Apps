@@ -31,26 +31,26 @@ export default function ReportCard() {
 
           <section className="mt-6 grid grid-cols-2 gap-3">
             <div className="rounded-xl border border-slate-300 p-4 text-center">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-outfit">{t.attendanceSummary}</div>
-              <div className="mt-1 font-outfit text-2xl font-bold text-slate-900">{pct(report.attendance.percentage)}</div>
-              <div className="mt-1 text-xs text-slate-600 font-jakarta">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-heading">{t.attendanceSummary}</div>
+              <div className="mt-1 font-heading text-2xl font-bold text-slate-900">{pct(report.attendance.percentage)}</div>
+              <div className="mt-1 text-xs text-slate-600 font-sans">
                 {["present", "late", "absent", "excused"]
                   .map((k) => `${report.attendance[k]} ${(t[`status${k[0].toUpperCase()}${k.slice(1)}`] || k).toLowerCase()}`)
                   .join(" · ")}
               </div>
             </div>
             <div className="rounded-xl border border-slate-300 p-4 text-center">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-outfit">{t.averageScore}</div>
-              <div className="mt-1 font-outfit text-2xl font-bold text-slate-900">{pct(report.average_percentage)}</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-heading">{t.averageScore}</div>
+              <div className="mt-1 font-heading text-2xl font-bold text-slate-900">{pct(report.average_percentage)}</div>
             </div>
           </section>
 
           {report.classes.length > 0 && (
             <section className="mt-8">
-              <h2 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 font-outfit">{t.classes}</h2>
-              <table className="w-full text-left text-sm font-jakarta">
+              <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600 font-heading">{t.classes}</h2>
+              <table className="w-full text-left text-sm font-sans">
                 <thead>
-                  <tr className="border-b border-slate-300 text-[11px] uppercase tracking-wider text-slate-600 font-outfit">
+                  <tr className="border-b border-slate-300 text-xs uppercase tracking-wider text-slate-600 font-heading">
                     <th className="py-2">{t.subject}</th>
                     <th className="py-2">{t.educator}</th>
                     <th className="py-2 text-right">{t.attendance}</th>
@@ -74,13 +74,13 @@ export default function ReportCard() {
           )}
 
           <section className="mt-8">
-            <h2 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 font-outfit">{t.results}</h2>
+            <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600 font-heading">{t.results}</h2>
             {report.grades.length === 0 ? (
-              <p className="text-sm text-slate-600 font-jakarta">{t.noData}</p>
+              <p className="text-sm text-slate-600 font-sans">{t.noData}</p>
             ) : (
-              <table className="w-full text-left text-sm font-jakarta">
+              <table className="w-full text-left text-sm font-sans">
                 <thead>
-                  <tr className="border-b border-slate-300 text-[11px] uppercase tracking-wider text-slate-600 font-outfit">
+                  <tr className="border-b border-slate-300 text-xs uppercase tracking-wider text-slate-600 font-heading">
                     <th className="py-2">{t.subject}</th>
                     <th className="py-2">{t.assessmentName}</th>
                     <th className="py-2">{t.dueDate}</th>
@@ -102,7 +102,7 @@ export default function ReportCard() {
               </table>
             )}
           </section>
-          <footer className="mt-10 text-center text-[11px] text-slate-500 font-jakarta">{t.printFooter}</footer>
+          <footer className="mt-10 text-center text-xs text-slate-500 font-sans">{t.printFooter}</footer>
         </>
       )}
     </PrintSheet>

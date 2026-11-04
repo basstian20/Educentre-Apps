@@ -54,7 +54,7 @@ export default function Enrollment() {
                 >
                   {step > i + 1 ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
                 </div>
-                <span className={`min-w-0 text-xs font-bold font-outfit ${step >= i + 1 ? "text-slate-900" : "text-slate-600"}`}>{label}</span>
+                <span className={`min-w-0 text-xs font-bold font-heading ${step >= i + 1 ? "text-slate-900" : "text-slate-600"}`}>{label}</span>
               </div>
               {i < steps.length - 1 && (
                 <div className={`step-line hidden flex-1 mx-3 sm:block ${step > i + 1 ? "is-on" : ""}`} />
@@ -97,13 +97,13 @@ export default function Enrollment() {
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
-                      <div className="font-outfit font-semibold text-sm">{c.subject_name}</div>
-                      <div className="text-xs text-slate-600 font-jakarta mt-0.5">{c.educator_name} · {c.room}</div>
-                      <div className="text-xs text-slate-600 font-jakarta mt-1">
+                      <div className="font-heading font-semibold text-sm">{c.subject_name}</div>
+                      <div className="text-xs text-slate-600 font-sans mt-0.5">{c.educator_name} · {c.room}</div>
+                      <div className="text-xs text-slate-600 font-sans mt-1">
                         {(c.schedule_days || []).map((d) => t.days[d]).join(", ")} · {c.time_start}–{c.time_end}
                       </div>
                     </div>
-                    <div className="text-sm font-outfit font-bold sm:text-right">{fmtIDR(c.fee_amount)}</div>
+                    <div className="text-sm font-heading font-bold sm:text-right">{fmtIDR(c.fee_amount)}</div>
                   </div>
                 </button>
               );
@@ -123,14 +123,14 @@ export default function Enrollment() {
               const c = classes.find((x) => x.id === cid);
               return (
                 <div key={cid} className="line-row">
-                  <span className="text-sm font-jakarta">{c?.subject_name}</span>
-                  <span className="text-sm font-outfit font-semibold">{fmtIDR(c?.fee_amount)}</span>
+                  <span className="text-sm font-sans">{c?.subject_name}</span>
+                  <span className="text-sm font-heading font-semibold">{fmtIDR(c?.fee_amount)}</span>
                 </div>
               );
             })}
             <div className="clay-well flex flex-wrap justify-between gap-2 mt-3">
-              <span className="font-outfit font-semibold">{t.totalPerMonth}</span>
-              <span className="font-outfit font-bold text-lg">{fmtIDR(totalFee)}</span>
+              <span className="font-heading font-semibold">{t.totalPerMonth}</span>
+              <span className="font-heading font-bold text-lg">{fmtIDR(totalFee)}</span>
             </div>
           </div>
           <div className="mt-5 flex flex-wrap justify-between gap-2">
@@ -143,9 +143,9 @@ export default function Enrollment() {
       {step === 4 && (
         <Card title={t.confirmStep} testid="enroll-confirm">
           <div className="space-y-2 text-sm">
-            <div className="flex flex-wrap justify-between gap-2"><span className="text-slate-500">{t.student}</span><span className="font-outfit font-semibold">{students.find((s) => s.id === studentId)?.full_name}</span></div>
-            <div className="flex flex-wrap justify-between gap-2"><span className="text-slate-500">{t.classes}</span><span className="font-outfit font-semibold text-right">{selectedClasses.map((cid) => classes.find((c) => c.id === cid)?.subject_name).join(", ")}</span></div>
-            <div className="flex flex-wrap justify-between gap-2"><span className="text-slate-500">{t.totalPerMonth}</span><span className="font-outfit font-bold">{fmtIDR(totalFee)}</span></div>
+            <div className="flex flex-wrap justify-between gap-2"><span className="text-slate-500">{t.student}</span><span className="font-heading font-semibold">{students.find((s) => s.id === studentId)?.full_name}</span></div>
+            <div className="flex flex-wrap justify-between gap-2"><span className="text-slate-500">{t.classes}</span><span className="font-heading font-semibold text-right">{selectedClasses.map((cid) => classes.find((c) => c.id === cid)?.subject_name).join(", ")}</span></div>
+            <div className="flex flex-wrap justify-between gap-2"><span className="text-slate-500">{t.totalPerMonth}</span><span className="font-heading font-bold">{fmtIDR(totalFee)}</span></div>
           </div>
           <div className="mt-5 flex flex-wrap justify-between gap-2">
             <Btn variant="ghost" onClick={() => setStep(3)}>{t.back}</Btn>

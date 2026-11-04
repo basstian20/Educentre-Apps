@@ -33,22 +33,22 @@ Akun demo ada di `memory/test_credentials.md`. Pakai backend lokal dengan databa
 - [~] Pengumuman: buat/ubah/hapus dengan audiens; orang lain hanya melihat yang relevan. *Teruji (T6): buat, ubah, hapus dengan konfirmasi. Belum: audiens dan tampilan peran lain.*
 - [~] Pengaturan: profil, ganti kata sandi, data pusat bimbel (admin). *Teruji (T6): simpan profil, simpan data pusat, kata sandi salah ditolak. Belum: ganti kata sandi berhasil (sengaja tidak dicoba agar akun demo tetap bisa masuk).*
 - [ ] Notifikasi, ganti bahasa ID/EN, mode gelap, menu akun.
-- [ ] Setiap peran hanya melihat menu dan data perannya.
+- [x] Setiap peran hanya melihat menu dan data perannya. *Teruji (T7): menu Educator 7 item, Siswa 8, Orang tua 8, Admin 13, sesuai peran. Catatan: API `/invoices` dan `/students` membalas 200 untuk Educator (perilaku backend yang ada, bukan bagian redesign).*
 
 ## D. Tampilan dan kualitas
 - [ ] Tidak ada teks meluber, terpotong, atau menimpa di desktop maupun HP (teks Indonesia lebih panjang).
-- [ ] Teks minimal 12 px; kontras teks utama dan redup minimal AA (4,5:1).
-- [ ] Mode gelap: tidak ada elemen yang tetap terang atau tak terbaca.
+- [x] Teks minimal 12 px; kontras teks utama dan redup minimal AA (4,5:1). *Teruji (T7): pemindaian otomatis di browser, 4 peran, semua halaman menu, terang+ID dan gelap+EN, lebar HP (admin: 7 halaman): tidak ada teks < 12 px; tidak ada teks di bawah 4,5:1 (teks di atas gradien/foto dikecualikan dari hitungan otomatis).*
+- [x] Mode gelap: tidak ada elemen yang tetap terang atau tak terbaca. *Teruji (T7): keempat peran, semua halaman menu masing-masing, kontras AA dan teks ≥ 12 px lulus (terang+ID dan gelap+EN, lebar HP), tanpa gulir horizontal.*
 - [ ] Keadaan memuat, kosong, dan gagal tampil benar.
-- [ ] HP: tabel menjadi kartu dengan label; bilah bawah dan menu geser berfungsi.
-- [ ] Fokus keyboard terlihat; semua tombol bisa dicapai dengan Tab; dialog bisa ditutup dengan Esc.
-- [ ] Gerak: saklar Hemat dan `prefers-reduced-motion` mematikan animasi.
-- [ ] Cetak tagihan dan rapor tetap polos (tanpa bayangan/gradien/efek 3D).
-- [ ] Kredit NobleDev terlihat.
+- [~] HP: tabel menjadi kartu dengan label; bilah bawah dan menu geser berfungsi. *T7: tabel Siswa memberi label `data-label` pada sel (18), bilah bawah tampil di lebar HP. Belum: menu geser.*
+- [~] Fokus keyboard terlihat; semua tombol bisa dicapai dengan Tab; dialog bisa ditutup dengan Esc. *Teruji (T7): dialog Tambah Siswa tertutup dengan Esc; aturan `:focus-visible` ada. Belum: penelusuran Tab menyeluruh.*
+- [x] Gerak: saklar Hemat dan `prefers-reduced-motion` mematikan animasi. *T7: ditemukan gelembung latar masih bergerak di mode Hemat; diperbaiki di `theme.css`, kini 0 animasi berulang.*
+- [~] Cetak tagihan dan rapor tetap polos (tanpa bayangan/gradien/efek 3D). *Teruji (T7): lembar tagihan dan rapor tampil terang polos (latar putih, teks ≥ 12 px) walau tema pengguna gelap. Belum: pratinjau dialog cetak sebenarnya (aturan `@media print` sudah ada).*
+- [x] Kredit NobleDev terlihat. *T7: tampil di desktop dan HP pada 12 px, disembunyikan saat cetak.*
 
 ## E. Teknis
-- [ ] `$env:CI = "true"; yarn build` lulus tanpa peringatan.
+- [x] `$env:CI = "true"; yarn build` lulus tanpa peringatan. *T7: lulus sebelum perbaikan gerak; ulangi di Tahap 8.*
 - [ ] Konsol browser tanpa kesalahan saat mengklik seluruh halaman.
-- [ ] `data-testid` tidak berubah atau hilang.
-- [ ] Tidak ada perubahan di `backend/`.
-- [ ] Tidak ada perubahan di `main`.
+- [x] `data-testid` tidak berubah atau hilang. *T7: diff terhadap `redesign/clay` hanya menyentuh kelas font pada baris yang memuatnya; nilai testid sama.*
+- [x] Tidak ada perubahan di `backend/`. *T7: `git diff redesign/clay -- backend` kosong.*
+- [x] Tidak ada perubahan di `main`. *T7: `main` = origin/main = f97a633.*

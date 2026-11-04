@@ -4,7 +4,6 @@ import "@fontsource-variable/bricolage-grotesque/wght.css";
 import "@fontsource-variable/instrument-sans/index.css";
 import "@/index.css";
 import "@/theme.css";
-import "@/dark.css";
 import "@/dashboard.css";
 import "@/login.css";
 import "@/motion.css";

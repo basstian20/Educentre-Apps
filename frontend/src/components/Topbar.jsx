@@ -43,11 +43,11 @@ export default function Topbar({ title, subtitle, actions, onMenuClick, onSearch
           <Menu className="h-5 w-5" />
         </button>
         <div className="min-w-0">
-          <h1 className="truncate text-[26px] font-outfit font-extrabold leading-[1.05] tracking-[-0.035em] text-ink sm:text-[33px]" data-testid="page-title">
+          <h1 className="truncate text-[26px] font-heading font-extrabold leading-[1.05] tracking-[-0.035em] text-ink sm:text-[33px]" data-testid="page-title">
             {title}
           </h1>
           {subtitle && (
-            <div className="mt-1 truncate text-xs font-semibold tracking-wide text-mut font-jakarta">{subtitle}</div>
+            <div className="mt-1 truncate text-xs font-semibold tracking-wide text-mut font-sans">{subtitle}</div>
           )}
         </div>
       </div>
@@ -108,8 +108,8 @@ export default function Topbar({ title, subtitle, actions, onMenuClick, onSearch
               {(user.full_name || "U").split(" ").map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
             </div>
             <div className="leading-tight">
-              <div className="max-w-28 truncate text-xs font-semibold text-ink font-outfit">{user.full_name}</div>
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-mut">{roleLabel}</div>
+              <div className="max-w-28 truncate text-xs font-semibold text-ink font-heading">{user.full_name}</div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-mut">{roleLabel}</div>
             </div>
           </Link>
         )}

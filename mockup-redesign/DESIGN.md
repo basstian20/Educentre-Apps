@@ -71,5 +71,5 @@ Lisensi: Google Fonts (SIL OFL). Di aplikasi sungguhan, pasang sendiri (self-hos
 ## Hal yang perlu diputuskan saat implementasi
 - Pustaka untuk animasi (mis. Framer Motion atau CSS murni), grafik (mis. Recharts yang sudah ada), dan 3D hero (CSS murni, tanpa three.js, agar ringan).
 - Menjaga atribut `data-testid` yang ada saat merestyle komponen React/shadcn.
-- Menggeser token Tailwind (`tailwind.config.js`) dan `index.css` ke variabel di atas; merapikan `dark.css` menjadi berbasis token.
-- Menjaga kontras minimal AA dan ukuran teks minimal 12 px (saat ini beberapa teks 8–10 px).
+- ~~Menggeser token ke variabel; merapikan `dark.css`~~ Selesai: `dark.css` dihapus (Tahap 7), mode gelap berbasis token di `theme.css`.
+- Menjaga kontras minimal AA dan ukuran teks minimal 12 px (tercapai di Tahap 7).

@@ -114,21 +114,21 @@ export default function Materials() {
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-outfit font-semibold text-sm truncate">{m.title}</div>
-                    <div className="text-xs text-slate-600 mt-0.5 font-jakarta">{c?.subject_name || "—"}</div>
+                    <div className="font-heading font-semibold text-sm truncate">{m.title}</div>
+                    <div className="text-xs text-slate-600 mt-0.5 font-sans">{c?.subject_name || "—"}</div>
                   </div>
                   {canUpload && <RowActions testid={`material-${m.id}`} onDelete={() => setRemoving(m)} />}
                 </div>
-                {m.description && <div className="text-xs text-slate-600 mt-3 font-jakarta line-clamp-2">{m.description}</div>}
+                {m.description && <div className="text-xs text-slate-600 mt-3 font-sans line-clamp-2">{m.description}</div>}
                 <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-line">
-                  <span className="text-xs text-slate-500 font-jakarta">{fmtDate(m.created_at)} · {m.uploader_name || "—"}</span>
+                  <span className="text-xs text-slate-500 font-sans">{fmtDate(m.created_at)} · {m.uploader_name || "—"}</span>
                   {m.file_id ? (
-                    <button type="button" onClick={() => openUploaded(m)} className="inline-flex items-center gap-1 text-xs font-outfit font-semibold text-blue-700 hover:underline" data-testid={`material-open-${m.id}`}>
+                    <button type="button" onClick={() => openUploaded(m)} className="inline-flex items-center gap-1 text-xs font-heading font-semibold text-blue-700 hover:underline" data-testid={`material-open-${m.id}`}>
                       <Paperclip className="h-3.5 w-3.5" />
                       {m.file_name || t.downloadFile}
                     </button>
                   ) : (m.external_url || m.file_url) && (
-                    <a href={m.external_url || m.file_url} target="_blank" rel="noreferrer" className="text-xs font-outfit font-semibold text-blue-700 hover:underline" data-testid={`material-open-${m.id}`}>
+                    <a href={m.external_url || m.file_url} target="_blank" rel="noreferrer" className="text-xs font-heading font-semibold text-blue-700 hover:underline" data-testid={`material-open-${m.id}`}>
                       {t.openLink}
                     </a>
                   )}
@@ -158,7 +158,7 @@ export default function Materials() {
             options={[{ value: "link", label: t.matLink }, { value: "file", label: t.matFile }, { value: "video", label: t.matVideo }]} />
           {form.type === "file" ? (
             <label className="block">
-              <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.uploadFile}</span>
+              <span className="block text-xs font-medium text-slate-600 mb-1.5 font-heading">{t.uploadFile}</span>
               <input
                 type="file"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}

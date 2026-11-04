@@ -167,11 +167,11 @@ export default function Reports() {
                   <div className="flex min-w-0 items-center gap-3">
                     <div className="h-8 w-1.5 rounded-full" style={{ background: "var(--t)" }} />
                     <div className="min-w-0">
-                      <div className="font-outfit font-semibold text-sm">{c.subject_name}</div>
-                      <div className="text-xs text-slate-600 font-jakarta">{c.educator_name}</div>
+                      <div className="font-heading font-semibold text-sm">{c.subject_name}</div>
+                      <div className="text-xs text-slate-600 font-sans">{c.educator_name}</div>
                     </div>
                   </div>
-                  <span className="font-outfit font-bold text-sm">{fmtIDR(c.fee_amount)}</span>
+                  <span className="font-heading font-bold text-sm">{fmtIDR(c.fee_amount)}</span>
                 </div>
               ))}
           </div>
@@ -180,7 +180,7 @@ export default function Reports() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {quickMetrics.map((m) => (
               <div key={m.label} className="metric-tile">
-                <div className="k font-outfit">{m.label}</div>
+                <div className="k font-heading">{m.label}</div>
                 <div className="v">{m.value}</div>
               </div>
             ))}

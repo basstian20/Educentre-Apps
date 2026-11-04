@@ -97,7 +97,7 @@ export function SortTh({ label, k, table, className = "px-5 py-3" }) {
       <button
         type="button"
         onClick={() => table.toggleSort(k)}
-        className={`inline-flex items-center gap-1 uppercase tracking-wider font-outfit hover:text-slate-900 ${active ? "text-slate-900" : ""}`}
+        className={`inline-flex items-center gap-1 uppercase tracking-wider font-heading hover:text-slate-900 ${active ? "text-slate-900" : ""}`}
       >
         {label}
         <Icon className="h-3 w-3" aria-hidden="true" />
@@ -112,7 +112,7 @@ export function Pagination({ table }) {
   const from = (table.page - 1) * table.pageSize + 1;
   const to = Math.min(table.total, table.page * table.pageSize);
   return (
-    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4 text-xs font-semibold text-slate-600 font-jakarta" data-testid="pagination">
+    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4 text-xs font-semibold text-slate-600 font-sans" data-testid="pagination">
       <span>
         {t.showing} {from}–{to} {t.of} {table.total}
       </span>
@@ -177,7 +177,7 @@ export function ConfirmModal({ open, onClose, onConfirm, title, message, confirm
         </>
       }
     >
-      <p className="text-sm leading-6 text-slate-600 font-jakarta">{message || t.deleteHint}</p>
+      <p className="text-sm leading-6 text-slate-600 font-sans">{message || t.deleteHint}</p>
     </Modal>
   );
 }
@@ -187,8 +187,8 @@ export function NoMatches({ onClear }) {
   const { t } = useLang();
   return (
     <div className="py-12 text-center" data-testid="no-matches">
-      <div className="text-sm font-semibold text-slate-700 font-outfit">{t.noResults}</div>
-      <div className="mt-1 text-xs text-slate-600 font-jakarta">{t.noResultsHint}</div>
+      <div className="text-sm font-semibold text-slate-700 font-heading">{t.noResults}</div>
+      <div className="mt-1 text-xs text-slate-600 font-sans">{t.noResultsHint}</div>
       {onClear && (
         <div className="mt-4">
           <Btn size="sm" variant="outline" onClick={onClear}>{t.clearFilters}</Btn>

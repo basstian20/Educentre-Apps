@@ -127,8 +127,8 @@ export default function Grades() {
                   {students.map((s) => (
                     <tr key={s.id} className="row-hover" data-testid={`grade-row-${s.id}`}>
                       <td className="px-5 py-3">
-                        <div className="font-outfit font-semibold text-sm">{s.full_name}</div>
-                        <div className="text-xs text-slate-600 font-jakarta">{s.student_code}</div>
+                        <div className="font-heading font-semibold text-sm">{s.full_name}</div>
+                        <div className="text-xs text-slate-600 font-sans">{s.student_code}</div>
                       </td>
                       <td className="px-5 py-3 w-32">
                         <input

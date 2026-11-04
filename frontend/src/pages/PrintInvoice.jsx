@@ -41,9 +41,9 @@ export default function PrintInvoice() {
             <Field label={t.billingMonth}>{inv.billing_month}</Field>
           </section>
 
-          <table className="mt-6 w-full text-left text-sm font-jakarta">
+          <table className="mt-6 w-full text-left text-sm font-sans">
             <thead>
-              <tr className="border-b border-slate-300 text-[11px] uppercase tracking-wider text-slate-600 font-outfit">
+              <tr className="border-b border-slate-300 text-xs uppercase tracking-wider text-slate-600 font-heading">
                 <th className="py-2">{t.description}</th>
                 <th className="py-2 text-right">{t.amount}</th>
               </tr>
@@ -58,16 +58,16 @@ export default function PrintInvoice() {
             </tbody>
           </table>
 
-          <dl className="ml-auto mt-4 w-full max-w-xs space-y-1 text-sm font-jakarta">
+          <dl className="ml-auto mt-4 w-full max-w-xs space-y-1 text-sm font-sans">
             <div className="flex justify-between"><dt>{t.amount}</dt><dd>{fmtIDR(inv.total_amount)}</dd></div>
             <div className="flex justify-between"><dt>{t.amountPaid}</dt><dd>{fmtIDR(inv.amount_paid)}</dd></div>
-            <div className="flex justify-between border-t border-slate-300 pt-1 font-outfit text-base font-bold"><dt>{t.balanceDue}</dt><dd>{fmtIDR(inv.balance_due)}</dd></div>
+            <div className="flex justify-between border-t border-slate-300 pt-1 font-heading text-base font-bold"><dt>{t.balanceDue}</dt><dd>{fmtIDR(inv.balance_due)}</dd></div>
           </dl>
 
           {payments.length > 0 && (
             <section className="mt-8">
-              <h2 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 font-outfit">{t.paymentHistory}</h2>
-              <table className="w-full text-left text-sm font-jakarta">
+              <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600 font-heading">{t.paymentHistory}</h2>
+              <table className="w-full text-left text-sm font-sans">
                 <tbody>
                   {payments.map((p) => (
                     <tr key={p.id} className="border-b border-slate-100">
@@ -85,7 +85,7 @@ export default function PrintInvoice() {
               </table>
             </section>
           )}
-          <footer className="mt-10 text-center text-[11px] text-slate-500 font-jakarta">{t.printFooter}</footer>
+          <footer className="mt-10 text-center text-xs text-slate-500 font-sans">{t.printFooter}</footer>
         </>
       ))}
     </PrintSheet>
@@ -110,14 +110,14 @@ function Receipt({ doc, payment, t, methodLabel }) {
         <Field label={t.refLabel}>{payment.reference_number}</Field>
       </section>
       <div className="mt-8 rounded-xl border-2 border-slate-800 p-6 text-center">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-slate-600 font-outfit">{t.amountPaid}</div>
-        <div className="mt-1 font-outfit text-3xl font-bold text-slate-900">{fmtIDR(payment.amount)}</div>
+        <div className="text-xs font-bold uppercase tracking-wider text-slate-600 font-heading">{t.amountPaid}</div>
+        <div className="mt-1 font-heading text-3xl font-bold text-slate-900">{fmtIDR(payment.amount)}</div>
       </div>
-      <dl className="ml-auto mt-4 w-full max-w-xs space-y-1 text-sm font-jakarta">
+      <dl className="ml-auto mt-4 w-full max-w-xs space-y-1 text-sm font-sans">
         <div className="flex justify-between"><dt>{t.amount}</dt><dd>{fmtIDR(inv.total_amount)}</dd></div>
         <div className="flex justify-between"><dt>{t.balanceDue}</dt><dd>{fmtIDR(remaining)}</dd></div>
       </dl>
-      <footer className="mt-10 text-center text-sm text-slate-700 font-jakarta">{t.thankYou}</footer>
+      <footer className="mt-10 text-center text-sm text-slate-700 font-sans">{t.thankYou}</footer>
     </>
   );
 }
