@@ -10,7 +10,7 @@
 | 2 · Kerangka aplikasi | `redesign/clay-t2-kerangka` | **Disetujui, digabung** (PR #3) |
 | 3 · Layar masuk dan dasbor | `redesign/clay-t3-masuk-dasbor` | **Disetujui, digabung** (PR #4) |
 | 4 · Halaman data dan keuangan | `redesign/clay-t4-halaman-data` | **Disetujui, digabung** (PR #5) |
-| 5 · Halaman akademik dan laporan | `redesign/clay-t5-halaman-akademik` | Belum |
+| 5 · Halaman akademik dan laporan | `redesign/clay-t5-halaman-akademik` | **Disetujui, digabung** (PR #6) |
 | 6 · Gerak dan komponen interaktif | `redesign/clay-t6-gerak` | Belum |
 | 7 · Merapikan dan dokumen cetak | `redesign/clay-t7-rapi-cetak` | Belum |
 | 8 · Uji akhir dan serah terima | `redesign/clay-t8-uji-akhir` | Belum |
