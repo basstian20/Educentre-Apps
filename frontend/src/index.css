@@ -439,7 +439,7 @@
 .skeleton-stack span {
   height: 0.7rem;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(255,255,255,.3), rgba(255,255,255,.72), rgba(255,255,255,.3));
+  background: linear-gradient(90deg, var(--soft), color-mix(in srgb, var(--soft) 55%, var(--surface)), var(--soft));
   background-size: 200% 100%;
   animation: skeletonShimmer 1.4s linear infinite;
 }

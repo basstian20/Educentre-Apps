@@ -18,7 +18,7 @@
 Perbarui tabel ini di akhir setiap tahap. `main` tetap tidak disentuh sampai Tahap 8 disetujui.
 
 ## Hal yang masih terbuka
-- Persetujuan membuat database uji terpisah `edu_redesign_test` di cluster Atlas yang sama (agar uji yang menulis data tidak mencemari situs demo). Belum dijawab.
+- ~~Database uji terpisah~~ Disetujui dan dipakai: `edu_redesign_test` (dibuat otomatis saat backend lokal jalan dengan `DB_NAME=edu_redesign_test`). Catatan: `backend/.env` tidak memuat `JWT_SECRET`, jadi saat menjalankan lokal setel juga `JWT_SECRET` (nilai acak apa saja) lewat variabel lingkungan, dan pasang dependensi dengan `pip install -r backend/requirements.txt` di `venv`.
 - Baseline "sebelum" untuk halaman yang butuh login (diambil dari `main` yang dijalankan lokal dengan database terpisah) belum diambil.
 
 ## Cara melanjutkan di chat baru
