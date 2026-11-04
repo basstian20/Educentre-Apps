@@ -1,0 +1,262 @@
+/* Tahap 3 · Dasbor empat peran.
+   Komponen: components/dashboard/*. Semua warna dari token theme.css; tidak ada hex per mode. */
+
+:root {
+  /* Sisi depan kartu rapor: teks putih harus tetap terbaca (≥ 4,5:1) di kedua mode. */
+  --flip-bg:
+    radial-gradient(260px 200px at 100% 0, rgba(255, 255, 255, 0.22), transparent 70%),
+    linear-gradient(150deg, #3f6df2 0%, #2447b8 100%);
+}
+html.dark {
+  --flip-bg:
+    radial-gradient(260px 200px at 100% 0, rgba(255, 255, 255, 0.14), transparent 70%),
+    linear-gradient(150deg, #3f63d6 0%, #1f3a94 100%);
+}
+
+@keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes dnIn { from { stroke-dasharray: 0 100; } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes pop { from { transform: scale(0.85); opacity: 0.3; } }
+@keyframes grow { from { transform: scaleX(0); } }
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 55%, transparent); }
+  70% { box-shadow: 0 0 0 9px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+/* Kilau digeser lewat background-position, bukan transform: elemen ber-transform di dalam
+   sisi depan membuat sisi itu tetap terlihat saat kartu terbalik. */
+@keyframes shine {
+  0%, 55% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* ---------- Grid ---------- */
+.dg {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 18px;
+}
+.dg > * { min-width: 0; }
+.dg .span-2 { grid-column: span 2; }
+.dg .span-3 { grid-column: span 3; }
+.dg .span-4 { grid-column: span 4; }
+.dg .span-6 { grid-column: 1 / -1; }
+
+.dg-kpis {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 18px;
+}
+.dg-kpis.k4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+@media (max-width: 1100px) {
+  .dg { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dg .span-2, .dg .span-3 { grid-column: span 1; }
+  .dg .span-4, .dg .span-6 { grid-column: 1 / -1; }
+  .dg-kpis, .dg-kpis.k4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dg-kpis > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (max-width: 720px) {
+  .dg { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .dg .span-2, .dg .span-3, .dg .span-4, .dg .span-6 { grid-column: 1 / -1; }
+  .dg-kpis, .dg-kpis.k4 { gap: 12px; }
+}
+
+/* ---------- Kartu ---------- */
+.dcard { padding: 20px 22px; }
+.dcard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.dcard-head h2 {
+  margin: 0;
+  font-family: var(--fh);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.dcard-link {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pri-text);
+  text-decoration: none;
+}
+.dcard-link:hover { text-decoration: underline; }
+@media (max-width: 720px) { .dcard { padding: 16px; } }
+
+/* ---------- KPI ---------- */
+.kpi {
+  position: relative;
+  min-width: 0;
+  padding: 18px 20px 16px;
+  overflow: hidden;
+}
+.kpi .ki { position: absolute; top: 14px; right: 14px; width: 42px; height: 42px; --t: var(--t); }
+.kpi .kl {
+  padding-right: 48px;
+  min-height: 2.6em;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--mut);
+}
+.kpi .kv {
+  margin-top: 6px;
+  font-family: var(--fh);
+  font-size: clamp(22px, 2vw, 31px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.kpi .ks { margin-top: 4px; font-size: 12.5px; color: var(--mut); overflow-wrap: anywhere; }
+.kpi:has(.spark) { padding-bottom: 46px; }
+.kpi .skeleton-stack { padding-top: 6px; }
+@media (max-width: 720px) {
+  .kpi { padding: 14px 14px 12px; }
+  .kpi .ki { width: 36px; height: 36px; top: 10px; right: 10px; }
+  .kpi .kl { padding-right: 40px; font-size: 12.5px; }
+  .kpi .spark { display: none; }
+}
+
+/* ---------- Grafik ---------- */
+.spark { position: absolute; right: 14px; bottom: 12px; width: 76px; height: 26px; overflow: visible; }
+.sp-line { fill: none; stroke: var(--t, var(--pri)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; animation: draw 1.2s ease both 0.3s; }
+.sp-fill { fill: var(--t, var(--pri)); opacity: 0.14; animation: fade 1s both 0.6s; }
+.sp-dot { fill: var(--t, var(--pri)); animation: pop 0.4s both 1.2s; }
+
+.area-wrap { width: 100%; }
+.area { display: block; max-width: 100%; overflow: visible; }
+.area .gl { stroke: var(--line); stroke-dasharray: 3 5; }
+.area .gt { fill: var(--mut); font: 12px var(--font); }
+.ar-line { fill: none; stroke: var(--pri); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; animation: draw 1.5s cubic-bezier(0.4, 0.1, 0.2, 1) both 0.2s; }
+.ar-fill { fill: var(--pri); opacity: 0.14; animation: fade 1.2s both 0.7s; }
+.ar-dot { fill: var(--surface); stroke: var(--pri); stroke-width: 2.6; transform-box: fill-box; transform-origin: center; animation: pop 0.45s var(--spring) both; animation-delay: calc(0.5s + var(--i, 0) * 0.12s); }
+
+.donut2 { position: relative; width: 168px; margin: 2px auto 14px; }
+.donut2 svg { display: block; width: 100%; transform: rotate(-90deg); }
+.dn-bg { fill: none; stroke: var(--soft); stroke-width: 12; }
+.dn { fill: none; stroke-width: 12; stroke-linecap: round; animation: dnIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 0.14s + 0.2s); }
+.dn-c { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.dn-c b { font-family: var(--fh); font-size: 28px; font-weight: 800; line-height: 1; color: var(--ink); }
+.dn-c small { font-size: 12.5px; color: var(--mut); }
+.legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: 12.5px; color: var(--mut); }
+.legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 4px; }
+
+.rings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 8px; }
+.rg { position: relative; text-align: center; min-width: 0; }
+.rg svg { display: block; width: 78px; height: 78px; margin: 0 auto; transform: rotate(-90deg); filter: drop-shadow(0 6px 8px rgba(var(--pg), 0.22)); }
+.rg-bg { fill: none; stroke: var(--soft); stroke-width: 9; }
+.rg-v { fill: none; stroke-width: 9; stroke-linecap: round; animation: dnIn 1.3s cubic-bezier(0.2, 0.8, 0.2, 1) both 0.3s; }
+.rg-c { position: absolute; top: 0; left: 0; right: 0; height: 78px; display: grid; place-items: center; }
+.rg-c b { font-family: var(--fh); font-size: 15px; font-weight: 800; color: var(--ink); }
+.rg > span { display: block; margin-top: 6px; font-size: 12.5px; line-height: 1.25; color: var(--mut); overflow-wrap: anywhere; }
+
+/* ---------- Garis waktu ---------- */
+.tl { position: relative; margin: 0; padding: 0 0 0 24px; list-style: none; }
+.tl::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 12px; width: 3px; border-radius: 3px; background: var(--line); }
+.tli { position: relative; padding: 0 0 18px; }
+.tli:last-child { padding-bottom: 0; }
+.tld { position: absolute; left: -24px; top: 3px; width: 15px; height: 15px; border-radius: 50%; background: var(--surface); border: 3px solid var(--mut); }
+.tli.now .tld { border-color: var(--ok); background: var(--ok); animation: pulse 1.9s infinite; }
+.tli.next .tld { border-color: var(--info); }
+.tli.done .tld { opacity: 0.55; }
+.tlh { display: flex; justify-content: space-between; gap: 10px; }
+.tlh b { font-weight: 700; color: var(--ink); }
+.tlt { font-family: var(--fh); font-size: 13px; font-weight: 700; white-space: nowrap; color: var(--pri-text); }
+.tli small { display: block; font-size: 12.5px; color: var(--mut); }
+.tla { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+
+/* ---------- Daftar ---------- */
+.dlist { margin: 0; padding: 0; list-style: none; }
+.dlist li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.dlist li:first-child { border-top: 0; padding-top: 0; }
+.dlist li.alert { margin: 0 -10px; padding: 11px 10px; border-radius: var(--rs); border-top: 0; background: color-mix(in srgb, var(--warn) 12%, transparent); }
+.dlist li.alert + li.alert { margin-top: 8px; }
+.dlist li.an { align-items: flex-start; }
+.dlist .grow { flex: 1; min-width: 0; }
+.dlist .grow b { display: block; font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+.dlist .grow small { display: block; font-size: 12.5px; color: var(--mut); overflow-wrap: anywhere; }
+.clamp2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.dbtn {
+  flex-shrink: 0;
+  padding: 6px 15px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--pl), var(--pri));
+  color: var(--pri-ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 3px 0 var(--pd);
+  transition: transform 0.25s var(--spring);
+}
+.dbtn:hover { transform: translateY(-2px); }
+.dbtn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--pd); }
+.score { min-width: 46px; padding: 4px 9px; border-radius: var(--rs); text-align: center; font-family: var(--fh); font-size: 15px; font-weight: 800; background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok-ink); }
+.score.bad { background: color-mix(in srgb, var(--bad) 15%, transparent); color: var(--bad-ink); }
+.pbar { width: 90px; height: 10px; flex-shrink: 0; overflow: hidden; border-radius: 999px; background: var(--soft); }
+.pbar i { display: block; height: 100%; border-radius: 999px; background: var(--ok); transform-origin: left; animation: grow 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both 0.3s; }
+.pbar i.bad { background: var(--bad); }
+@media (max-width: 480px) { .pbar { width: 56px; } }
+
+.dempty { display: flex; min-height: 118px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; }
+.dempty strong { font-family: var(--fh); font-size: 15px; font-weight: 800; color: var(--ink); }
+.dempty small { max-width: 28ch; font-size: 12.5px; color: var(--mut); }
+.dempty-ic { width: 40px; height: 40px; margin-bottom: 4px; --t: var(--pri); }
+
+/* ---------- Tabel ringkas ---------- */
+.overview-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.overview-table th { padding: 0 12px 10px; text-align: left; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mut); }
+.overview-table td { padding: 11px 12px; border-top: 1px solid var(--line); color: var(--ink); }
+.overview-table tbody tr:hover { background: var(--soft); }
+.student-avatar { display: inline-grid; width: 34px; height: 34px; flex-shrink: 0; place-items: center; border-radius: 50%; font-size: 12px; font-weight: 800; background: rgba(var(--pg), 0.14); color: var(--pri-text); }
+
+/* ---------- Kelas berikutnya (siswa/orang tua) ---------- */
+.hero-c { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-radius: var(--rs); background: linear-gradient(120deg, color-mix(in srgb, var(--c) 20%, transparent), transparent 80%); }
+.hero-c h3 { margin: 0 0 4px; font-family: var(--fh); font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; color: var(--ink); }
+.hero-c p { margin: 0; font-size: 13.5px; color: var(--mut); }
+.hero-c .who { margin: 2px 0 10px; font-weight: 700; color: var(--ink); }
+
+/* Pilih anak (orang tua) */
+.kids { display: flex; flex-wrap: wrap; gap: 12px; }
+.kidc { display: flex; align-items: center; gap: 10px; padding: 10px 20px 10px 10px; border: 0; text-align: left; cursor: pointer; color: var(--ink); font-family: var(--font); border-radius: 999px; }
+.kidc b { display: block; font-weight: 700; }
+.kidc small { display: block; font-size: 12.5px; color: var(--mut); }
+.kidc.on { box-shadow: var(--shadow), 0 0 0 3px rgba(var(--pg), 0.45); }
+
+/* ---------- Kartu rapor yang bisa dibalik ---------- */
+.flipwrap { display: flex; }
+.flipwrap > * { flex: 1; }
+.flip { perspective: 1200px; min-height: 236px; height: 100%; cursor: pointer; outline: none; }
+.flip:focus-visible .fl-in { outline: 3px solid rgba(var(--pg), 0.55); outline-offset: 4px; border-radius: calc(var(--r) + 2px); }
+.fl-in { position: relative; height: 100%; min-height: 236px; transform-style: preserve-3d; transition: transform 0.9s cubic-bezier(0.3, 1.25, 0.4, 1); }
+.flip.flipped .fl-in { transform: rotateY(180deg); }
+.fl-f, .fl-b { position: absolute; inset: 0; padding: 18px 22px; overflow: hidden; border-radius: calc(var(--r) + 2px); backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: var(--shadow); }
+.fl-f { display: flex; flex-direction: column; background: var(--flip-bg); color: #fff; }
+.fl-f::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.2) 50%, transparent 62%) 100% 0 / 300% 100% no-repeat; animation: shine 4.5s infinite 1s; }
+.fl-b { transform: rotateY(180deg); background: var(--surface); color: var(--ink); overflow: auto; }
+.fl-top { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; opacity: 0.92; }
+.fl-chip { padding: 2px 10px; border: 1px solid currentColor; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; }
+.fl-f h3 { margin: 16px 0 2px; font-family: var(--fh); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.fl-f p { margin: 0; font-size: 13.5px; opacity: 0.92; }
+.fl-avg { display: flex; align-items: baseline; gap: 8px; margin-top: auto; }
+.fl-avg b { font-family: var(--fh); font-size: 46px; font-weight: 800; line-height: 1; }
+.fl-avg small { font-size: 12.5px; opacity: 0.9; }
+.hintf { margin-top: 8px; font-size: 12px; opacity: 0.8; }
+.fl-b .fl-top { margin-bottom: 12px; color: var(--mut); }
+.fl-b p { font-size: 13.5px; color: var(--mut); }
+.fl-r { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; margin-bottom: 10px; font-size: 13.5px; }
+.fl-r .bar { grid-column: 1 / -1; height: 10px; overflow: hidden; border-radius: 999px; background: var(--soft); }
+.fl-r .bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--pl), var(--pri)); transform-origin: left; animation: grow 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both 0.3s; }
+.sdot { display: inline-block; width: 10px; height: 10px; margin-right: 7px; border-radius: 50%; background: var(--c); }
+/* Jangan pakai filter di .fl-in: filter meratakan konteks 3D dan sisi belakang ikut terlihat. */
+@media (hover: hover) { .flip:hover .fl-f, .flip:hover .fl-b { box-shadow: var(--shadow-hover); } }
+@media (prefers-reduced-motion: reduce) {
+  .fl-in { transition: none; }
+}

@@ -1,0 +1,110 @@
+/* Tahap 3 · Layar masuk Clay Soft. Bentuk hero memakai CSS murni (tanpa pustaka 3D). */
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+.lg {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 1.25rem;
+  min-height: 100vh;
+  padding: 1.25rem;
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+/* ---------- Sisi formulir ---------- */
+.lg-form-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 1rem 1.5rem;
+}
+.lg-form-in { width: 100%; max-width: 460px; }
+
+.lg-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 2rem; }
+.lg-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.lg-brand-mark { width: 46px; height: 46px; font-family: var(--fh); font-size: 22px; font-weight: 800; --t: var(--pri); }
+.lg-brand-name { font-family: var(--fh); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1; }
+.lg-brand-sub { font-size: 12.5px; font-weight: 600; color: var(--mut); }
+.lg-tools { display: flex; align-items: center; gap: 10px; }
+
+.lg-lang { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--surface); box-shadow: 0 3px 0 var(--line), 0 8px 12px -8px rgba(var(--pg), 0.4); }
+.lg-lang button { min-width: 38px; padding: 6px 12px; border: 0; border-radius: 999px; background: transparent; color: var(--mut); font: 700 12px var(--font); text-transform: uppercase; cursor: pointer; transition: background 0.2s, color 0.2s; }
+.lg-lang button.active { background: linear-gradient(180deg, var(--pl), var(--pri)); color: var(--pri-ink); }
+
+.lg-kicker { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pri-text); }
+.lg h1 { margin: 6px 0 8px; font-size: clamp(30px, 3.4vw, 38px); font-weight: 800; line-height: 1.05; letter-spacing: -0.035em; color: var(--ink); }
+.lg-sub { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--mut); }
+
+.lg-form { display: grid; gap: 16px; margin-top: 1.75rem; }
+.lg-field > span { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 700; color: var(--ink); }
+.lg-field > div { position: relative; }
+.lg-field svg { position: absolute; left: 15px; top: 50%; translate: 0 -50%; color: var(--mut); pointer-events: none; }
+.lg-field input { height: 50px; padding: 0 16px 0 44px; font-size: 16px; }
+.lg-error { padding: 11px 14px; border-radius: var(--rs); background: color-mix(in srgb, var(--bad) 14%, transparent); color: var(--bad-ink); font-size: 13.5px; font-weight: 600; }
+
+.lg-submit { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 52px; margin-top: 4px; font: 800 15px var(--font); cursor: pointer; }
+.lg-submit:disabled { opacity: 0.6; cursor: wait; }
+
+.lg-divider { display: flex; align-items: center; gap: 12px; margin: 1.6rem 0 1rem; font-size: 12.5px; font-weight: 700; color: var(--mut); }
+.lg-divider::before, .lg-divider::after { content: ""; flex: 1; height: 2px; border-radius: 2px; background: var(--line); }
+
+.lg-demos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.lg-demo { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 12px; border: 0; border-radius: 22px; text-align: left; font-family: var(--font); color: var(--ink); cursor: pointer; }
+.lg-demo-ic { width: 36px; height: 36px; }
+.lg-demo strong { display: block; font-size: 13.5px; font-weight: 700; }
+.lg-demo small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--mut); }
+
+/* ---------- Sisi hero ---------- */
+.lg-hero {
+  --s1a: #9fc2ff; --s1b: #3f6df2; --s1d: 10, 40, 140;
+  --s2: #ffd166;
+  --s3a: #8ff0dc; --s3b: #12b6d4;
+  --s4a: #ffb3a0; --s4b: #ee5b4a;
+  --s5a: #dbe6ff;
+  --s6a: #ffe9a8; --s6b: #ffc03a;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 560px;
+  padding: 2.75rem;
+  overflow: hidden;
+  border-radius: 34px;
+  background: linear-gradient(150deg, #5b86f7 0%, #3f6df2 50%, #12a6c4 100%);
+  box-shadow: var(--shadow-lg);
+  color: #fff;
+}
+html.dark .lg-hero { background: linear-gradient(150deg, #3f63d6 0%, #2447b8 55%, #0e7f95 100%); }
+
+.lg-hero .clay { position: absolute; inset: 0; }
+.lg-hero .clay i { position: absolute; display: block; animation: bob 6s ease-in-out infinite; }
+.cl-sp { width: min(190px, 30%); aspect-ratio: 1; border-radius: 50%; left: 12%; top: 10%; background: radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.75) 0 9%, transparent 10%), radial-gradient(circle at 36% 30%, var(--s1a), var(--s1b) 72%); box-shadow: inset -20px -26px 34px rgba(var(--s1d), 0.28), 0 34px 40px -16px rgba(0, 0, 0, 0.4); translate: calc(var(--px, 0) * -34px) calc(var(--py, 0) * -24px); }
+.cl-tor { width: min(170px, 27%); aspect-ratio: 1; border-radius: 50%; right: 10%; top: 16%; border: 38px solid var(--s2); box-shadow: inset 0 -10px 18px rgba(150, 90, 0, 0.35), inset 0 8px 12px rgba(255, 255, 255, 0.5), 0 30px 36px -14px rgba(0, 0, 0, 0.4); animation-delay: -2s; translate: calc(var(--px, 0) * 28px) calc(var(--py, 0) * 22px); }
+.cl-cb { width: min(130px, 21%); aspect-ratio: 1; border-radius: 38px; left: 52%; top: 36%; background: radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.65) 0 9%, transparent 10%), linear-gradient(150deg, var(--s3a), var(--s3b)); box-shadow: inset -12px -16px 24px rgba(0, 90, 60, 0.3), 0 30px 36px -14px rgba(0, 0, 0, 0.4); animation-delay: -4s; translate: calc(var(--px, 0) * -18px) calc(var(--py, 0) * 14px); rotate: 14deg; }
+.cl-pl { width: min(230px, 38%); aspect-ratio: 230 / 84; border-radius: 999px; left: 6%; top: 38%; background: radial-gradient(circle at 18% 26%, rgba(255, 255, 255, 0.65) 0 6%, transparent 7%), linear-gradient(150deg, var(--s4a), var(--s4b)); box-shadow: inset -14px -14px 22px rgba(140, 30, 20, 0.3), 0 28px 34px -14px rgba(0, 0, 0, 0.4); animation-delay: -1s; translate: calc(var(--px, 0) * 22px) calc(var(--py, 0) * -18px); rotate: -16deg; }
+.cl-st { width: min(70px, 12%); aspect-ratio: 1; border-radius: 50%; right: 24%; top: 6%; background: radial-gradient(circle at 30% 26%, #fff, var(--s5a) 70%); box-shadow: inset -8px -10px 16px rgba(80, 60, 180, 0.22), 0 18px 22px -10px rgba(0, 0, 0, 0.35); animation-delay: -3s; translate: calc(var(--px, 0) * -40px) calc(var(--py, 0) * 30px); }
+.cl-sm { width: min(46px, 8%); aspect-ratio: 1; border-radius: 50%; left: 40%; top: 5%; background: radial-gradient(circle at 30% 26%, var(--s6a), var(--s6b) 70%); box-shadow: inset -6px -8px 12px rgba(150, 90, 0, 0.3); animation-delay: -5s; translate: calc(var(--px, 0) * 30px) calc(var(--py, 0) * -26px); }
+
+.lg-hero-in { position: relative; z-index: 1; max-width: 420px; }
+.lg-hero-in h2 { margin: 0 0 12px; font-family: var(--fh); font-size: clamp(26px, 2.8vw, 36px); font-weight: 800; line-height: 1.08; letter-spacing: -0.03em; text-shadow: 0 2px 14px rgba(10, 30, 110, 0.35); }
+.lg-hero-in p { margin: 0 0 18px; font-size: 14.5px; line-height: 1.55; text-shadow: 0 1px 10px rgba(10, 30, 110, 0.35); }
+.lg-roles { display: flex; flex-wrap: wrap; gap: 8px; }
+.lg-roles span { padding: 5px 14px; border: 1.5px solid rgba(255, 255, 255, 0.7); border-radius: 999px; background: rgba(10, 30, 110, 0.22); font-size: 13px; font-weight: 700; }
+
+/* ---------- Layar kecil ---------- */
+@media (max-width: 980px) {
+  .lg { grid-template-columns: minmax(0, 1fr); padding: 0; gap: 0; }
+  .lg-hero { display: none; }
+  .lg-form-side { align-items: flex-start; padding: 1.25rem 1rem 6rem; }
+}
+@media (max-width: 480px) {
+  .lg-top { margin-bottom: 1.4rem; }
+  .lg-demos { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lg-hero .clay i { animation: none; translate: none; }
+}

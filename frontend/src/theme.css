@@ -3,9 +3,7 @@
    (lihat lib/theme.jsx) yang hanya menimpa nilai variabel, bukan menambal kelas satu per satu.
    Rujukan: mockup-redesign/DESIGN.md. */
 
-:root,
-.login-canvas {
-  /* .login-canvas: layar masuk tetap terang sampai didesain ulang di Tahap 3 */
+:root {
   /* Font (dipasang sendiri lewat @fontsource-variable, lihat index.js) */
   --font: "Instrument Sans Variable", "Instrument Sans", system-ui, -apple-system, sans-serif;
   --fh: "Bricolage Grotesque Variable", "Bricolage Grotesque", system-ui, sans-serif;

@@ -7,8 +7,8 @@
 |---|---|---|
 | 0 · Persiapan | `redesign/clay-t0-persiapan` | **Disetujui, digabung** (PR #1) |
 | 1 · Fondasi tampilan | `redesign/clay-t1-fondasi` | **Disetujui, digabung** (PR #2) |
-| 2 · Kerangka aplikasi | `redesign/clay-t2-kerangka` | **Dikerjakan, menunggu peninjauan** |
-| 3 · Layar masuk dan dasbor | `redesign/clay-t3-masuk-dasbor` | Belum |
+| 2 · Kerangka aplikasi | `redesign/clay-t2-kerangka` | **Disetujui, digabung** (PR #3) |
+| 3 · Layar masuk dan dasbor | `redesign/clay-t3-masuk-dasbor` | **Menunggu persetujuan** (PR ke `redesign/clay`) |
 | 4 · Halaman data dan keuangan | `redesign/clay-t4-halaman-data` | Belum |
 | 5 · Halaman akademik dan laporan | `redesign/clay-t5-halaman-akademik` | Belum |
 | 6 · Gerak dan komponen interaktif | `redesign/clay-t6-gerak` | Belum |
@@ -20,6 +20,8 @@ Perbarui tabel ini di akhir setiap tahap. `main` tetap tidak disentuh sampai Tah
 ## Hal yang masih terbuka
 - ~~Database uji terpisah~~ Disetujui dan dipakai: `edu_redesign_test` (dibuat otomatis saat backend lokal jalan dengan `DB_NAME=edu_redesign_test`). Catatan: `backend/.env` tidak memuat `JWT_SECRET`, jadi saat menjalankan lokal setel juga `JWT_SECRET` (nilai acak apa saja) lewat variabel lingkungan, dan pasang dependensi dengan `pip install -r backend/requirements.txt` di `venv`.
 - Baseline "sebelum" untuk halaman yang butuh login (diambil dari `main` yang dijalankan lokal dengan database terpisah) belum diambil.
+
+- Tahap 3: grafik dasbor (area, donat, cincin, mini-grafik, garis waktu) ditulis sebagai komponen SVG sendiri di `frontend/src/components/dashboard/charts.jsx`, bukan Recharts, supaya animasi menggambar-diri dan warna token bisa dipakai langsung. Recharts tetap dipakai di Laporan sampai Tahap 5. Grafik hanya memakai data nyata (kehadiran per tanggal sesi, status tagihan, kapasitas kelas, pendapatan); mini-grafik pendapatan disembunyikan bila data kurang dari 2 bulan.
 
 ## Cara melanjutkan di chat baru
 Buka proyek ini di Claude Code, lalu kirim, misalnya:
