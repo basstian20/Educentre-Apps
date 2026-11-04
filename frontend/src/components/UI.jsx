@@ -2,45 +2,39 @@ import { useEffect, useId, useRef } from "react";
 import { AlertTriangle, ArrowRight, RefreshCw, Sparkles } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 
-export function StatTile({ label, value, sub, icon: Icon, color = "#2563EB", testid }) {
+export function StatTile({ label, value, sub, icon: Icon, color = "var(--c1)", testid }) {
   return (
     <div
-      className="kpi-tile bg-white border border-slate-200 rounded-xl p-5 shadow-card relative overflow-hidden"
+      className="kpi-tile clay-card clay-hover p-5 relative overflow-hidden"
+      style={{ "--t": color }}
       data-testid={testid}
     >
       <div className="flex min-w-0 items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-xs font-medium text-slate-500 uppercase tracking-wider font-outfit">{label}</div>
-          <div className="break-words text-2xl font-outfit font-bold text-slate-900 mt-2 leading-none sm:text-3xl">{value}</div>
+          <div className="text-xs font-semibold text-slate-500 tracking-wide font-jakarta">{label}</div>
+          <div className="num break-words text-2xl font-extrabold text-slate-900 mt-2 leading-none tracking-tight sm:text-3xl">{value}</div>
           {sub && <div className="text-xs text-slate-500 mt-2 font-jakarta">{sub}</div>}
         </div>
         {Icon && (
-          <div
-            className="w-10 h-10 rounded-lg flex flex-shrink-0 items-center justify-center"
-            style={{ background: `${color}15`, color }}
-          >
+          <div className="clay-orb h-11 w-11">
             <Icon className="w-5 h-5" strokeWidth={2.2} />
           </div>
         )}
       </div>
-      <div
-        className="absolute bottom-0 left-0 right-0 h-0.5 opacity-60"
-        style={{ background: `linear-gradient(90deg, ${color}, transparent)` }}
-      />
     </div>
   );
 }
 
 export function Card({ title, action, children, testid, className = "" }) {
   return (
-    <div className={`bg-white border border-slate-200 rounded-xl shadow-card ${className}`} data-testid={testid}>
+    <div className={`clay-card ${className}`} data-testid={testid}>
       {(title || action) && (
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 border-b border-slate-100 sm:px-5">
-          {title && <h3 className="min-w-0 font-outfit font-semibold text-slate-900 text-base">{title}</h3>}
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 pb-1 sm:px-5">
+          {title && <h3 className="min-w-0 font-outfit font-extrabold text-slate-900 text-[17px] tracking-tight">{title}</h3>}
           {action && <div className="flex min-w-0 flex-wrap items-center gap-2">{action}</div>}
         </div>
       )}
-      <div className="p-4 sm:p-5">{children}</div>
+      <div className={`p-4 sm:p-5 ${title || action ? "pt-3 sm:pt-3" : ""}`}>{children}</div>
     </div>
   );
 }
@@ -85,7 +79,7 @@ export function Empty({ message, hint, icon: Icon = Sparkles, action }) {
   const { t } = useLang();
   return (
     <div className="text-center py-12" data-testid="empty-state">
-      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-teal-100 bg-teal-50 text-teal-700">
+      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-pri/10 text-pri">
         <Icon className="h-5 w-5" strokeWidth={1.8} />
       </div>
       <div className="text-sm font-semibold text-slate-700 font-outfit">{message}</div>
@@ -99,7 +93,7 @@ export function ErrorState({ onRetry }) {
   const { t } = useLang();
   return (
     <div className="text-center py-12" role="alert" data-testid="error-state">
-      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-red-100 bg-red-50 text-red-600">
+      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-bad/15 text-bad">
         <AlertTriangle className="h-5 w-5" strokeWidth={1.8} />
       </div>
       <div className="text-sm font-semibold text-slate-700 font-outfit">{t.loadFailed}</div>
@@ -140,7 +134,7 @@ export function SkeletonCards({ count = 6 }) {
   return (
     <div className="contents" role="status" aria-label={t.loadingLabel} data-testid="loading-skeleton">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="rounded-xl border border-slate-200 bg-white p-5 shadow-card">
+        <div key={i} className="clay-card p-5">
           <span className="sk mb-3 block h-4 w-2/5 rounded-full" />
           <span className="sk mb-2 block h-3 w-4/5 rounded-full" />
           <span className="sk block h-3 w-3/5 rounded-full" />
@@ -150,28 +144,25 @@ export function SkeletonCards({ count = 6 }) {
   );
 }
 
-export function RoleHero({ eyebrow, title, subtitle, color = "#2563EB", icon: Icon, children, testid }) {
+export function RoleHero({ eyebrow, title, subtitle, color = "var(--pri)", icon: Icon, children, testid }) {
   return (
     <section
-      className="relative mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-card sm:p-6"
+      className="clay-card relative mb-5 overflow-hidden p-5 sm:p-6" style={{ "--t": color }}
       data-testid={testid}
     >
-      <div className="absolute inset-y-0 right-0 hidden w-1/2 sm:block" style={{ background: `linear-gradient(90deg, transparent, ${color}10)` }} />
+      <div className="absolute inset-y-0 right-0 hidden w-1/2 sm:block" style={{ background: "linear-gradient(90deg, transparent, color-mix(in srgb, var(--t) 9%, transparent))" }} />
       <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-start gap-4">
           {Icon && (
-            <div
-              className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl text-white shadow-sm"
-              style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}
-            >
+            <div className="clay-orb h-12 w-12">
               <Icon className="h-6 w-6" strokeWidth={2.1} />
             </div>
           )}
           <div className="min-w-0">
             {eyebrow && (
-              <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 font-outfit">{eyebrow}</div>
+              <div className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500 font-jakarta">{eyebrow}</div>
             )}
-            <h2 className="text-2xl font-outfit font-semibold tracking-tight text-slate-950 sm:text-3xl">{title}</h2>
+            <h2 className="text-2xl font-outfit font-extrabold tracking-tight text-slate-950 sm:text-3xl">{title}</h2>
             {subtitle && <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 font-jakarta">{subtitle}</p>}
           </div>
         </div>
@@ -181,12 +172,12 @@ export function RoleHero({ eyebrow, title, subtitle, color = "#2563EB", icon: Ic
   );
 }
 
-export function ActionPanel({ title, subtitle, color = "#2563EB", icon: Icon, actionLabel, onAction, children, testid }) {
+export function ActionPanel({ title, subtitle, color = "var(--pri)", icon: Icon, actionLabel, onAction, children, testid }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4" data-testid={testid}>
+    <div className="rounded-[20px] bg-slate-50 p-4" data-testid={testid}>
       <div className="flex items-start gap-3">
         {Icon && (
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-white shadow-sm" style={{ color }}>
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white shadow-sm" style={{ color }}>
             <Icon className="h-5 w-5" strokeWidth={2.1} />
           </div>
         )}
@@ -211,14 +202,14 @@ export function ActionPanel({ title, subtitle, color = "#2563EB", icon: Icon, ac
   );
 }
 
-export function InsightCard({ label, value, detail, color = "#2563EB", testid }) {
+export function InsightCard({ label, value, detail, color = "var(--pri)", testid }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-card" data-testid={testid}>
+    <div className="clay-card p-4" data-testid={testid}>
       <div className="flex items-center gap-2">
         <span className="h-2 w-2 rounded-full" style={{ background: color }} />
-        <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 font-outfit">{label}</div>
+        <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-jakarta">{label}</div>
       </div>
-      <div className="mt-2 break-words text-xl font-bold text-slate-950 font-outfit">{value}</div>
+      <div className="num mt-2 break-words text-xl font-extrabold text-slate-950">{value}</div>
       {detail && <div className="mt-1 text-xs leading-5 text-slate-500 font-jakarta">{detail}</div>}
     </div>
   );
@@ -226,17 +217,17 @@ export function InsightCard({ label, value, detail, color = "#2563EB", testid })
 
 export function Btn({ children, onClick, variant = "primary", size = "md", disabled, testid, type = "button", className = "", ariaLabel }) {
   const sizes = {
-    sm: "px-3 py-1.5 text-xs",
+    sm: "px-3.5 py-1.5 text-xs",
     md: "px-4 py-2 text-sm",
     lg: "px-5 py-2.5 text-sm",
   };
   const variants = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm",
-    secondary: "bg-slate-100 text-slate-700 hover:bg-slate-200",
-    outline: "border border-slate-300 text-slate-700 hover:bg-slate-50 bg-white",
-    danger: "bg-red-600 text-white hover:bg-red-700",
-    ghost: "text-slate-600 hover:bg-slate-100",
-    success: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm",
+    primary: "is-pri",
+    secondary: "is-soft",
+    outline: "",
+    danger: "is-bad",
+    ghost: "is-ghost",
+    success: "is-ok",
   };
   return (
     <button
@@ -246,7 +237,7 @@ export function Btn({ children, onClick, variant = "primary", size = "md", disab
       aria-label={ariaLabel}
       title={ariaLabel}
       data-testid={testid}
-      className={`inline-flex max-w-full items-center justify-center gap-2 rounded-lg text-center font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none font-outfit ${sizes[size]} ${variants[variant]} ${className}`}
+      className={`btn-clay inline-flex max-w-full items-center justify-center gap-2 text-center font-bold disabled:opacity-50 disabled:pointer-events-none font-jakarta ${sizes[size]} ${variants[variant]} ${className}`}
     >
       {children}
     </button>
@@ -256,14 +247,14 @@ export function Btn({ children, onClick, variant = "primary", size = "md", disab
 export function Input({ label, type = "text", value, onChange, placeholder, testid, className = "", ...rest }) {
   return (
     <label className={`block ${className}`}>
-      {label && <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{label}</span>}
+      {label && <span className="block text-xs font-bold text-slate-600 mb-1.5 font-jakarta">{label}</span>}
       <input
         type={type}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
         data-testid={testid}
-        className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-jakarta disabled:bg-slate-50 disabled:text-slate-500"
+        className="field-clay h-11 px-4 text-sm"
         {...rest}
       />
     </label>
@@ -273,13 +264,13 @@ export function Input({ label, type = "text", value, onChange, placeholder, test
 export function Select({ label, value, onChange, options, testid, className = "", disabled }) {
   return (
     <label className={`block ${className}`}>
-      {label && <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{label}</span>}
+      {label && <span className="block text-xs font-bold text-slate-600 mb-1.5 font-jakarta">{label}</span>}
       <select
         value={value}
         onChange={onChange}
         disabled={disabled}
         data-testid={testid}
-        className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-jakarta disabled:bg-slate-50 disabled:text-slate-500"
+        className="field-clay h-11 px-4 text-sm"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -294,14 +285,14 @@ export function Select({ label, value, onChange, options, testid, className = ""
 export function Textarea({ label, value, onChange, rows = 3, testid, placeholder, className = "" }) {
   return (
     <label className={`block ${className}`}>
-      {label && <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{label}</span>}
+      {label && <span className="block text-xs font-bold text-slate-600 mb-1.5 font-jakarta">{label}</span>}
       <textarea
         value={value}
         onChange={onChange}
         rows={rows}
         placeholder={placeholder}
         data-testid={testid}
-        className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-jakarta resize-y"
+        className="field-clay px-4 py-2.5 text-sm resize-y"
       />
     </label>
   );
@@ -357,7 +348,7 @@ export function Modal({ open, onClose, title, children, testid, footer, size = "
     <div
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-3 pt-16 sm:p-4"
       data-testid={testid}
-      style={{ background: "rgba(15, 23, 42, 0.5)" }}
+      style={{ background: "rgba(13, 22, 48, 0.55)", backdropFilter: "blur(4px)" }}
       onClick={onClose}
     >
       <div
@@ -365,17 +356,17 @@ export function Modal({ open, onClose, title, children, testid, footer, size = "
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`bg-white rounded-xl sm:rounded-2xl w-full ${widths[size]} shadow-2xl animate-fadeUp`}
+        className={`clay-card w-full ${widths[size]} animate-fadeUp`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 py-4 border-b border-slate-100 flex items-center justify-between gap-3 sm:px-6">
-          <h2 id={titleId} className="min-w-0 font-outfit font-semibold text-base text-slate-900 sm:text-lg">{title}</h2>
-          <button type="button" onClick={onClose} aria-label={t.close} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 text-xl leading-none" data-testid="modal-close">
+        <div className="px-4 pt-5 pb-2 flex items-center justify-between gap-3 sm:px-6">
+          <h2 id={titleId} className="min-w-0 font-outfit font-extrabold text-lg text-slate-900 tracking-tight sm:text-xl">{title}</h2>
+          <button type="button" onClick={onClose} aria-label={t.close} className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-700 text-xl leading-none" data-testid="modal-close">
             <span aria-hidden="true">×</span>
           </button>
         </div>
         <div className="px-4 py-5 max-h-[70vh] overflow-y-auto sm:px-6">{children}</div>
-        {footer && <div className="px-4 py-4 border-t border-slate-100 flex flex-wrap justify-end gap-2 sm:px-6">{footer}</div>}
+        {footer && <div className="px-4 pt-3 pb-5 flex flex-wrap justify-end gap-2 sm:px-6">{footer}</div>}
       </div>
     </div>
   );
