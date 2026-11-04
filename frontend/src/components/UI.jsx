@@ -346,7 +346,7 @@ export function Modal({ open, onClose, title, children, testid, footer, size = "
   const widths = { sm: "max-w-md", md: "max-w-lg", lg: "max-w-2xl", xl: "max-w-4xl" };
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-3 pt-16 sm:p-4"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-3 pb-24 pt-16 sm:p-4 sm:pb-4"
       data-testid={testid}
       style={{ background: "rgba(13, 22, 48, 0.55)", backdropFilter: "blur(4px)" }}
       onClick={onClose}
@@ -365,7 +365,7 @@ export function Modal({ open, onClose, title, children, testid, footer, size = "
             <span aria-hidden="true">×</span>
           </button>
         </div>
-        <div className="px-4 py-5 max-h-[70vh] overflow-y-auto sm:px-6">{children}</div>
+        <div className="px-4 py-5 max-h-[calc(100dvh-18.5rem)] overflow-y-auto sm:max-h-[70vh] sm:px-6">{children}</div>
         {footer && <div className="px-4 pt-3 pb-5 flex flex-wrap justify-end gap-2 sm:px-6">{footer}</div>}
       </div>
     </div>
