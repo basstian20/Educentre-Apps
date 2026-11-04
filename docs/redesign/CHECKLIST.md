@@ -43,7 +43,7 @@ Akun demo ada di `memory/test_credentials.md`. Pakai backend lokal dengan databa
 - [x] HP: tabel menjadi kartu dengan label; bilah bawah dan menu geser berfungsi. *T7: label `data-label` pada sel. T8: bilah bawah tampil, menu geser terbuka (lebar 256 px, 8 tautan Siswa) dan menutup setelah memilih halaman.*
 - [x] Fokus keyboard terlihat; semua tombol bisa dicapai dengan Tab; dialog bisa ditutup dengan Esc. *Teruji (T7 + T8): cincin fokus 2,4 px tampil setelah Tab; 26 kontrol interaktif di halaman Tagihan semua punya `tabindex ≥ 0` dan nama aksesibel; dialog tutup dengan Esc.*
 - [x] Gerak: saklar Hemat dan `prefers-reduced-motion` mematikan animasi. *T7: ditemukan gelembung latar masih bergerak di mode Hemat; diperbaiki di `theme.css`, kini 0 animasi berulang.*
-- [~] Cetak tagihan dan rapor tetap polos (tanpa bayangan/gradien/efek 3D). *Teruji (T7): lembar tagihan dan rapor tampil terang polos (latar putih, teks ≥ 12 px) walau tema pengguna gelap. Belum: pratinjau dialog cetak sebenarnya (aturan `@media print` sudah ada).*
+- [x] Cetak tagihan dan rapor tetap polos (tanpa bayangan/gradien/efek 3D). *Teruji: T7 lembar tampil terang polos walau tema gelap; T8 halaman cetak tagihan polos dan aturan `@media print` dari kode; pratinjau cetak sebenarnya diuji pemilik proyek: berjalan baik. Lembar cetak sengaja tetap terang di mode gelap.*
 - [x] Kredit NobleDev terlihat. *T7: tampil di desktop dan HP pada 12 px, disembunyikan saat cetak.*
 
 ## E. Teknis
