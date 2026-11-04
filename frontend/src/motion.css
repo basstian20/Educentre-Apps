@@ -1,0 +1,101 @@
+/* ---------- Tahap 6: gerak & komponen interaktif ----------
+   Semua efek bergantung pada <html data-motion="full">. Mode "lite" (pilihan pengguna atau
+   prefers-reduced-motion) mematikannya; fungsi tetap utuh. */
+
+/* Kartu masuk bergantian saat halaman dibuka. Fill-mode "backwards" agar tidak meninggalkan
+   transform (yang menggeser dialog fixed, lihat catatan fadeUp). */
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+[data-motion="full"] #main-content > * {
+  animation: cardIn 0.5s var(--spring, cubic-bezier(0.34, 1.4, 0.64, 1)) backwards;
+}
+[data-motion="full"] #main-content > *:nth-child(2) { animation-delay: 0.05s; }
+[data-motion="full"] #main-content > *:nth-child(3) { animation-delay: 0.1s; }
+[data-motion="full"] #main-content > *:nth-child(4) { animation-delay: 0.15s; }
+[data-motion="full"] #main-content > *:nth-child(5) { animation-delay: 0.2s; }
+[data-motion="full"] #main-content > *:nth-child(n + 6) { animation-delay: 0.25s; }
+
+/* Pantulan halus saat disentuh. */
+[data-motion="full"] .icon-btn:active,
+[data-motion="full"] .glass-icon-button:active,
+[data-motion="full"] .cmd-trigger:active,
+[data-motion="full"] .pick-card:active,
+[data-motion="full"] .clay-hover:active {
+  transform: scale(0.95);
+  transition-duration: 0.12s;
+}
+
+/* Kemiringan + kilau kartu mengikuti kursor (diatur Layout.jsx lewat --rx --ry --mx --my). */
+@media (hover: hover) {
+  [data-motion="full"] .clay-hover.is-tilting {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-4px) scale(1.01);
+    transition: transform 0.12s linear, box-shadow 0.3s;
+  }
+  [data-motion="full"] .clay-hover.is-tilting::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.22), transparent 62%);
+  }
+}
+
+/* ---------- Palet perintah ---------- */
+.cmd-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--mut);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.3s var(--spring), color 0.15s, box-shadow 0.2s;
+}
+.cmd-trigger:hover { color: var(--ink); box-shadow: var(--shadow-hover); }
+.cmd-trigger:focus-visible { outline: 3px solid rgba(var(--pg), 0.55); outline-offset: 2px; }
+.cmd-trigger kbd {
+  padding: 1px 7px;
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--mut);
+  font: 700 12px var(--fh);
+}
+@media (max-width: 1023px) { .cmd-trigger { width: 2.5rem; padding: 0; justify-content: center; } }
+
+.cmd-dialog {
+  max-width: 560px;
+  top: 18vh;
+  translate: 0;
+  transform: translateX(-50%) !important;
+  border: 0;
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-hover);
+}
+.cmd-root { background: transparent; color: var(--ink); }
+.cmd-dialog [cmdk-input-wrapper] { padding: 0.35rem 1rem; border-bottom: 1px solid var(--line); }
+.cmd-dialog [cmdk-input] { height: 3rem; font-size: 15px; color: var(--ink); }
+.cmd-dialog [cmdk-list] { max-height: min(60vh, 380px); padding: 0.4rem; }
+.cmd-dialog [cmdk-group-heading] { padding: 0.6rem 0.75rem 0.3rem; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--mut); }
+.cmd-dialog [cmdk-item] {
+  gap: 0.65rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.cmd-dialog [cmdk-item] svg { width: 18px; height: 18px; color: var(--pri-text); }
+.cmd-dialog [cmdk-item][data-selected="true"] { background: var(--soft); color: var(--ink); }
+.cmd-dialog [cmdk-item] [class*="tracking-widest"] { color: var(--mut); letter-spacing: 0; font-size: 12px; }
+.cmd-dialog [cmdk-input]:focus-visible { outline: none; box-shadow: none; }
