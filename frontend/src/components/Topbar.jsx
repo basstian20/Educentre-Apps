@@ -28,7 +28,7 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
 
   return (
     <header
-      className="topbar-glass sticky top-0 z-30 flex min-h-[112px] flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-8"
+      className="topbar-glass sticky top-0 z-30 flex min-h-[96px] flex-wrap items-center justify-between gap-3 px-4 py-4 sm:min-h-[112px] sm:gap-4 sm:py-5 sm:px-6 lg:px-8"
       data-testid="topbar"
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -41,16 +41,16 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
           <Menu className="h-5 w-5" />
         </button>
         <div className="min-w-0">
-          <h1 className="truncate text-2xl font-outfit font-semibold leading-tight text-ink sm:text-3xl" data-testid="page-title">
+          <h1 className="truncate text-[26px] font-outfit font-extrabold leading-[1.05] tracking-[-0.035em] text-ink sm:text-[33px]" data-testid="page-title">
             {title}
           </h1>
           {subtitle && (
-            <div className="mb-1 truncate text-[11px] font-semibold tracking-wide text-mut font-jakarta">{subtitle}</div>
+            <div className="mt-1 truncate text-xs font-semibold tracking-wide text-mut font-jakarta">{subtitle}</div>
           )}
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-2 sm:w-auto sm:justify-end sm:gap-3">
         {actions && <div className="flex min-w-0 flex-wrap justify-end gap-2">{actions}</div>}
         <div className="lang-switcher flex rounded-full p-0.5" data-testid="lang-switcher">
           {["en", "id"].map((l) => (
@@ -58,8 +58,8 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
               key={l}
               onClick={() => setLang(l)}
               data-testid={`lang-${l}`}
-              className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition ${
-                lang === l ? "bg-white/80 text-pri shadow-sm" : "text-mut hover:text-pri"
+              className={`rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition ${
+                lang === l ? "bg-pri text-[color:var(--pri-ink)] shadow-sm" : "text-mut hover:text-ink"
               }`}
             >
               {l}
@@ -81,14 +81,14 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
         {user && (
           <Link to="/settings" className="profile-chip hidden items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 sm:flex" data-testid="role-pill" title={t.settingsTitle}>
             <div
-              className="flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-bold text-white"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
               style={{ background: `linear-gradient(135deg, ${roleColor}, var(--info))` }}
             >
               {(user.full_name || "U").split(" ").map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
             </div>
             <div className="leading-tight">
               <div className="max-w-28 truncate text-xs font-semibold text-ink font-outfit">{user.full_name}</div>
-              <div className="text-[9px] uppercase tracking-wider text-mut">{roleLabel}</div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-mut">{roleLabel}</div>
             </div>
           </Link>
         )}

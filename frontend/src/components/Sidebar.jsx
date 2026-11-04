@@ -1,6 +1,7 @@
 import { useLang } from "../lib/i18n";
 import { useAuth } from "../lib/auth";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useLayoutEffect, useRef, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -35,7 +36,7 @@ const ROLE_COLORS = {
   parent: "var(--role-parent)",
 };
 
-function getNav(role, t) {
+export function getNav(role, t) {
   if (role === "admin")
     return [
       { section: t.overview, items: [
@@ -116,9 +117,30 @@ function getNav(role, t) {
 }
 
 export default function Sidebar({ open = false, onClose }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const navRef = useRef(null);
+  const [ind, setInd] = useState(null);
+
+  // Satu penanda aktif yang meluncur ke menu terpilih (bukan latar per-menu).
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return undefined;
+    const place = () => {
+      const a = nav.querySelector('a[aria-current="page"]');
+      setInd(a ? { y: a.offsetTop, h: a.offsetHeight } : null);
+    };
+    place();
+    window.addEventListener("resize", place);
+    const fonts = document.fonts?.ready?.then(place);
+    return () => {
+      window.removeEventListener("resize", place);
+      void fonts;
+    };
+  }, [pathname, lang, user, open]);
+
   if (!user) return null;
   const settingsItem = { label: t.settings, to: "/settings", icon: SettingsIcon, testid: "nav-settings" };
   const sections = getNav(user.role, t).map((sec, i, all) =>
@@ -152,20 +174,20 @@ export default function Sidebar({ open = false, onClose }) {
       <div className="px-5 pb-5 pt-7">
         <div className="flex items-center gap-3 relative z-10">
           <div
-            className="relative flex h-10 w-10 items-center justify-center rounded-2xl text-lg font-bold text-white shadow-lg font-outfit"
-            style={{ background: "linear-gradient(135deg, var(--pl), var(--pri))" }}
+            className="clay-orb relative h-11 w-11 text-lg font-extrabold font-outfit"
+            style={{ "--t": "var(--pri)" }}
           >
             E
             <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-white/70 bg-warn" />
           </div>
           <div className="min-w-0">
-            <div className="text-base font-semibold leading-tight text-ink font-outfit">{t.appName}</div>
-            <div className="mt-1 text-[9px] uppercase leading-tight tracking-[0.2em] text-mut">Learning OS</div>
+            <div className="text-lg font-extrabold leading-tight tracking-tight text-ink font-outfit">{t.appName}</div>
+            <div className="mt-1 text-[11px] font-semibold uppercase leading-tight tracking-[0.16em] text-mut">Learning OS</div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="ml-auto rounded-lg p-2 text-mut transition hover:bg-white/50 hover:text-pri md:hidden"
+            className="ml-auto rounded-lg p-2 text-mut transition hover:bg-[color:var(--side-hov)] hover:text-ink md:hidden"
             aria-label={t.closeNav}
           >
             <X className="h-4 w-4" />
@@ -173,10 +195,11 @@ export default function Sidebar({ open = false, onClose }) {
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-1">
+      <nav className="relative flex-1 overflow-y-auto px-3 py-1" ref={navRef} aria-label={t.navMain}>
+        {ind && <span className="ni-ind" style={{ transform: `translateY(${ind.y}px)`, height: ind.h }} aria-hidden="true" />}
         {sections.map((sec) => (
           <div key={`sec-${sec.section}`} className="mb-3">
-            <div className="mb-1.5 px-3 text-[9px] font-semibold uppercase tracking-widest text-mut font-outfit">
+            <div className="mb-1.5 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-mut font-jakarta">
               {sec.section}
             </div>
             {sec.items.map((it) => {
@@ -188,10 +211,8 @@ export default function Sidebar({ open = false, onClose }) {
                   data-testid={it.testid}
                   onClick={onClose}
                   className={({ isActive }) =>
-                    `relative mb-0.5 flex items-center gap-3 overflow-hidden rounded-full px-3.5 py-2 text-[13px] font-medium transition-all ${
-                      isActive
-                        ? "nav-active text-white shadow-lg"
-                        : "text-mut hover:bg-white/45 hover:text-pri"
+                    `ni relative z-10 mb-0.5 flex items-center gap-3 rounded-full px-3.5 py-2.5 text-[13.5px] font-semibold transition-colors ${
+                      isActive ? "text-[color:var(--pri-ink)]" : "text-mut hover:bg-[color:var(--side-hov)] hover:text-ink"
                     }`
                   }
                 >
@@ -204,7 +225,7 @@ export default function Sidebar({ open = false, onClose }) {
         ))}
       </nav>
 
-      <div className="m-3 rounded-2xl border border-white/55 bg-white/30 p-2">
+      <div className="m-3 rounded-[22px] bg-slate-50 p-2">
         <div className="flex items-center gap-2.5 px-1 py-1">
           <div
             className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white font-outfit"
@@ -213,15 +234,15 @@ export default function Sidebar({ open = false, onClose }) {
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="truncate text-xs font-medium text-ink font-outfit">{user.full_name}</div>
-            <div className="text-[9px] font-semibold uppercase tracking-wider text-mut">{roleLabel}</div>
+            <div className="truncate text-xs font-bold text-ink font-outfit">{user.full_name}</div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-mut">{roleLabel}</div>
           </div>
           <button
             onClick={async () => {
               await logout();
               navigate("/login");
             }}
-            className="rounded-lg p-2 text-mut transition hover:bg-white/50 hover:text-pri"
+            className="rounded-lg p-2 text-mut transition hover:bg-[color:var(--side-hov)] hover:text-ink"
             title={t.logout}
             data-testid="logout-btn"
           >
