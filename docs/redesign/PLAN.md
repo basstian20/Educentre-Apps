@@ -7,7 +7,7 @@
 |---|---|---|
 | 0 · Persiapan | `redesign/clay-t0-persiapan` | **Disetujui, digabung** (PR #1) |
 | 1 · Fondasi tampilan | `redesign/clay-t1-fondasi` | **Disetujui, digabung** (PR #2) |
-| 2 · Kerangka aplikasi | `redesign/clay-t2-kerangka` | **Dikerjakan, menunggu peninjauan** |
+| 2 · Kerangka aplikasi | `redesign/clay-t2-kerangka` | **Disetujui, digabung** (PR #3) |
 | 3 · Layar masuk dan dasbor | `redesign/clay-t3-masuk-dasbor` | Belum |
 | 4 · Halaman data dan keuangan | `redesign/clay-t4-halaman-data` | Belum |
 | 5 · Halaman akademik dan laporan | `redesign/clay-t5-halaman-akademik` | Belum |
