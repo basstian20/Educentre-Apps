@@ -9,7 +9,7 @@
 | 1 · Fondasi tampilan | `redesign/clay-t1-fondasi` | **Disetujui, digabung** (PR #2) |
 | 2 · Kerangka aplikasi | `redesign/clay-t2-kerangka` | **Disetujui, digabung** (PR #3) |
 | 3 · Layar masuk dan dasbor | `redesign/clay-t3-masuk-dasbor` | **Disetujui, digabung** (PR #4) |
-| 4 · Halaman data dan keuangan | `redesign/clay-t4-halaman-data` | Belum |
+| 4 · Halaman data dan keuangan | `redesign/clay-t4-halaman-data` | **Menunggu persetujuan** (belum ada PR) |
 | 5 · Halaman akademik dan laporan | `redesign/clay-t5-halaman-akademik` | Belum |
 | 6 · Gerak dan komponen interaktif | `redesign/clay-t6-gerak` | Belum |
 | 7 · Merapikan dan dokumen cetak | `redesign/clay-t7-rapi-cetak` | Belum |
@@ -22,6 +22,8 @@ Perbarui tabel ini di akhir setiap tahap. `main` tetap tidak disentuh sampai Tah
 - Baseline "sebelum" untuk halaman yang butuh login (diambil dari `main` yang dijalankan lokal dengan database terpisah) belum diambil.
 
 - Tahap 3: grafik dasbor (area, donat, cincin, mini-grafik, garis waktu) ditulis sebagai komponen SVG sendiri di `frontend/src/components/dashboard/charts.jsx`, bukan Recharts, supaya animasi menggambar-diri dan warna token bisa dipakai langsung. Recharts tetap dipakai di Laporan sampai Tahap 5. Grafik hanya memakai data nyata (kehadiran per tanggal sesi, status tagihan, kapasitas kelas, pendapatan); mini-grafik pendapatan disembunyikan bila data kurang dari 2 bulan.
+
+- Tahap 4: tabel memakai kelas bersama `.clay-table` (kepala pita lembut, 12 px), avatar inisial `.avatar-clay` berwarna token, tombol ikon `.icon-btn`, kotak cari memakai `field-clay`; kartu Materi/Pengumuman memakai `clay-card`. Perbaikan lintas halaman: animasi `fadeUp` pada `<main>` sebelumnya meninggalkan transform sehingga dialog (fixed) bergeser; kini memakai fill-mode `backwards`. Dialog di HP diberi ruang bawah agar tombol Simpan tidak tertutup kredit NobleDev. Pengujian hanya membaca (tanpa menulis data); alur tambah/ubah/hapus belum diklik otomatis.
 
 ## Cara melanjutkan di chat baru
 Buka proyek ini di Claude Code, lalu kirim, misalnya:

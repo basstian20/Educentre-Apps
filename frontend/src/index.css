@@ -256,9 +256,10 @@
 /* Utility classes */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  /* "none" (bukan translateY(0)): transform yang tersisa menjadikan <main> acuan posisi elemen fixed, sehingga dialog bergeser. */
+  to { opacity: 1; transform: none; }
 }
-.animate-fadeUp { animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fadeUp { animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
 
 @keyframes pulseDot {
   0%, 100% { opacity: 1; }
@@ -335,8 +336,13 @@
     text-transform: uppercase;
     color: var(--mut);
   }
-  .rtable tbody td[data-label=""]::before {
+  .rtable tbody td[data-label=""]::before,
+  .rtable tbody td:has(.avatar-clay)::before {
     content: none;
+  }
+  .rtable tbody td:has(.avatar-clay) {
+    justify-content: flex-start;
+    text-align: left;
   }
 }
 

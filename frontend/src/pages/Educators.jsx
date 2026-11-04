@@ -118,9 +118,9 @@ export default function Educators() {
         ) : (
           <>
             <div className="overflow-x-auto -mx-4 sm:-mx-5">
-              <table className="rtable w-full min-w-[760px]">
+              <table className="rtable clay-table w-full min-w-[760px]">
                 <thead>
-                  <tr className="bg-slate-50 text-[11px] text-slate-600 font-outfit text-left">
+                  <tr className="text-left">
                     <SortTh label={t.name} k="name" table={table} />
                     <SortTh label={t.code} k="code" table={table} />
                     <SortTh label={t.subject} k="subject" table={table} />
@@ -131,10 +131,10 @@ export default function Educators() {
                 </thead>
                 <tbody>
                   {table.rows.map((e) => (
-                    <tr key={e.id} className="border-t border-slate-100 row-hover" data-testid={`educator-row-${e.id}`}>
+                    <tr key={e.id} className="row-hover" data-testid={`educator-row-${e.id}`}>
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-outfit font-semibold">
+                          <div className="avatar-clay" style={{ "--t": "var(--c4)" }}>
                             {e.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
                           </div>
                           <div>
@@ -143,7 +143,7 @@ export default function Educators() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-3 font-mono text-xs text-slate-600">{e.staff_code}</td>
+                      <td className="px-5 py-3 font-mono text-xs text-slate-600 whitespace-nowrap">{e.staff_code}</td>
                       <td className="px-5 py-3 text-sm">
                         <div className="flex flex-wrap gap-1">
                           {(e.subjects || []).map((s) => (

@@ -157,32 +157,32 @@ export default function Invoices() {
         ) : (
           <>
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
-            <table className="rtable w-full min-w-[900px]">
+            <table className="rtable clay-table is-dense w-full min-w-[900px]">
               <thead>
-                <tr className="bg-slate-50 text-[11px] text-slate-600 font-outfit text-left">
+                <tr className="text-left">
                   <SortTh label={t.invoiceNumber} k="number" table={table} />
                   {isAdmin && <SortTh label={t.student} k="student" table={table} />}
-                  <th className="px-5 py-3 uppercase tracking-wider">{t.description}</th>
+                  <th className="px-5 py-3">{t.description}</th>
                   <SortTh label={t.amount} k="amount" table={table} />
                   <SortTh label={t.dueDate} k="due" table={table} />
                   <SortTh label={t.status} k="status" table={table} />
-                  <th className="px-5 py-3 uppercase tracking-wider">{t.actions}</th>
+                  <th className="px-5 py-3">{t.actions}</th>
                 </tr>
               </thead>
               <tbody>
                 {table.rows.map((inv) => (
-                  <tr key={inv.id} className="border-t border-slate-100 row-hover" data-testid={`invoice-row-${inv.id}`}>
-                    <td className="px-5 py-3 font-mono text-xs text-slate-600">{inv.invoice_number}</td>
+                  <tr key={inv.id} className="row-hover" data-testid={`invoice-row-${inv.id}`}>
+                    <td className="px-5 py-3 font-mono text-xs text-slate-600 whitespace-nowrap">{inv.invoice_number}</td>
                     {isAdmin && <td className="px-5 py-3 text-sm font-jakarta">{studentName(inv.student_id)}</td>}
-                    <td className="px-5 py-3 text-sm font-jakarta">{(inv.items || []).map((i) => i.description).join(", ")}</td>
-                    <td className="px-5 py-3 font-outfit font-semibold">{fmtIDR(inv.total_amount)}</td>
+                    <td className="px-5 py-3 text-sm font-jakarta md:min-w-[9rem]">{(inv.items || []).map((i) => i.description).join(", ")}</td>
+                    <td className="px-5 py-3 font-outfit font-semibold whitespace-nowrap">{fmtIDR(inv.total_amount)}</td>
                     <td className="px-5 py-3 text-sm font-jakarta">{fmtDate(inv.due_date)}</td>
                     <td className="px-5 py-3"><StatusBadge status={inv.status} label={t[`status${inv.status?.charAt(0).toUpperCase()}${inv.status?.slice(1)}`] || inv.status} /></td>
                     <td className="px-5 py-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 whitespace-nowrap">
                         <Link
                           to={`/invoices/${inv.id}/print`}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                          className="icon-btn"
                           aria-label={t.printInvoice}
                           title={t.printInvoice}
                           data-testid={`print-${inv.id}`}

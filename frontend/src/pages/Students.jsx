@@ -163,23 +163,23 @@ export default function Students() {
         ) : (
           <>
             <div className="overflow-x-auto -mx-4 sm:-mx-5">
-              <table className="rtable w-full min-w-[720px] text-left">
+              <table className="rtable clay-table w-full min-w-[720px] text-left">
                 <thead>
-                  <tr className="bg-slate-50 text-[11px] text-slate-600 font-outfit">
+                  <tr className="text-left">
                     <SortTh label={t.name} k="name" table={table} />
                     <SortTh label={t.code} k="code" table={table} />
                     <SortTh label={t.school} k="school" table={table} />
                     <SortTh label={t.yearLevel} k="year" table={table} />
                     <SortTh label={t.status} k="status" table={table} />
-                    <th className="px-5 py-3 text-right uppercase tracking-wider"><span className="sr-only">{t.actions}</span></th>
+                    <th className="px-5 py-3 text-right"><span className="sr-only">{t.actions}</span></th>
                   </tr>
                 </thead>
                 <tbody>
                   {table.rows.map((s) => (
-                    <tr key={s.id} className="border-t border-slate-100 row-hover" data-testid={`student-row-${s.id}`}>
+                    <tr key={s.id} className="row-hover" data-testid={`student-row-${s.id}`}>
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-outfit font-semibold">
+                          <div className="avatar-clay" style={{ "--t": "var(--c3)" }}>
                             {s.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
                           </div>
                           <div>
@@ -188,7 +188,7 @@ export default function Students() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-3 font-mono text-xs text-slate-600">{s.student_code}</td>
+                      <td className="px-5 py-3 font-mono text-xs text-slate-600 whitespace-nowrap">{s.student_code}</td>
                       <td className="px-5 py-3 text-sm">{s.school_name || "—"}</td>
                       <td className="px-5 py-3 text-sm">{s.school_year || "—"}</td>
                       <td className="px-5 py-3">
@@ -198,7 +198,7 @@ export default function Students() {
                         <div className="flex items-center justify-end gap-1">
                           <Link
                             to={`/students/${s.id}/report`}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                            className="icon-btn"
                             aria-label={t.reportCard}
                             title={t.reportCard}
                             data-testid={`report-${s.id}`}
