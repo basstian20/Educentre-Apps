@@ -1,0 +1,39 @@
+/* ===== D3 Obrolan ===== */
+.d3{--ink:#13251d;--mut:#5a6e65;--green:#0b6b4f;--bub:#e3f1e9;--bg:#f4f1ea;--line:#dcd8cc;font-family:"Nunito",sans-serif;color:var(--ink)}
+.d3 .dk{display:grid;grid-template-columns:230px 1fr 230px;background:var(--bg)}
+.d3 .l{background:#fff;border-right:1px solid var(--line);padding:14px 10px;display:flex;flex-direction:column;gap:2px}
+.d3 .l .brand{font:800 18px "Nunito";padding:0 8px 10px;display:flex;gap:8px;align-items:center}.d3 .l .brand b{width:24px;height:24px;border-radius:8px;background:var(--green);display:block}
+.d3 .l .s{font:800 11px "Nunito";text-transform:uppercase;letter-spacing:.08em;color:var(--mut);padding:8px 8px 4px}
+.d3 .room{display:flex;justify-content:space-between;align-items:center;padding:7px 8px;border-radius:10px;font-weight:700}
+.d3 .room.on{background:var(--bub);color:var(--green)}
+.d3 .room em{font-style:normal;background:var(--green);color:#fff;font-size:11px;border-radius:99px;padding:1px 7px}
+.d3 .c{display:flex;flex-direction:column;background:#efe9db;background-image:radial-gradient(#e2dac6 1px,transparent 1px);background-size:14px 14px}
+.d3 .c .h{background:#fff;border-bottom:1px solid var(--line);padding:11px 18px;font-weight:800;display:flex;justify-content:space-between}
+.d3 .c .h small{font-weight:600;color:var(--mut)}
+.d3 .feed{flex:1;padding:14px 22px;display:flex;flex-direction:column;gap:11px;overflow:hidden}
+.d3 .day{align-self:center;background:#fff;border-radius:99px;padding:2px 12px;font-size:12px;color:var(--mut);font-weight:700}
+.d3 .m{max-width:70%;background:#fff;border-radius:4px 16px 16px 16px;padding:8px 12px;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.d3 .m .who{font-weight:800;font-size:12px;color:var(--green)}.d3 .m time{float:right;margin-left:12px;font-size:11px;color:var(--mut)}
+.d3 .m.me{align-self:flex-end;background:var(--bub);border-radius:16px 4px 16px 16px}
+.d3 .card{align-self:flex-start;width:78%;background:#fff;border-radius:14px;border-left:6px solid var(--green);padding:10px 14px;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.d3 .card.warn{border-color:#d98a00}.d3 .card b{display:block}
+.d3 .card .acts{display:flex;gap:8px;margin-top:8px}
+.d3 .card .acts span{border:1.5px solid var(--green);color:var(--green);font-weight:800;border-radius:99px;padding:3px 13px;font-size:12px}
+.d3 .card .acts span.p{background:var(--green);color:#fff}
+.d3 .comp{background:#fff;border-top:1px solid var(--line);padding:10px 14px}
+.d3 .comp .q{display:flex;gap:8px;margin-bottom:8px}.d3 .comp .q span{background:var(--bub);color:var(--green);font-weight:800;font-size:12px;border-radius:99px;padding:3px 12px}
+.d3 .comp .in{background:#f4f1ea;border-radius:99px;padding:9px 16px;color:var(--mut)}
+.d3 .r{background:#fff;border-left:1px solid var(--line);padding:16px;font-size:13px}
+.d3 .r h4{margin:0 0 8px;font:800 14px "Nunito"}
+.d3 .r .kv{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line)}.d3 .r .kv span{color:var(--mut)}
+.d3 .dk .credit{position:absolute;left:12px;bottom:10px}
+.d3 .ph{background:#efe9db;background-image:radial-gradient(#e2dac6 1px,transparent 1px);background-size:14px 14px;display:flex;flex-direction:column}
+.d3 .ph .hd{background:var(--green);color:#fff;padding:8px 14px 10px;display:flex;gap:10px;align-items:center}
+.d3 .ph .hd b{display:block;font-weight:800;font-size:16px}.d3 .ph .hd small{opacity:.85}
+.d3 .ph .av{width:34px;height:34px;border-radius:50%;background:#fff;color:var(--green);display:grid;place-items:center;font-weight:800}
+.d3 .ph .f{flex:1;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.d3 .ph .m{max-width:88%;font-size:13px}.d3 .ph .card{width:92%;font-size:13px}
+.d3 .ph .stu{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.d3 .ph .stu span{background:var(--bub);color:var(--green);font-weight:800;font-size:12px;border-radius:99px;padding:2px 9px}
+.d3 .ph .stu span.t{background:#fdeacb;color:#6a4400}.d3 .ph .stu span.a{background:#fbd9d4;color:#7a1d12}
+.d3 .ph .in{background:#fff;margin:0;padding:9px 12px;display:flex;gap:6px;border-top:1px solid var(--line)}.d3 .ph .in span{background:var(--bub);color:var(--green);font-weight:800;font-size:12px;border-radius:99px;padding:3px 10px}
+

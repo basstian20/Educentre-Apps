@@ -1,0 +1,36 @@
+/* ===== D5 Meja Kasir ===== */
+.d5{--ink:#141414;--paper:#fcfbf6;--hl:#ffe14d;--mut:#666;font-family:"IBM Plex Mono",monospace;color:var(--ink)}
+.d5 .dk{background:#dedbd0;padding:16px;display:grid;grid-template-columns:1fr 330px;gap:16px;grid-template-rows:96px 1fr}
+.d5 .led{grid-column:1/-1;background:#15130f;border-radius:10px;display:flex;gap:34px;align-items:center;padding:0 26px;color:#ffb347;box-shadow:inset 0 0 0 3px #2a2620}
+.d5 .led div small{display:block;color:#a07a3e;font-size:12px;letter-spacing:.14em}
+.d5 .led div b{font:500 36px/1.05 "DM Mono";letter-spacing:.04em;text-shadow:0 0 12px rgba(255,160,40,.5)}
+.d5 .led .nbd{margin-left:auto;color:#a07a3e;font-size:12px}
+.d5 .tape{background:var(--paper);padding:14px 22px 24px;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.2);overflow:hidden}
+.d5 .tape::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:10px;background:linear-gradient(135deg,#dedbd0 25%,transparent 25%) -5px 0/10px 10px,linear-gradient(225deg,#dedbd0 25%,transparent 25%) -5px 0/10px 10px}
+.d5 .tape h5{margin:0 0 2px;font:600 14px "IBM Plex Mono";letter-spacing:.14em;text-align:center}
+.d5 .tape .sub{text-align:center;color:var(--mut);font-size:12px;border-bottom:2px dashed var(--ink);padding-bottom:8px;margin-bottom:6px}
+.d5 .ln{display:flex;gap:10px;padding:7px 0;border-bottom:1px dashed #b9b6a8;font-size:13px}
+.d5 .ln time{width:46px;color:var(--mut)}.d5 .ln .n{flex:1}.d5 .ln .n small{display:block;color:var(--mut)}.d5 .ln .am{font-weight:600}
+.d5 .tot{display:flex;justify-content:space-between;border-top:2px solid var(--ink);margin-top:8px;padding-top:8px;font-weight:600}
+.d5 .rt{display:flex;flex-direction:column;gap:12px}
+.d5 .keys{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.d5 .keys span{background:var(--paper);border:2px solid var(--ink);border-radius:8px;padding:11px 10px;font-weight:600;font-size:13px;box-shadow:0 3px 0 var(--ink)}
+.d5 .keys span.p{background:var(--hl)}
+.d5 .nota{background:var(--paper);padding:12px 16px;flex:1;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.d5 .nota h6{margin:0 0 6px;font:600 13px "IBM Plex Mono";letter-spacing:.1em}
+.d5 .nota .it{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #b9b6a8;font-size:12.5px}.d5 .nota mark{background:var(--hl);padding:0 4px}
+.d5 .ph{background:#dedbd0}
+.d5 .ph .led2{margin:8px;background:#15130f;border-radius:8px;display:flex;justify-content:space-around;padding:10px 4px;color:#ffb347;text-align:center}
+.d5 .ph .led2 b{display:block;font:500 28px/1 "DM Mono"}.d5 .ph .led2 small{font-size:11px;color:#a07a3e;letter-spacing:.1em}
+.d5 .ph .paper{background:var(--paper);margin:0 8px;padding:10px 14px}
+.d5 .ph .paper .ln{font-size:13px;padding:7px 0}
+.d5 .ph .paper .ln i{font-style:normal;font-weight:600;border:1.5px solid var(--ink);border-radius:6px;padding:0 7px;font-size:12px}
+.d5 .ph .paper .ln i.t{background:var(--hl)}
+.d5 .ph .go{position:absolute;left:12px;right:12px;bottom:12px;background:var(--ink);color:#fff;text-align:center;font-weight:600;border-radius:8px;padding:12px;box-shadow:0 3px 0 #777}
+.d5 .ph .strk{background:var(--paper);margin:10px 10px 0;padding:14px 16px;position:relative}
+.d5 .ph .strk h6{margin:0;text-align:center;font:600 13px "IBM Plex Mono";letter-spacing:.14em}
+.d5 .ph .strk .sub{text-align:center;color:var(--mut);font-size:12px;border-bottom:2px dashed var(--ink);padding-bottom:8px;margin-bottom:6px}
+.d5 .ph .strk .row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+.d5 .ph .strk .tt{border-top:2px solid var(--ink);margin-top:6px;padding-top:6px;font-weight:600;font-size:15px}
+.d5 .ph .hlt{background:var(--hl);padding:2px 6px;font-weight:600}
+

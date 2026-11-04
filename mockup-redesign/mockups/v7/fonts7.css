@@ -1,0 +1,25 @@
+/* V7: empat kombinasi font untuk Clay Soft + Ocean Blue. Dipilih lewat atribut data-font (aplikasi) atau pada .spec (spesimen). */
+.th-c5 [class*=num],.th-c5 .kv,.th-c5 .tm,.th-c5 .score,.th-c5 .dn-c b,.th-c5 .rg-c b,.th-c5 .nm b,.th-c5 .tbl .n{font-variant-numeric:tabular-nums lining-nums}
+
+/* A · Bulat Empuk: Fredoka (judul, angka) + Nunito (isi). Huruf membulat menggemakan bentuk tanah liat. */
+.th-c5[data-font=a],.spec[data-font=a]{--font:"Nunito",system-ui,sans-serif;--fh:"Fredoka","Nunito",system-ui,sans-serif;--fnum:"Fredoka","Nunito",system-ui,sans-serif;--hw:600;--bw:700}
+.th-c5[data-font=a] .tt h1{letter-spacing:0}
+
+/* B · Modern Jakarta: Plus Jakarta Sans untuk semuanya. Geometris, jernih, berakar lokal. */
+.th-c5[data-font=b],.spec[data-font=b]{--font:"Plus Jakarta Sans",system-ui,sans-serif;--fh:"Plus Jakarta Sans",system-ui,sans-serif;--fnum:"Plus Jakarta Sans",system-ui,sans-serif;--hw:800;--bw:700}
+.th-c5[data-font=b] .tt h1{letter-spacing:-.025em}
+.th-c5[data-font=b] .kv{letter-spacing:-.03em}
+
+/* C · Mudah Dibaca: Lexend. Dirancang untuk keterbacaan, lebar dan lapang. */
+.th-c5[data-font=c],.spec[data-font=c]{--font:"Lexend",system-ui,sans-serif;--fh:"Lexend",system-ui,sans-serif;--fnum:"Lexend",system-ui,sans-serif;--hw:600;--bw:600;--fs:13px}
+.th-c5[data-font=c] .tt h1{letter-spacing:-.02em;font-size:27px}
+.th-c5[data-font=c] .kv{letter-spacing:-.02em;font-size:27px}
+.th-c5[data-font=c] .btn,.th-c5[data-font=c] .chip,.th-c5[data-font=c] .fc{letter-spacing:-.005em}
+.th-c5[data-font=c] .ni{font-size:12.5px}
+
+/* D · Serif Hangat: Fraunces (judul, angka) + Figtree (isi). Kesan lembaga yang tepercaya namun lembut. */
+.th-c5[data-font=d],.spec[data-font=d]{--font:"Figtree",system-ui,sans-serif;--fh:"Fraunces",Georgia,serif;--fnum:"Fraunces",Georgia,serif;--hw:600;--bw:700}
+.th-c5[data-font=d] .tt h1{letter-spacing:-.015em;font-size:31px}
+.th-c5[data-font=d] .kv{font-size:32px;letter-spacing:-.02em}
+.th-c5[data-font=d] .ch h3{font-size:17px}
+.th-c5[data-font=d] .hero-c h2,.th-c5[data-font=d] .fl-f h3{font-weight:600}
