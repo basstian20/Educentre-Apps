@@ -19,18 +19,19 @@ Akun demo ada di `memory/test_credentials.md`. Pakai backend lokal dengan databa
 **Orang tua:** Dasbor (pilih anak) · Anak saya (+ rapor) · Hasil · Kehadiran · Kelas · Biaya (+ cetak) · Pengumuman · Pengaturan
 
 ## C. Perilaku yang tidak boleh berubah
+`[x]` = teruji penuh, `[~]` = sebagian (keterangan di baris), `[ ]` = belum. Pengujian T6 memakai browser pada backend `edu_redesign_test`, tanpa kesalahan konsol.
 - [ ] Masuk dengan akun demo, keluar, dan halaman terproteksi berfungsi.
-- [ ] Siswa: tambah, ubah, nonaktifkan/aktifkan, hapus (dengan konfirmasi), cari, urut, halaman, impor CSV, rapor.
-- [ ] Pendidik dan orang tua: tambah, ubah, hapus.
-- [ ] Kelas: tambah, ubah, hapus; tampilan kartu dan jadwal mingguan; warna kelas dari data tetap dipakai.
-- [ ] Pendaftaran 4 langkah sampai konfirmasi.
-- [ ] Absensi: pilih kelas/tanggal, ubah status per siswa, tandai semua hadir, simpan.
-- [ ] Nilai: buat penilaian, isi nilai dan catatan, simpan semua, terbitkan.
+- [~] Siswa: tambah, ubah, nonaktifkan/aktifkan, hapus (dengan konfirmasi), cari, urut, halaman, impor CSV, rapor. *Teruji (T6): tambah, ubah, nonaktifkan, aktifkan kembali, cari, dialog impor terbuka, rapor terbuka dari palet. Belum: urut, halaman, impor berkas CSV. Catatan: "hapus" untuk siswa adalah nonaktifkan, tidak ada hapus permanen.*
+- [x] Pendidik dan orang tua: tambah, ubah, hapus. *Teruji (T6). Pendidik: hapus = nonaktif (muncul tombol Aktifkan kembali); orang tua: hapus sungguhan.*
+- [~] Kelas: tambah, ubah, hapus; tampilan kartu dan jadwal mingguan; warna kelas dari data tetap dipakai. *Teruji (T6): tambah, ubah, hapus, kartu, warna `--t` dari data. Belum: jadwal mingguan setelah menambah kelas.*
+- [x] Pendaftaran 4 langkah sampai konfirmasi. *Teruji (T6): sampai toast "Pendaftaran dikonfirmasi".*
+- [~] Absensi: pilih kelas/tanggal, ubah status per siswa, tandai semua hadir, simpan. *Teruji (T6): pilih kelas, ubah status, simpan, riwayat tampil. Belum: ganti tanggal, tandai semua hadir.*
+- [~] Nilai: buat penilaian, isi nilai dan catatan, simpan semua, terbitkan. *Teruji (T6): buat, isi nilai, simpan, terbitkan (konfeti muncul). Belum: kolom catatan.*
 - [ ] Hasil: siswa dan orang tua hanya melihat nilai yang sudah terbit.
-- [ ] Materi: tambah (tautan/berkas/video), buka, hapus, cari.
-- [ ] Tagihan: buat, catat pembayaran (sebagian/penuh), cetak, hapus, filter status, ekspor CSV.
-- [ ] Pengumuman: buat/ubah/hapus dengan audiens; orang lain hanya melihat yang relevan.
-- [ ] Pengaturan: profil, ganti kata sandi, data pusat bimbel (admin).
+- [~] Materi: tambah (tautan/berkas/video), buka, hapus, cari. *Teruji (T6): tambah tautan, cari, hapus dengan konfirmasi; tombol buka tampil. Belum: berkas/video.*
+- [~] Tagihan: buat, catat pembayaran (sebagian/penuh), cetak, hapus, filter status, ekspor CSV. *Teruji (T6): buat, bayar sebagian (status Sebagian, tanpa konfeti), bayar sisanya (Lunas, konfeti). Belum: cetak, hapus, filter, ekspor.*
+- [~] Pengumuman: buat/ubah/hapus dengan audiens; orang lain hanya melihat yang relevan. *Teruji (T6): buat, ubah, hapus dengan konfirmasi. Belum: audiens dan tampilan peran lain.*
+- [~] Pengaturan: profil, ganti kata sandi, data pusat bimbel (admin). *Teruji (T6): simpan profil, simpan data pusat, kata sandi salah ditolak. Belum: ganti kata sandi berhasil (sengaja tidak dicoba agar akun demo tetap bisa masuk).*
 - [ ] Notifikasi, ganti bahasa ID/EN, mode gelap, menu akun.
 - [ ] Setiap peran hanya melihat menu dan data perannya.
 
