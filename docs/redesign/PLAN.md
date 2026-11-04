@@ -6,7 +6,7 @@
 | Tahap | Branch | Status |
 |---|---|---|
 | 0 · Persiapan | `redesign/clay-t0-persiapan` | **Disetujui, digabung** (PR #1) |
-| 1 · Fondasi tampilan | `redesign/clay-t1-fondasi` | Berikutnya |
+| 1 · Fondasi tampilan | `redesign/clay-t1-fondasi` | **Dikerjakan, menunggu peninjauan** (belum di-push, belum ada PR) |
 | 2 · Kerangka aplikasi | `redesign/clay-t2-kerangka` | Belum |
 | 3 · Layar masuk dan dasbor | `redesign/clay-t3-masuk-dasbor` | Belum |
 | 4 · Halaman data dan keuangan | `redesign/clay-t4-halaman-data` | Belum |
@@ -18,7 +18,7 @@
 Perbarui tabel ini di akhir setiap tahap. `main` tetap tidak disentuh sampai Tahap 8 disetujui.
 
 ## Hal yang masih terbuka
-- Persetujuan membuat database uji terpisah `edu_redesign_test` di cluster Atlas yang sama (agar uji yang menulis data tidak mencemari situs demo). Belum dijawab.
+- ~~Database uji terpisah~~ Disetujui dan dipakai: `edu_redesign_test` (dibuat otomatis saat backend lokal jalan dengan `DB_NAME=edu_redesign_test`). Catatan: `backend/.env` tidak memuat `JWT_SECRET`, jadi saat menjalankan lokal setel juga `JWT_SECRET` (nilai acak apa saja) lewat variabel lingkungan, dan pasang dependensi dengan `pip install -r backend/requirements.txt` di `venv`.
 - Baseline "sebelum" untuk halaman yang butuh login (diambil dari `main` yang dijalankan lokal dengan database terpisah) belum diambil.
 
 ## Cara melanjutkan di chat baru

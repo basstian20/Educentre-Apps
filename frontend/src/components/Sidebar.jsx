@@ -153,19 +153,19 @@ export default function Sidebar({ open = false, onClose }) {
         <div className="flex items-center gap-3 relative z-10">
           <div
             className="relative flex h-10 w-10 items-center justify-center rounded-2xl text-lg font-bold text-white shadow-lg font-outfit"
-            style={{ background: "linear-gradient(135deg, #356f83, #78a99d)" }}
+            style={{ background: "linear-gradient(135deg, var(--pl), var(--pri))" }}
           >
             E
-            <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-white/70 bg-[#f4cf63]" />
+            <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-white/70 bg-warn" />
           </div>
           <div className="min-w-0">
-            <div className="text-base font-semibold leading-tight text-[#294a55] font-outfit">{t.appName}</div>
-            <div className="mt-1 text-[9px] uppercase leading-tight tracking-[0.2em] text-[#73908e]">Learning OS</div>
+            <div className="text-base font-semibold leading-tight text-ink font-outfit">{t.appName}</div>
+            <div className="mt-1 text-[9px] uppercase leading-tight tracking-[0.2em] text-mut">Learning OS</div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="ml-auto rounded-lg p-2 text-[#668584] transition hover:bg-white/50 hover:text-[#164e50] md:hidden"
+            className="ml-auto rounded-lg p-2 text-mut transition hover:bg-white/50 hover:text-pri md:hidden"
             aria-label={t.closeNav}
           >
             <X className="h-4 w-4" />
@@ -176,7 +176,7 @@ export default function Sidebar({ open = false, onClose }) {
       <nav className="flex-1 overflow-y-auto px-3 py-1">
         {sections.map((sec) => (
           <div key={`sec-${sec.section}`} className="mb-3">
-            <div className="mb-1.5 px-3 text-[9px] font-semibold uppercase tracking-widest text-[#87a09f] font-outfit">
+            <div className="mb-1.5 px-3 text-[9px] font-semibold uppercase tracking-widest text-mut font-outfit">
               {sec.section}
             </div>
             {sec.items.map((it) => {
@@ -188,10 +188,10 @@ export default function Sidebar({ open = false, onClose }) {
                   data-testid={it.testid}
                   onClick={onClose}
                   className={({ isActive }) =>
-                    `relative mb-0.5 flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2 text-[12px] font-medium transition-all ${
+                    `relative mb-0.5 flex items-center gap-3 overflow-hidden rounded-full px-3.5 py-2 text-[13px] font-medium transition-all ${
                       isActive
                         ? "nav-active text-white shadow-lg"
-                        : "text-[#587775] hover:bg-white/45 hover:text-[#164e50]"
+                        : "text-mut hover:bg-white/45 hover:text-pri"
                     }`
                   }
                 >
@@ -208,20 +208,20 @@ export default function Sidebar({ open = false, onClose }) {
         <div className="flex items-center gap-2.5 px-1 py-1">
           <div
             className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white font-outfit"
-            style={{ background: `linear-gradient(135deg, ${roleColor}, #78a99d)` }}
+            style={{ background: `linear-gradient(135deg, ${roleColor}, var(--info))` }}
           >
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="truncate text-xs font-medium text-[#294a55] font-outfit">{user.full_name}</div>
-            <div className="text-[9px] font-semibold uppercase tracking-wider text-[#789391]">{roleLabel}</div>
+            <div className="truncate text-xs font-medium text-ink font-outfit">{user.full_name}</div>
+            <div className="text-[9px] font-semibold uppercase tracking-wider text-mut">{roleLabel}</div>
           </div>
           <button
             onClick={async () => {
               await logout();
               navigate("/login");
             }}
-            className="rounded-lg p-2 text-[#789391] transition hover:bg-white/50 hover:text-[#164e50]"
+            className="rounded-lg p-2 text-mut transition hover:bg-white/50 hover:text-pri"
             title={t.logout}
             data-testid="logout-btn"
           >

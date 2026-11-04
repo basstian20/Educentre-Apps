@@ -121,7 +121,7 @@ function GlassCard({ children, className = "", testid }) {
 function CardHeader({ title, to, action, lang }) {
   return (
     <div className="mb-5 flex items-center justify-between gap-3">
-      <h2 className="text-sm font-semibold text-[#294a55] font-outfit">{title}</h2>
+      <h2 className="text-sm font-semibold text-ink font-outfit">{title}</h2>
       {to && (
         <Link className="dashboard-link" to={to}>
           {action || (lang === "id" ? "Lihat semua" : "View all")}
@@ -150,8 +150,8 @@ function NextClassCard({ stats, loading, lang }) {
             <BookOpen className="h-7 w-7" />
           </div>
           <div className="min-w-0 text-center">
-            <div className="truncate text-base font-semibold text-[#294a55] font-outfit">{nextClass.subject_name}</div>
-            <div className="mt-1 text-[11px] text-[#6f8987]">{nextClass.educator_name || (lang === "id" ? "Pengajar" : "Educator")}</div>
+            <div className="truncate text-base font-semibold text-ink font-outfit">{nextClass.subject_name}</div>
+            <div className="mt-1 text-[11px] text-mut">{nextClass.educator_name || (lang === "id" ? "Pengajar" : "Educator")}</div>
           </div>
           <div className="time-badge">
             <Clock3 className="h-3.5 w-3.5" />
@@ -161,8 +161,8 @@ function NextClassCard({ stats, loading, lang }) {
             <GraduationCap className="h-7 w-7" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-[#294a55] font-outfit">{nextClass.room || (lang === "id" ? "Ruang belum ditentukan" : "Room to be confirmed")}</div>
-            <div className="mt-1 flex items-center gap-1.5 text-[11px] text-[#6f8987]">
+            <div className="truncate text-sm font-semibold text-ink font-outfit">{nextClass.room || (lang === "id" ? "Ruang belum ditentukan" : "Room to be confirmed")}</div>
+            <div className="mt-1 flex items-center gap-1.5 text-[11px] text-mut">
               <CalendarDays className="h-3.5 w-3.5" />
               {DAYS[new Date().getDay()]}
             </div>
@@ -230,8 +230,8 @@ function MetricGrid({ role, stats, loading, lang }) {
             <div className="flex items-center gap-3">
               <div className={`metric-icon ${tone}`}><Icon className="h-5 w-5" /></div>
               <div className="min-w-0">
-                <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#78908f]">{label}</div>
-                <div className="mt-1 truncate text-xl font-semibold text-[#294a55] font-outfit">{value}</div>
+                <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-mut">{label}</div>
+                <div className="mt-1 truncate text-xl font-semibold text-ink font-outfit">{value}</div>
               </div>
             </div>
           )}
@@ -341,7 +341,7 @@ function OverviewTable({ role, students, invoices, grades, stats, loading, lang 
                   <td>
                     <div className="flex items-center gap-2.5">
                       <span className="student-avatar">{initials(row.name)}</span>
-                      <span className="font-semibold text-[#294a55] font-outfit">{row.name}</span>
+                      <span className="font-semibold text-ink font-outfit">{row.name}</span>
                     </div>
                   </td>
                   <td>{row.meta}</td>
@@ -405,11 +405,11 @@ function CardSkeleton({ compact = false }) {
 function EmptyState({ icon: Icon, title, text }) {
   return (
     <div className="flex min-h-28 flex-col items-center justify-center text-center">
-      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/55 text-[#356f83]">
+      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/55 text-pri">
         <Icon className="h-5 w-5" />
       </div>
-      <div className="text-sm font-semibold text-[#294a55] font-outfit">{title}</div>
-      <div className="mt-1 text-[11px] text-[#78908f]">{text}</div>
+      <div className="text-sm font-semibold text-ink font-outfit">{title}</div>
+      <div className="mt-1 text-[11px] text-mut">{text}</div>
     </div>
   );
 }

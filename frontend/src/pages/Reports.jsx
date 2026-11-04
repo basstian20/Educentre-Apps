@@ -100,10 +100,10 @@ export default function Reports() {
       ) : (
       <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatTile label={t.activeStudents} value={stats.active_students ?? 0} icon={Users} color="#2563EB" />
-        <StatTile label={t.activeClasses} value={stats.active_classes ?? 0} icon={BookOpen} color="#059669" />
-        <StatTile label={t.revenueThisMonth} value={fmtIDR(stats.revenue_this_month)} icon={TrendingUp} color="#D97706" />
-        <StatTile label={t.outstandingFees} value={fmtIDR(stats.outstanding_fees)} icon={AlertTriangle} color="#DC2626" />
+        <StatTile label={t.activeStudents} value={stats.active_students ?? 0} icon={Users} color="var(--c1)" />
+        <StatTile label={t.activeClasses} value={stats.active_classes ?? 0} icon={BookOpen} color="var(--c4)" />
+        <StatTile label={t.revenueThisMonth} value={fmtIDR(stats.revenue_this_month)} icon={TrendingUp} color="var(--c3)" />
+        <StatTile label={t.outstandingFees} value={fmtIDR(stats.outstanding_fees)} icon={AlertTriangle} color="var(--c5)" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">

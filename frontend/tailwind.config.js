@@ -7,12 +7,41 @@ module.exports = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['var(--font)'],
+  			heading: ['var(--fh)']
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			slate: Object.fromEntries(
+  				[50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((n) => [n, `rgb(var(--slate-${n}) / <alpha-value>)`])
+  			),
+  			blue: {
+  				50: 'rgba(var(--pg), 0.1)',
+  				100: 'rgba(var(--pg), 0.16)',
+  				500: 'var(--pri)',
+  				600: 'var(--pri)',
+  				700: 'var(--pd)'
+  			},
+  			teal: {
+  				50: 'rgba(var(--pg), 0.1)',
+  				100: 'rgba(var(--pg), 0.2)',
+  				500: 'var(--pri)',
+  				700: 'var(--pri)'
+  			},
+  			ink: 'var(--ink)',
+  			mut: 'var(--mut)',
+  			pri: 'var(--pri)',
+  			surface: 'var(--surface)',
+  			soft: 'var(--soft)',
+  			line: 'var(--line)',
+  			ok: 'var(--ok)',
+  			warn: 'var(--warn)',
+  			bad: 'var(--bad)',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
