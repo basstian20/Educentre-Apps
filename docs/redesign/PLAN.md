@@ -11,7 +11,7 @@
 | 3 · Layar masuk dan dasbor | `redesign/clay-t3-masuk-dasbor` | **Disetujui, digabung** (PR #4) |
 | 4 · Halaman data dan keuangan | `redesign/clay-t4-halaman-data` | **Disetujui, digabung** (PR #5) |
 | 5 · Halaman akademik dan laporan | `redesign/clay-t5-halaman-akademik` | **Disetujui, digabung** (PR #6) |
-| 6 · Gerak dan komponen interaktif | `redesign/clay-t6-gerak` | Belum |
+| 6 · Gerak dan komponen interaktif | `redesign/clay-t6-gerak` | **Menunggu persetujuan** |
 | 7 · Merapikan dan dokumen cetak | `redesign/clay-t7-rapi-cetak` | Belum |
 | 8 · Uji akhir dan serah terima | `redesign/clay-t8-uji-akhir` | Belum |
 
@@ -19,13 +19,15 @@ Perbarui tabel ini di akhir setiap tahap. `main` tetap tidak disentuh sampai Tah
 
 ## Hal yang masih terbuka
 - ~~Database uji terpisah~~ Disetujui dan dipakai: `edu_redesign_test` (dibuat otomatis saat backend lokal jalan dengan `DB_NAME=edu_redesign_test`). Catatan: `backend/.env` tidak memuat `JWT_SECRET`, jadi saat menjalankan lokal setel juga `JWT_SECRET` (nilai acak apa saja) lewat variabel lingkungan, dan pasang dependensi dengan `pip install -r backend/requirements.txt` di `venv`.
-- Baseline "sebelum" untuk halaman yang butuh login (diambil dari `main` yang dijalankan lokal dengan database terpisah) belum diambil.
+- ~~Baseline "sebelum" halaman login-wajib~~ Diambil dari `main` (f97a633) yang dijalankan lokal pada `edu_redesign_test`: dasbor 4 peran, Siswa, Tagihan (desktop, ID, terang) di `docs/redesign/before/*.jpg`. Resolusi rendah (hasil tangkapan panel browser); versi HP dan gelap belum.
 
 - Tahap 3: grafik dasbor (area, donat, cincin, mini-grafik, garis waktu) ditulis sebagai komponen SVG sendiri di `frontend/src/components/dashboard/charts.jsx`, bukan Recharts, supaya animasi menggambar-diri dan warna token bisa dipakai langsung. Recharts tetap dipakai di Laporan sampai Tahap 5. Grafik hanya memakai data nyata (kehadiran per tanggal sesi, status tagihan, kapasitas kelas, pendapatan); mini-grafik pendapatan disembunyikan bila data kurang dari 2 bulan.
 
-- Tahap 4: tabel memakai kelas bersama `.clay-table` (kepala pita lembut, 12 px), avatar inisial `.avatar-clay` berwarna token, tombol ikon `.icon-btn`, kotak cari memakai `field-clay`; kartu Materi/Pengumuman memakai `clay-card`. Perbaikan lintas halaman: animasi `fadeUp` pada `<main>` sebelumnya meninggalkan transform sehingga dialog (fixed) bergeser; kini memakai fill-mode `backwards`. Dialog di HP diberi ruang bawah agar tombol Simpan tidak tertutup kredit NobleDev. Pengujian hanya membaca (tanpa menulis data); alur tambah/ubah/hapus belum diklik otomatis.
+- Tahap 4: tabel memakai kelas bersama `.clay-table` (kepala pita lembut, 12 px), avatar inisial `.avatar-clay` berwarna token, tombol ikon `.icon-btn`, kotak cari memakai `field-clay`; kartu Materi/Pengumuman memakai `clay-card`. Perbaikan lintas halaman: animasi `fadeUp` pada `<main>` sebelumnya meninggalkan transform sehingga dialog (fixed) bergeser; kini memakai fill-mode `backwards`. Dialog di HP diberi ruang bawah agar tombol Simpan tidak tertutup kredit NobleDev. Alur tulisnya diuji setelah Tahap 6, lihat `CHECKLIST.md`.
 
-- Tahap 5: warna kelas dari data (`color_hex`) dipakai lewat variabel `--t` (pita samping kartu, blok jadwal, bar kapasitas); emoji kartu kelas diganti ikon Lucide. Grafik Laporan tetap Recharts, tetapi warnanya dibaca dari token CSS lewat hook `useTokens` (atribut SVG tidak mengenal `var()`), dan ikut berganti saat mode terang/gelap. Gaya `.attendance-btn`/`.timetable-cell` di `App.css` dipindah ke token. Pengujian hanya membaca (alur buat penilaian/terbitkan/daftar belum diklik otomatis).
+- Tahap 5: warna kelas dari data (`color_hex`) dipakai lewat variabel `--t` (pita samping kartu, blok jadwal, bar kapasitas); emoji kartu kelas diganti ikon Lucide. Grafik Laporan tetap Recharts, tetapi warnanya dibaca dari token CSS lewat hook `useTokens` (atribut SVG tidak mengenal `var()`), dan ikut berganti saat mode terang/gelap. Gaya `.attendance-btn`/`.timetable-cell` di `App.css` dipindah ke token. Alur tulisnya diuji setelah Tahap 6, lihat `CHECKLIST.md`.
+
+- Tahap 6: semua gerak bergantung pada `<html data-motion="full|lite">` (`lib/motion.jsx`, gaya di `src/motion.css`). Saklar Penuh/Hemat ada di bilah atas (tersimpan di `ec_motion`); bila sistem meminta `prefers-reduced-motion`, mode otomatis Hemat dan saklar dikunci. Palet perintah (`components/CommandPalette.jsx`, Ctrl/Cmd+K atau tombol cari di bilah atas) memakai `cmdk` yang sudah ada: pindah halaman sesuai peran, aksi cepat (tema, bahasa, gerak, keluar), dan cari siswa (admin; membuka rapor). Konfeti (`lib/confetti.js`, kanvas sendiri tanpa pustaka) menyala saat nilai diterbitkan dan saat pembayaran melunasi tagihan. Kartu `.clay-hover` miring/berkilau mengikuti kursor lewat satu pendengar di `Layout.jsx`. Kartu rapor yang bisa dibalik sudah ada sejak Tahap 3. Pengujian: palet (buka, filter, kosong, pindah halaman), saklar gerak, dan kemiringan kartu diperiksa di browser; konfeti sudah diuji kemudian (muncul saat terbit dan saat tagihan lunas, tidak muncul saat bayar sebagian), begitu pula pencarian siswa di palet.
 
 ## Cara melanjutkan di chat baru
 Buka proyek ini di Claude Code, lalu kirim, misalnya:

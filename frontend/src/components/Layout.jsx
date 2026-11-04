@@ -2,13 +2,64 @@ import { useEffect, useRef, useState } from "react";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import BottomNav from "./BottomNav";
+import CommandPalette from "./CommandPalette";
 import { useLang } from "../lib/i18n";
 
 export default function Layout({ title, subtitle, actions, children }) {
   const { t } = useLang();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const mainRef = useRef(null);
   const canvasRef = useRef(null);
+
+  // Ctrl+K (Cmd+K di Mac) membuka atau menutup palet perintah.
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Kartu .clay-hover miring halus dan berkilau mengikuti kursor (hanya mouse, hanya gerak Penuh).
+  useEffect(() => {
+    const main = mainRef.current;
+    if (!main) return undefined;
+    let current = null;
+    const reset = () => {
+      if (!current) return;
+      current.style.removeProperty("--rx");
+      current.style.removeProperty("--ry");
+      current.classList.remove("is-tilting");
+      current = null;
+    };
+    const onMove = (e) => {
+      if (e.pointerType !== "mouse" || document.documentElement.dataset.motion === "lite") return reset();
+      const card = e.target.closest?.(".clay-hover");
+      if (card !== current) reset();
+      if (!card) return undefined;
+      current = card;
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      const y = (e.clientY - r.top) / r.height;
+      card.classList.add("is-tilting");
+      card.style.setProperty("--rx", `${((0.5 - y) * 5).toFixed(2)}deg`);
+      card.style.setProperty("--ry", `${((x - 0.5) * 6).toFixed(2)}deg`);
+      card.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
+      card.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
+      return undefined;
+    };
+    main.addEventListener("pointermove", onMove, { passive: true });
+    main.addEventListener("pointerleave", reset);
+    return () => {
+      main.removeEventListener("pointermove", onMove);
+      main.removeEventListener("pointerleave", reset);
+      reset();
+    };
+  }, []);
 
   // Gelembung latar bergeser halus mengikuti kursor (parallax). Mati bila sistem meminta gerak hemat.
   useEffect(() => {
@@ -63,12 +114,13 @@ export default function Layout({ title, subtitle, actions, children }) {
       <div className="app-shell">
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="app-content min-w-0 md:pl-[248px]">
-          <Topbar title={title} subtitle={subtitle} actions={actions} onMenuClick={() => setSidebarOpen(true)} />
+          <Topbar title={title} subtitle={subtitle} actions={actions} onMenuClick={() => setSidebarOpen(true)} onSearch={() => setPaletteOpen(true)} />
           <main id="main-content" tabIndex={-1} ref={mainRef} className="animate-fadeUp px-4 pb-28 sm:px-6 md:pb-20 lg:px-8" data-testid="main-content">
             {children}
           </main>
         </div>
         <BottomNav onMore={() => setSidebarOpen(true)} />
+        <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
       </div>
     </div>
   );

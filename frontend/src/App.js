@@ -5,6 +5,7 @@ import "@/App.css";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { LangProvider } from "@/lib/i18n";
 import { ThemeProvider } from "@/lib/theme";
+import { MotionProvider } from "@/lib/motion";
 
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
@@ -52,6 +53,7 @@ export default function App() {
   return (
     <LangProvider>
       <ThemeProvider>
+      <MotionProvider>
       <AuthProvider>
         <BrowserRouter>
           <Toaster richColors position="top-right" />
@@ -79,6 +81,7 @@ export default function App() {
           <DeveloperCredit />
         </BrowserRouter>
       </AuthProvider>
+      </MotionProvider>
       </ThemeProvider>
     </LangProvider>
   );

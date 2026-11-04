@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { api, fmtDate, formatApiError } from "@/lib/api";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { fireConfetti } from "../lib/confetti";
 
 export default function Grades() {
   const { t } = useLang();
@@ -71,6 +72,7 @@ export default function Grades() {
     try {
       await api.post("/assessments/publish", { assessment_id: selectedAssId });
       toast.success(t.toastPublished);
+      fireConfetti();
       api.get("/assessments", { params: { class_id: classId } }).then((r) => setAssessments(r.data || []));
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail));

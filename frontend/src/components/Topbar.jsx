@@ -1,8 +1,9 @@
 import { useLang } from "../lib/i18n";
 import { useAuth } from "../lib/auth";
 import { Link } from "react-router-dom";
-import { Menu, Moon, Sun } from "lucide-react";
+import { Menu, Moon, Search, Sparkles, Sun } from "lucide-react";
 import { useTheme } from "../lib/theme";
+import { useMotion } from "../lib/motion";
 import NotificationBell from "./NotificationBell";
 
 const ROLE_COLORS = {
@@ -19,10 +20,11 @@ const ROLE_LABELS = {
   parent: "role_parent",
 };
 
-export default function Topbar({ title, subtitle, actions, onMenuClick }) {
+export default function Topbar({ title, subtitle, actions, onMenuClick, onSearch }) {
   const { lang, setLang, t } = useLang();
   const { user } = useAuth();
   const { theme, toggle } = useTheme();
+  const { motion, stored, setMotion, systemReduced } = useMotion();
   const roleColor = user ? ROLE_COLORS[user.role] : "#2563EB";
   const roleLabel = user ? t[ROLE_LABELS[user.role]] : "";
 
@@ -52,6 +54,13 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
 
       <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-2 sm:w-auto sm:justify-end sm:gap-3">
         {actions && <div className="flex min-w-0 flex-wrap justify-end gap-2">{actions}</div>}
+        {onSearch && (
+          <button type="button" onClick={onSearch} className="cmd-trigger" aria-label={t.cmdOpen} data-testid="open-command-palette">
+            <Search className="h-4 w-4" />
+            <span className="hidden lg:inline">{t.cmdOpen}</span>
+            <kbd className="hidden lg:inline">Ctrl K</kbd>
+          </button>
+        )}
         <div className="lang-switcher flex rounded-full p-0.5" data-testid="lang-switcher">
           {["en", "id"].map((l) => (
             <button
@@ -76,6 +85,18 @@ export default function Topbar({ title, subtitle, actions, onMenuClick }) {
           data-testid="theme-toggle"
         >
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMotion(stored === "full" ? "lite" : "full")}
+          className="glass-icon-button"
+          aria-pressed={motion === "full"}
+          aria-label={`${t.motionLabel}: ${motion === "full" ? t.motionFull : systemReduced ? t.motionSystemLite : t.motionLite}`}
+          title={systemReduced ? t.motionSystemLite : `${t.motionLabel}: ${motion === "full" ? t.motionFull : t.motionLite}`}
+          disabled={systemReduced}
+          data-testid="motion-toggle"
+        >
+          <Sparkles className={`h-4 w-4 ${motion === "full" ? "" : "opacity-40"}`} />
         </button>
         <NotificationBell />
         {user && (

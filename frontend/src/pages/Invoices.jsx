@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { Download, Plus, Printer, Receipt } from "lucide-react";
 import { exportCsv } from "@/lib/csv";
 import { toast } from "sonner";
+import { fireConfetti } from "../lib/confetti";
 
 export default function Invoices() {
   const { t } = useLang();
@@ -92,6 +93,8 @@ export default function Invoices() {
     try {
       await api.post("/payments", { invoice_id: payOpen.id, amount: parseFloat(payForm.amount), method: payForm.method });
       toast.success(t.toastPaymentRecorded);
+      // Konfeti hanya bila pembayaran ini melunasi tagihan.
+      if (parseFloat(payForm.amount) >= Number(payOpen.balance_due)) fireConfetti();
       setPayOpen(null);
       load();
     } catch (e) {
