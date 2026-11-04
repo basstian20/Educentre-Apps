@@ -85,13 +85,13 @@ export default function Attendance() {
               options={[{ value: "", label: "—" }, ...classes.map((c) => ({ value: c.id, label: c.subject_name }))]}
             />
             <div>
-              <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.dueDate}</span>
+              <span className="block text-xs font-bold text-slate-600 mb-1.5 font-jakarta">{t.dueDate}</span>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 data-testid="att-date"
-                className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-sm"
+                className="field-clay h-11 px-4 text-sm"
               />
             </div>
           </div>
@@ -105,14 +105,14 @@ export default function Attendance() {
           {students.length === 0 ? <Empty message={t.noData} /> : (
             <div className="space-y-2">
               {students.map((s) => (
-                <div key={s.id} className="flex flex-col gap-3 p-3 rounded-lg border border-slate-100 sm:flex-row sm:items-center sm:justify-between" data-testid={`att-row-${s.id}`}>
+                <div key={s.id} className="att-row" data-testid={`att-row-${s.id}`}>
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-outfit font-semibold">
+                    <div className="avatar-clay" style={{ "--t": "var(--c2)" }}>
                       {s.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
                     </div>
                     <div className="min-w-0">
                       <div className="font-outfit font-semibold text-sm">{s.full_name}</div>
-                      <div className="text-xs text-slate-500 font-jakarta">{s.student_code}</div>
+                      <div className="text-xs text-slate-600 font-jakarta">{s.student_code}</div>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-1 sm:flex sm:flex-wrap sm:justify-end">
@@ -137,9 +137,9 @@ export default function Attendance() {
       <Card title={`Recent records (${history.length})`} className="mt-5" testid="att-history">
         {history.length === 0 ? <Empty message={t.noData} /> : (
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
-            <table className="rtable w-full min-w-[560px]">
+            <table className="rtable clay-table w-full min-w-[560px]">
               <thead>
-                <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-outfit">
+                <tr>
                   <th className="text-left px-5 py-3">{t.dueDate}</th>
                   <th className="text-left px-5 py-3">{t.student}</th>
                   <th className="text-left px-5 py-3">{t.status}</th>
@@ -147,7 +147,7 @@ export default function Attendance() {
               </thead>
               <tbody>
                 {history.slice(0, 30).map((h) => (
-                  <tr key={h.id} className="border-t border-slate-100">
+                  <tr key={h.id}>
                     <td className="px-5 py-3 text-sm font-jakarta">{fmtDate(h.session_date)}</td>
                     <td className="px-5 py-3 text-sm font-jakarta">{h.student_name}</td>
                     <td className="px-5 py-3"><StatusBadge status={h.status} label={t[`status${h.status?.charAt(0).toUpperCase()}${h.status?.slice(1)}`] || h.status} /></td>

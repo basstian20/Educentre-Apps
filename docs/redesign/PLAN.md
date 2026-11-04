@@ -25,6 +25,8 @@ Perbarui tabel ini di akhir setiap tahap. `main` tetap tidak disentuh sampai Tah
 
 - Tahap 4: tabel memakai kelas bersama `.clay-table` (kepala pita lembut, 12 px), avatar inisial `.avatar-clay` berwarna token, tombol ikon `.icon-btn`, kotak cari memakai `field-clay`; kartu Materi/Pengumuman memakai `clay-card`. Perbaikan lintas halaman: animasi `fadeUp` pada `<main>` sebelumnya meninggalkan transform sehingga dialog (fixed) bergeser; kini memakai fill-mode `backwards`. Dialog di HP diberi ruang bawah agar tombol Simpan tidak tertutup kredit NobleDev. Pengujian hanya membaca (tanpa menulis data); alur tambah/ubah/hapus belum diklik otomatis.
 
+- Tahap 5: warna kelas dari data (`color_hex`) dipakai lewat variabel `--t` (pita samping kartu, blok jadwal, bar kapasitas); emoji kartu kelas diganti ikon Lucide. Grafik Laporan tetap Recharts, tetapi warnanya dibaca dari token CSS lewat hook `useTokens` (atribut SVG tidak mengenal `var()`), dan ikut berganti saat mode terang/gelap. Gaya `.attendance-btn`/`.timetable-cell` di `App.css` dipindah ke token. Pengujian hanya membaca (alur buat penilaian/terbitkan/daftar belum diklik otomatis).
+
 ## Cara melanjutkan di chat baru
 Buka proyek ini di Claude Code, lalu kirim, misalnya:
 > Lanjutkan redesign EduCentre. Baca docs/redesign/PLAN.md, README.md, dan CHECKLIST.md. Mulai Tahap 1 di branch redesign/clay-t1-fondasi (dibuat dari redesign/clay). Jangan sentuh main.

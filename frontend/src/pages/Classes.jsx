@@ -6,7 +6,7 @@ import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useLoadState } from "@/lib/useLoadState";
 import { api, formatApiError, fmtIDR } from "@/lib/api";
-import { Plus, BookOpen } from "lucide-react";
+import { Plus, BookOpen, GraduationCap, Clock, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 
 const DAYS = [1, 2, 3, 4, 5, 6, 7];
@@ -133,25 +133,30 @@ export default function Classes() {
           table.rows.map((c) => (
             <div
               key={c.id}
-              className="bg-white border border-slate-200 rounded-xl p-5 shadow-card hover:-translate-y-0.5 transition-transform"
+              className="clay-card clay-hover class-card"
+              style={{ "--t": c.color_hex || "var(--pri)" }}
               data-testid={`class-card-${c.id}`}
             >
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <div className="w-1 self-stretch rounded-full mr-3" style={{ background: c.color_hex }} />
-                <div className="flex-1">
-                  <div className="font-outfit font-semibold text-slate-900">{c.subject_name}</div>
+              <div className="flex items-start justify-between gap-3 mb-2 pl-2">
+                <div className="min-w-0 flex-1">
+                  <div className="font-outfit font-extrabold text-slate-900 text-base [overflow-wrap:anywhere]">{c.subject_name}</div>
                   <div className="text-xs text-slate-600 font-jakarta mt-0.5">{c.level} · {c.room}</div>
                 </div>
-                {isAdmin && <RowActions testid={`class-${c.id}`} onEdit={() => openEdit(c)} onDelete={() => setRemoving(c)} />}
+                {isAdmin && <div className="flex-shrink-0"><RowActions testid={`class-${c.id}`} onEdit={() => openEdit(c)} onDelete={() => setRemoving(c)} /></div>}
               </div>
-              <div className="text-xs text-slate-600 font-jakarta mt-3">
-                <div>👩‍🏫 {c.educator_name || "—"}</div>
-                <div className="mt-1">🕐 {c.time_start} – {c.time_end}</div>
-                <div className="mt-1">📅 {(c.schedule_days || []).map((d) => t.days[d]).join(", ")}</div>
+              <div className="class-meta mt-3 pl-2">
+                <div><GraduationCap />{c.educator_name || "—"}</div>
+                <div><Clock />{c.time_start} – {c.time_end}</div>
+                <div><CalendarDays />{(c.schedule_days || []).map((d) => t.days[d]).join(", ")}</div>
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-3 mt-3 border-t border-slate-100">
-                <span className="text-xs text-slate-500 font-jakarta">{c.enrolled_count}/{c.capacity} {t.enrolled.toLowerCase()}</span>
-                <span className="text-xs font-outfit font-semibold text-slate-900">{fmtIDR(c.fee_amount)}</span>
+              <div className="pl-2 pt-3 mt-3 border-t border-line">
+                <div className="fill-bar" aria-hidden="true">
+                  <span style={{ width: `${Math.min(100, c.capacity ? ((c.enrolled_count || 0) / c.capacity) * 100 : 0)}%` }} />
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-2">
+                  <span className="text-xs text-slate-600 font-jakarta">{c.enrolled_count}/{c.capacity} {t.enrolled.toLowerCase()}</span>
+                  <span className="text-sm font-outfit font-extrabold text-slate-900">{fmtIDR(c.fee_amount)}</span>
+                </div>
               </div>
             </div>
           ))
@@ -195,7 +200,7 @@ export default function Classes() {
           <Input label={t.startTime} type="time" value={form.time_start} onChange={(e) => setForm({ ...form, time_start: e.target.value })} />
           <Input label={t.endTime} type="time" value={form.time_end} onChange={(e) => setForm({ ...form, time_end: e.target.value })} />
           <div className="sm:col-span-2">
-            <span className="block text-xs font-medium text-slate-600 mb-1.5 font-outfit">{t.schedule_days}</span>
+            <span className="block text-xs font-bold text-slate-600 mb-1.5 font-jakarta">{t.schedule_days}</span>
             <div className="flex flex-wrap gap-2">
               {DAYS.map((d) => (
                 <button
@@ -208,11 +213,8 @@ export default function Classes() {
                       schedule_days: form.schedule_days.includes(d) ? form.schedule_days.filter((x) => x !== d) : [...form.schedule_days, d],
                     })
                   }
-                  className={`px-3 py-1.5 rounded-lg text-xs font-outfit font-semibold border transition ${
-                    form.schedule_days.includes(d)
-                      ? "border-blue-600 bg-blue-50 text-blue-600"
-                      : "border-slate-200 text-slate-500"
-                  }`}
+                  aria-pressed={form.schedule_days.includes(d)}
+                  className={`day-chip ${form.schedule_days.includes(d) ? "is-on" : ""}`}
                 >
                   {t.days[d]}
                 </button>
@@ -245,18 +247,18 @@ function Timetable({ classes, t }) {
     <>
       <div className="space-y-3 md:hidden">
         {days.map((d) => (
-          <div key={d} className="rounded-lg border border-slate-200">
-            <div className="border-b border-slate-100 bg-slate-50 px-3 py-2 text-xs font-outfit font-semibold text-slate-600">
+          <div key={d} className="tt-day">
+            <div className="tt-day-h font-outfit">
               {t.days[d]}
             </div>
             <div className="space-y-2 p-3">
               {classesForDay(d).length === 0 ? (
-                <div className="text-xs text-slate-500 font-jakarta">{t.noClasses}</div>
+                <div className="text-xs text-slate-600 font-jakarta">{t.noClasses}</div>
               ) : (
                 classesForDay(d).map((c) => (
-                  <div key={`${c.id}-mobile-${d}`} className="rounded-lg border-l-4 bg-slate-50 p-3" style={{ borderColor: c.color_hex }}>
+                  <div key={`${c.id}-mobile-${d}`} className="tt-item" style={{ "--t": c.color_hex || "var(--pri)" }}>
                     <div className="font-outfit text-sm font-semibold text-slate-900">{c.subject_name}</div>
-                    <div className="mt-1 text-xs text-slate-500 font-jakarta">
+                    <div className="mt-1 text-xs text-slate-600 font-jakarta">
                       {c.time_start}-{c.time_end} - {c.room}
                     </div>
                   </div>
@@ -268,16 +270,16 @@ function Timetable({ classes, t }) {
       </div>
       <div className="hidden overflow-x-auto md:block">
         <div className="min-w-[760px] relative">
-        <div className="grid border-l border-t border-slate-200" style={{ gridTemplateColumns: `60px repeat(7, 1fr)` }}>
-          <div className="bg-slate-50 border-r border-b border-slate-200" />
+        <div className="tt-grid grid" style={{ gridTemplateColumns: `60px repeat(7, 1fr)` }}>
+          <div className="tt-head" />
           {days.map((d) => (
-            <div key={d} className="text-center py-2 bg-slate-50 border-r border-b border-slate-200 text-xs font-outfit font-semibold text-slate-600">
+            <div key={d} className="tt-head font-outfit">
               {t.days[d]}
             </div>
           ))}
           {hours.map((h) => (
             <div key={`row-${h}`} className="contents">
-              <div className="text-center text-[11px] text-slate-500 py-1 border-r border-b border-slate-200 font-jakarta" style={{ height: cellH }}>
+              <div className="tt-hour font-jakarta" style={{ height: cellH }}>
                 {h}:00
               </div>
               {days.map((d) => (
@@ -298,20 +300,19 @@ function Timetable({ classes, t }) {
             return (
               <div
                 key={`${c.id}-${d}`}
-                className="absolute rounded-lg p-2 shadow-sm border-l-2 cursor-pointer hover:-translate-y-0.5 transition"
+                className="tt-block"
                 style={{
                   top,
                   left,
                   width,
                   height: Math.max(40, height),
-                  background: `${c.color_hex}1A`,
-                  borderColor: c.color_hex,
+                  "--t": c.color_hex || "var(--pri)",
                 }}
                 title={c.subject_name}
               >
-                <div className="text-[11px] font-outfit font-semibold text-slate-900 truncate">{c.subject_name}</div>
-                <div className="text-[10px] text-slate-600 font-jakarta truncate">{c.room}</div>
-                <div className="text-[10px] text-slate-500 font-jakarta">{c.time_start}–{c.time_end}</div>
+                <div className="tt-n truncate">{c.subject_name}</div>
+                <div className="tt-s truncate">{c.room}</div>
+                <div className="tt-s">{c.time_start}–{c.time_end}</div>
               </div>
             );
           })
