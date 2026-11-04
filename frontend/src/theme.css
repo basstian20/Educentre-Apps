@@ -616,3 +616,85 @@ summary:focus-visible,
 @media (prefers-reduced-motion: reduce) {
   .app-canvas::before, .app-canvas::after { animation: none; translate: none; }
 }
+
+/* ---------- Tahap 5: halaman akademik ---------- */
+/* Kartu kelas: warna kelas (data) lewat --t, dipakai pita samping dan bola ikon. */
+.class-card { padding: 1.25rem; overflow: hidden; }
+.class-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: var(--t, var(--pri));
+}
+.class-meta { display: grid; gap: 0.35rem; font-size: 13px; color: var(--mut); }
+.class-meta > div { display: flex; align-items: center; gap: 0.5rem; }
+.class-meta svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--t, var(--pri)); }
+.fill-bar { height: 8px; border-radius: 999px; background: var(--soft); overflow: hidden; }
+.fill-bar > span {
+  display: block; height: 100%; border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--t, var(--pri)) 60%, #fff), var(--t, var(--pri)));
+}
+
+/* Jadwal mingguan */
+.tt-grid { border-radius: var(--rs); overflow: hidden; border: 1px solid var(--line); }
+.tt-head { background: var(--soft); color: var(--mut); font-size: 12px; font-weight: 700; text-align: center; padding: 0.6rem 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.tt-hour { text-align: center; font-size: 12px; color: var(--mut); padding: 0.25rem 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.tt-block {
+  position: absolute; overflow: hidden; border-radius: 14px; padding: 0.4rem 0.55rem;
+  border-left: 4px solid var(--t, var(--pri));
+  background: color-mix(in srgb, var(--t, var(--pri)) 16%, var(--surface));
+  box-shadow: 0 6px 12px -8px var(--t, var(--pri));
+  transition: transform 0.3s var(--spring), box-shadow 0.2s;
+}
+.tt-block:hover { transform: translateY(-2px); box-shadow: 0 10px 16px -8px var(--t, var(--pri)); }
+.tt-block .tt-n { font-size: 12px; font-weight: 800; color: var(--ink); font-family: var(--fh); }
+.tt-block .tt-s { font-size: 12px; color: var(--mut); line-height: 1.25; }
+.tt-day { border-radius: var(--rs); border: 1px solid var(--line); overflow: hidden; }
+.tt-day-h { background: var(--soft); padding: 0.5rem 0.75rem; font-size: 12px; font-weight: 700; color: var(--mut); }
+.tt-item {
+  border-radius: 14px; padding: 0.65rem 0.8rem; border-left: 4px solid var(--t, var(--pri));
+  background: color-mix(in srgb, var(--t, var(--pri)) 12%, var(--surface));
+}
+
+/* Langkah pendaftaran */
+.step-dot {
+  display: flex; height: 2rem; width: 2rem; flex-shrink: 0; align-items: center; justify-content: center;
+  border-radius: 999px; font-size: 13px; font-weight: 800; font-family: var(--fh);
+  background: var(--soft); color: var(--mut);
+  transition: background 0.2s, color 0.2s, transform 0.3s var(--spring);
+}
+.step-dot.is-on {
+  color: var(--pri-ink);
+  background: linear-gradient(150deg, var(--pl), var(--pri));
+  box-shadow: 0 8px 14px -6px var(--pri), inset 0 2px 0 rgba(255, 255, 255, 0.4);
+}
+.step-dot.is-now { transform: scale(1.12); }
+.step-line { height: 3px; border-radius: 99px; background: var(--soft); }
+.step-line.is-on { background: var(--pri); }
+
+/* Pilihan berbentuk kartu (pilih kelas) */
+.pick-card {
+  text-align: left; padding: 1rem; border-radius: var(--rs); border: 2px solid var(--line);
+  background: var(--surface); transition: border-color 0.15s, background 0.15s, transform 0.3s var(--spring);
+}
+.pick-card:hover { border-color: color-mix(in srgb, var(--pri) 45%, var(--line)); transform: translateY(-2px); }
+.pick-card.is-on { border-color: var(--pri); background: color-mix(in srgb, var(--pri) 8%, var(--surface)); }
+.line-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; padding: 0.75rem 1rem; border-radius: var(--rs); border: 1px solid var(--line); }
+
+/* Chip hari pada formulir kelas */
+.day-chip {
+  padding: 0.4rem 0.9rem; border-radius: 999px; border: 2px solid var(--line);
+  font-size: 12px; font-weight: 700; font-family: var(--fh); color: var(--mut);
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+}
+.day-chip:active { transform: scale(0.94); }
+.day-chip.is-on { border-color: var(--pri); background: color-mix(in srgb, var(--pri) 12%, transparent); color: var(--pri-text); }
+
+/* Baris siswa pada absensi dan angka ringkas laporan */
+.att-row { display: flex; flex-direction: column; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: var(--rs); background: var(--soft); }
+@media (min-width: 640px) { .att-row { flex-direction: row; align-items: center; justify-content: space-between; } }
+.metric-tile { border-radius: var(--rs); background: var(--soft); padding: 1rem; }
+.metric-tile .k { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mut); }
+.metric-tile .v { margin-top: 0.25rem; font-family: var(--fh); font-size: 1.6rem; font-weight: 800; color: var(--ink); }
+.legend-dot { display: inline-block; height: 10px; width: 10px; border-radius: 99px; margin-right: 6px; }

@@ -9,8 +9,26 @@ import { Btn } from "@/components/UI";
 import { exportCsv } from "@/lib/csv";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
+// Recharts menulis warna sebagai atribut SVG, yang tidak mengenal var(--token).
+// Nilai token dibaca dari CSS dan dibaca ulang saat tema terang/gelap berganti.
+const TOKENS = ["pri", "ok", "warn", "bad", "mut", "ink", "soft", "line", "surface"];
+function useTokens() {
+  const read = () => {
+    const cs = getComputedStyle(document.documentElement);
+    return Object.fromEntries(TOKENS.map((k) => [k, cs.getPropertyValue(`--${k}`).trim()]));
+  };
+  const [tok, setTok] = useState(read);
+  useEffect(() => {
+    const obs = new MutationObserver(() => setTok(read()));
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+  return tok;
+}
+
 export default function Reports() {
   const { t } = useLang();
+  const tok = useTokens();
   const [stats, setStats] = useState({});
   const [invoices, setInvoices] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -47,7 +65,9 @@ export default function Reports() {
       ).map(([k, v]) => ({ name: k, value: v })),
     [invoices]
   );
-  const STATUS_COLORS = { paid: "#10B981", unpaid: "#F59E0B", overdue: "#EF4444", partial: "#3B82F6" };
+  const STATUS_COLORS = { paid: tok.ok, unpaid: tok.warn, overdue: tok.bad, partial: tok.pri };
+  const AXIS = { fontSize: 12, fill: tok.mut };
+  const TIP = { contentStyle: { background: tok.surface, border: `1px solid ${tok.line}`, borderRadius: 16, color: tok.ink, fontSize: 12 }, itemStyle: { color: tok.ink }, cursor: { fill: tok.soft } };
 
   // Class utilisation — memoised
   const utilData = useMemo(
@@ -112,11 +132,11 @@ export default function Reports() {
             <div style={{ width: "100%", height: 280 }}>
               <ResponsiveContainer>
                 <BarChart data={utilData}>
-                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Bar dataKey="enrolled" fill="#3B82F6" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="capacity" fill="#E2E8F0" radius={[6, 6, 0, 0]} />
+                  <XAxis dataKey="name" tick={AXIS} axisLine={false} tickLine={false} />
+                  <YAxis tick={AXIS} axisLine={false} tickLine={false} />
+                  <Tooltip {...TIP} />
+                  <Bar dataKey="enrolled" fill={tok.pri} radius={[10, 10, 0, 0]} />
+                  <Bar dataKey="capacity" fill={tok.soft} stroke={tok.line} radius={[10, 10, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -128,10 +148,10 @@ export default function Reports() {
               <ResponsiveContainer>
                 <PieChart>
                   <Pie data={statusData} cx="50%" cy="50%" innerRadius="42%" outerRadius="68%" dataKey="value" labelLine={false}>
-                    {statusData.map((s, i) => <Cell key={i} fill={STATUS_COLORS[s.name] || "#94A3B8"} />)}
+                    {statusData.map((s, i) => <Cell key={i} fill={STATUS_COLORS[s.name] || tok.mut} stroke={tok.surface} strokeWidth={3} />)}
                   </Pie>
-                  <Tooltip />
-                  <Legend />
+                  <Tooltip {...TIP} />
+                  <Legend wrapperStyle={{ fontSize: 12, color: tok.mut }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -143,12 +163,12 @@ export default function Reports() {
         <Card title={t.rpTopClasses} testid="report-fees">
           <div className="space-y-2">
             {topClassesByFee.map((c) => (
-                <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-slate-100">
+                <div key={c.id} className="att-row sm:flex-wrap" style={{ "--t": c.color_hex || "var(--pri)" }}>
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="w-1 h-8 rounded-full" style={{ background: c.color_hex }} />
+                    <div className="h-8 w-1.5 rounded-full" style={{ background: "var(--t)" }} />
                     <div className="min-w-0">
                       <div className="font-outfit font-semibold text-sm">{c.subject_name}</div>
-                      <div className="text-xs text-slate-500 font-jakarta">{c.educator_name}</div>
+                      <div className="text-xs text-slate-600 font-jakarta">{c.educator_name}</div>
                     </div>
                   </div>
                   <span className="font-outfit font-bold text-sm">{fmtIDR(c.fee_amount)}</span>
@@ -159,9 +179,9 @@ export default function Reports() {
         <Card title={t.rpQuickStats} testid="report-summary">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {quickMetrics.map((m) => (
-              <div key={m.label} className="p-4 rounded-lg bg-slate-50">
-                <div className="text-[11px] uppercase tracking-wider text-slate-500 font-outfit">{m.label}</div>
-                <div className="text-2xl font-outfit font-bold mt-1">{m.value}</div>
+              <div key={m.label} className="metric-tile">
+                <div className="k font-outfit">{m.label}</div>
+                <div className="v">{m.value}</div>
               </div>
             ))}
           </div>
