@@ -139,8 +139,8 @@ export default function Classes() {
             >
               <div className="flex items-start justify-between gap-3 mb-2 pl-2">
                 <div className="min-w-0 flex-1">
-                  <div className="font-outfit font-extrabold text-slate-900 text-base [overflow-wrap:anywhere]">{c.subject_name}</div>
-                  <div className="text-xs text-slate-600 font-jakarta mt-0.5">{c.level} · {c.room}</div>
+                  <div className="font-heading font-extrabold text-slate-900 text-base [overflow-wrap:anywhere]">{c.subject_name}</div>
+                  <div className="text-xs text-slate-600 font-sans mt-0.5">{c.level} · {c.room}</div>
                 </div>
                 {isAdmin && <div className="flex-shrink-0"><RowActions testid={`class-${c.id}`} onEdit={() => openEdit(c)} onDelete={() => setRemoving(c)} /></div>}
               </div>
@@ -154,8 +154,8 @@ export default function Classes() {
                   <span style={{ width: `${Math.min(100, c.capacity ? ((c.enrolled_count || 0) / c.capacity) * 100 : 0)}%` }} />
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2 mt-2">
-                  <span className="text-xs text-slate-600 font-jakarta">{c.enrolled_count}/{c.capacity} {t.enrolled.toLowerCase()}</span>
-                  <span className="text-sm font-outfit font-extrabold text-slate-900">{fmtIDR(c.fee_amount)}</span>
+                  <span className="text-xs text-slate-600 font-sans">{c.enrolled_count}/{c.capacity} {t.enrolled.toLowerCase()}</span>
+                  <span className="text-sm font-heading font-extrabold text-slate-900">{fmtIDR(c.fee_amount)}</span>
                 </div>
               </div>
             </div>
@@ -200,7 +200,7 @@ export default function Classes() {
           <Input label={t.startTime} type="time" value={form.time_start} onChange={(e) => setForm({ ...form, time_start: e.target.value })} />
           <Input label={t.endTime} type="time" value={form.time_end} onChange={(e) => setForm({ ...form, time_end: e.target.value })} />
           <div className="sm:col-span-2">
-            <span className="block text-xs font-bold text-slate-600 mb-1.5 font-jakarta">{t.schedule_days}</span>
+            <span className="block text-xs font-bold text-slate-600 mb-1.5 font-sans">{t.schedule_days}</span>
             <div className="flex flex-wrap gap-2">
               {DAYS.map((d) => (
                 <button
@@ -248,17 +248,17 @@ function Timetable({ classes, t }) {
       <div className="space-y-3 md:hidden">
         {days.map((d) => (
           <div key={d} className="tt-day">
-            <div className="tt-day-h font-outfit">
+            <div className="tt-day-h font-heading">
               {t.days[d]}
             </div>
             <div className="space-y-2 p-3">
               {classesForDay(d).length === 0 ? (
-                <div className="text-xs text-slate-600 font-jakarta">{t.noClasses}</div>
+                <div className="text-xs text-slate-600 font-sans">{t.noClasses}</div>
               ) : (
                 classesForDay(d).map((c) => (
                   <div key={`${c.id}-mobile-${d}`} className="tt-item" style={{ "--t": c.color_hex || "var(--pri)" }}>
-                    <div className="font-outfit text-sm font-semibold text-slate-900">{c.subject_name}</div>
-                    <div className="mt-1 text-xs text-slate-600 font-jakarta">
+                    <div className="font-heading text-sm font-semibold text-slate-900">{c.subject_name}</div>
+                    <div className="mt-1 text-xs text-slate-600 font-sans">
                       {c.time_start}-{c.time_end} - {c.room}
                     </div>
                   </div>
@@ -273,13 +273,13 @@ function Timetable({ classes, t }) {
         <div className="tt-grid grid" style={{ gridTemplateColumns: `60px repeat(7, 1fr)` }}>
           <div className="tt-head" />
           {days.map((d) => (
-            <div key={d} className="tt-head font-outfit">
+            <div key={d} className="tt-head font-heading">
               {t.days[d]}
             </div>
           ))}
           {hours.map((h) => (
             <div key={`row-${h}`} className="contents">
-              <div className="tt-hour font-jakarta" style={{ height: cellH }}>
+              <div className="tt-hour font-sans" style={{ height: cellH }}>
                 {h}:00
               </div>
               {days.map((d) => (

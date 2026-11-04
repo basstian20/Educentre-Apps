@@ -12,14 +12,14 @@
 | 4 · Halaman data dan keuangan | `redesign/clay-t4-halaman-data` | **Disetujui, digabung** (PR #5) |
 | 5 · Halaman akademik dan laporan | `redesign/clay-t5-halaman-akademik` | **Disetujui, digabung** (PR #6) |
 | 6 · Gerak dan komponen interaktif | `redesign/clay-t6-gerak` | **Disetujui, digabung** (PR #7) |
-| 7 · Merapikan dan dokumen cetak | `redesign/clay-t7-rapi-cetak` | Belum |
+| 7 · Merapikan dan dokumen cetak | `redesign/clay-t7-rapi-cetak` | **Disetujui, digabung** |
 | 8 · Uji akhir dan serah terima | `redesign/clay-t8-uji-akhir` | Belum |
 
 Perbarui tabel ini di akhir setiap tahap. `main` tetap tidak disentuh sampai Tahap 8 disetujui.
 
 ## Hal yang masih terbuka
 - ~~Database uji terpisah~~ Disetujui dan dipakai: `edu_redesign_test` (dibuat otomatis saat backend lokal jalan dengan `DB_NAME=edu_redesign_test`). Catatan: `backend/.env` tidak memuat `JWT_SECRET`, jadi saat menjalankan lokal setel juga `JWT_SECRET` (nilai acak apa saja) lewat variabel lingkungan, dan pasang dependensi dengan `pip install -r backend/requirements.txt` di `venv`.
-- ~~Baseline "sebelum" halaman login-wajib~~ Diambil dari `main` (f97a633) yang dijalankan lokal pada `edu_redesign_test`: dasbor 4 peran, Siswa, Tagihan (desktop, ID, terang) di `docs/redesign/before/*.jpg`. Resolusi rendah (hasil tangkapan panel browser); versi HP dan gelap belum.
+- ~~Baseline "sebelum" halaman login-wajib~~ Diambil dari `main` (f97a633) yang dijalankan lokal pada `edu_redesign_test`: dasbor 4 peran, Siswa, Tagihan (desktop, ID, terang) di `docs/redesign/before/*.jpg`. Resolusi rendah (hasil tangkapan panel browser); versi HP dan gelap belum. **Masih terbuka:** perlu menjalankan `main` lokal (worktree) pada `edu_redesign_test`; tidak memblokir tahap mana pun, bisa dikerjakan di Tahap 8.
 
 - Tahap 3: grafik dasbor (area, donat, cincin, mini-grafik, garis waktu) ditulis sebagai komponen SVG sendiri di `frontend/src/components/dashboard/charts.jsx`, bukan Recharts, supaya animasi menggambar-diri dan warna token bisa dipakai langsung. Recharts tetap dipakai di Laporan sampai Tahap 5. Grafik hanya memakai data nyata (kehadiran per tanggal sesi, status tagihan, kapasitas kelas, pendapatan); mini-grafik pendapatan disembunyikan bila data kurang dari 2 bulan.
 
@@ -28,6 +28,8 @@ Perbarui tabel ini di akhir setiap tahap. `main` tetap tidak disentuh sampai Tah
 - Tahap 5: warna kelas dari data (`color_hex`) dipakai lewat variabel `--t` (pita samping kartu, blok jadwal, bar kapasitas); emoji kartu kelas diganti ikon Lucide. Grafik Laporan tetap Recharts, tetapi warnanya dibaca dari token CSS lewat hook `useTokens` (atribut SVG tidak mengenal `var()`), dan ikut berganti saat mode terang/gelap. Gaya `.attendance-btn`/`.timetable-cell` di `App.css` dipindah ke token. Alur tulisnya diuji setelah Tahap 6, lihat `CHECKLIST.md`.
 
 - Tahap 6: semua gerak bergantung pada `<html data-motion="full|lite">` (`lib/motion.jsx`, gaya di `src/motion.css`). Saklar Penuh/Hemat ada di bilah atas (tersimpan di `ec_motion`); bila sistem meminta `prefers-reduced-motion`, mode otomatis Hemat dan saklar dikunci. Palet perintah (`components/CommandPalette.jsx`, Ctrl/Cmd+K atau tombol cari di bilah atas) memakai `cmdk` yang sudah ada: pindah halaman sesuai peran, aksi cepat (tema, bahasa, gerak, keluar), dan cari siswa (admin; membuka rapor). Konfeti (`lib/confetti.js`, kanvas sendiri tanpa pustaka) menyala saat nilai diterbitkan dan saat pembayaran melunasi tagihan. Kartu `.clay-hover` miring/berkilau mengikuti kursor lewat satu pendengar di `Layout.jsx`. Kartu rapor yang bisa dibalik sudah ada sejak Tahap 3. Pengujian: palet (buka, filter, kosong, pindah halaman), saklar gerak, dan kemiringan kartu diperiksa di browser; konfeti sudah diuji kemudian (muncul saat terbit dan saat tagihan lunas, tidak muncul saat bayar sebagian), begitu pula pencarian siswa di palet.
+
+- Tahap 7: `dark.css` dihapus (aturan isian gelap pindah ke `theme.css`; kelas warna Tailwind yang tersisa diganti token `--ok-ink`/`--bad-ink`). Alias `.font-outfit`/`.font-jakarta` (137 pemakaian) diganti `font-heading`/`font-sans` dari `tailwind.config.js`. Semua teks 7–11,5 px (kredit NobleDev, label tabel HP, bilah bawah, label sidebar/bilah atas, kop cetak, bantuan formulir) kini minimal 12 px; kredit NobleDev dilebarkan agar muat. Cetak: lembar tagihan/rapor selalu terang, tanpa bayangan/animasi/sudut bulat, baris tabel tidak terpotong antar halaman. Build ketat `CI=true yarn build` lulus. Pemeriksaan di browser: teks ≥ 12 px dan kontras AA lulus di 7 halaman admin (terang/gelap); gelembung latar tetap bergerak di mode Hemat, sudah diperbaiki. Catatan lingkungan: di jaringan ini Python gagal menyelesaikan DNS SRV Atlas (`mongodb+srv`), jadi backend uji dijalankan dengan URI Atlas bentuk langsung lewat variabel lingkungan `MONGO_URL` (jangan ditulis ke `launch.json`/repo).
 
 ## Cara melanjutkan di chat baru
 Buka proyek ini di Claude Code, lalu kirim, misalnya:

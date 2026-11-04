@@ -85,7 +85,7 @@ export default function Attendance() {
               options={[{ value: "", label: "—" }, ...classes.map((c) => ({ value: c.id, label: c.subject_name }))]}
             />
             <div>
-              <span className="block text-xs font-bold text-slate-600 mb-1.5 font-jakarta">{t.dueDate}</span>
+              <span className="block text-xs font-bold text-slate-600 mb-1.5 font-sans">{t.dueDate}</span>
               <input
                 type="date"
                 value={date}
@@ -111,8 +111,8 @@ export default function Attendance() {
                       {s.full_name?.split(" ").map((w) => w[0]).slice(0, 2).join("")}
                     </div>
                     <div className="min-w-0">
-                      <div className="font-outfit font-semibold text-sm">{s.full_name}</div>
-                      <div className="text-xs text-slate-600 font-jakarta">{s.student_code}</div>
+                      <div className="font-heading font-semibold text-sm">{s.full_name}</div>
+                      <div className="text-xs text-slate-600 font-sans">{s.student_code}</div>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-1 sm:flex sm:flex-wrap sm:justify-end">
@@ -148,8 +148,8 @@ export default function Attendance() {
               <tbody>
                 {history.slice(0, 30).map((h) => (
                   <tr key={h.id}>
-                    <td className="px-5 py-3 text-sm font-jakarta">{fmtDate(h.session_date)}</td>
-                    <td className="px-5 py-3 text-sm font-jakarta">{h.student_name}</td>
+                    <td className="px-5 py-3 text-sm font-sans">{fmtDate(h.session_date)}</td>
+                    <td className="px-5 py-3 text-sm font-sans">{h.student_name}</td>
                     <td className="px-5 py-3"><StatusBadge status={h.status} label={t[`status${h.status?.charAt(0).toUpperCase()}${h.status?.slice(1)}`] || h.status} /></td>
                   </tr>
                 ))}

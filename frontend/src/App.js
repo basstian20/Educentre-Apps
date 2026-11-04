@@ -30,7 +30,7 @@ function LoadingScreen() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: "var(--bg)" }} role="status">
       <div className="h-10 w-10 animate-spin rounded-full border-4 border-teal-100 border-t-teal-600" />
-      <div className="text-sm text-slate-600 font-jakarta">Loading…</div>
+      <div className="text-sm text-slate-600 font-sans">Loading…</div>
     </div>
   );
 }

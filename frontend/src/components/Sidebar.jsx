@@ -174,15 +174,15 @@ export default function Sidebar({ open = false, onClose }) {
       <div className="px-5 pb-5 pt-7">
         <div className="flex items-center gap-3 relative z-10">
           <div
-            className="clay-orb relative h-11 w-11 text-lg font-extrabold font-outfit"
+            className="clay-orb relative h-11 w-11 text-lg font-extrabold font-heading"
             style={{ "--t": "var(--pri)" }}
           >
             E
             <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-white/70 bg-warn" />
           </div>
           <div className="min-w-0">
-            <div className="text-lg font-extrabold leading-tight tracking-tight text-ink font-outfit">{t.appName}</div>
-            <div className="mt-1 text-[11px] font-semibold uppercase leading-tight tracking-[0.16em] text-mut">Learning OS</div>
+            <div className="text-lg font-extrabold leading-tight tracking-tight text-ink font-heading">{t.appName}</div>
+            <div className="mt-1 text-xs font-semibold uppercase leading-tight tracking-[0.16em] text-mut">Learning OS</div>
           </div>
           <button
             type="button"
@@ -199,7 +199,7 @@ export default function Sidebar({ open = false, onClose }) {
         {ind && <span className="ni-ind" style={{ transform: `translateY(${ind.y}px)`, height: ind.h }} aria-hidden="true" />}
         {sections.map((sec) => (
           <div key={`sec-${sec.section}`} className="mb-3">
-            <div className="mb-1.5 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-mut font-jakarta">
+            <div className="mb-1.5 px-3 text-xs font-bold uppercase tracking-[0.14em] text-mut font-sans">
               {sec.section}
             </div>
             {sec.items.map((it) => {
@@ -228,14 +228,14 @@ export default function Sidebar({ open = false, onClose }) {
       <div className="m-3 rounded-[22px] bg-slate-50 p-2">
         <div className="flex items-center gap-2.5 px-1 py-1">
           <div
-            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white font-outfit"
+            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white font-heading"
             style={{ background: `linear-gradient(135deg, ${roleColor}, var(--info))` }}
           >
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="truncate text-xs font-bold text-ink font-outfit">{user.full_name}</div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-mut">{roleLabel}</div>
+            <div className="truncate text-xs font-bold text-ink font-heading">{user.full_name}</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-mut">{roleLabel}</div>
           </div>
           <button
             onClick={async () => {

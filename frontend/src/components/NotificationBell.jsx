@@ -107,7 +107,7 @@ export default function NotificationBell() {
         <Bell className="w-4 h-4" />
         {unread > 0 && (
           <span
-            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-bad px-1 text-[11px] font-bold text-white"
+            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-bad px-1 text-xs font-bold text-white"
             data-testid="notif-count"
           >
             {unread > 9 ? "9+" : unread}
@@ -123,7 +123,7 @@ export default function NotificationBell() {
           data-testid="notif-panel"
         >
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
-            <h2 className="font-outfit text-base font-extrabold text-slate-900">{t.notifTitle}</h2>
+            <h2 className="font-heading text-base font-extrabold text-slate-900">{t.notifTitle}</h2>
             {unread > 0 && (
               <button type="button" onClick={markAllRead} className="text-xs font-bold text-pri hover:underline" data-testid="notif-mark-read">
                 {t.notifMarkAllRead}
@@ -131,7 +131,7 @@ export default function NotificationBell() {
             )}
           </div>
           <ul className="max-h-96 overflow-y-auto pb-2">
-            {items.length === 0 && <li className="px-4 py-8 text-center text-sm text-slate-600 font-jakarta">{t.notifEmpty}</li>}
+            {items.length === 0 && <li className="px-4 py-8 text-center text-sm text-slate-600 font-sans">{t.notifEmpty}</li>}
             {items.map((n) => {
               const Icon = ICONS[n.kind] || Bell;
               const wa = whatsappHref(n);
@@ -141,7 +141,7 @@ export default function NotificationBell() {
                     <Icon className="h-4 w-4" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <Link to={n.link || "/dashboard"} onClick={() => setOpen(false)} className="block text-xs leading-5 text-slate-700 font-jakarta hover:text-slate-950">
+                    <Link to={n.link || "/dashboard"} onClick={() => setOpen(false)} className="block text-xs leading-5 text-slate-700 font-sans hover:text-slate-950">
                       {message(n)}
                     </Link>
                     {wa && (
@@ -149,7 +149,7 @@ export default function NotificationBell() {
                         href={wa}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:underline"
+                        className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[color:var(--ok-ink)] hover:underline"
                         data-testid="notif-whatsapp"
                       >
                         <MessageCircle className="h-3.5 w-3.5" />

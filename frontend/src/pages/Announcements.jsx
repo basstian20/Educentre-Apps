@@ -85,12 +85,12 @@ export default function Announcements() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <h3 className="font-outfit font-extrabold text-base tracking-tight">{a.title}</h3>
-                      <div className="text-xs text-slate-600 font-jakarta mt-0.5">{a.created_by_name} · {fmtDate(a.created_at)} · <span className="badge badge-blue">{a.audience}</span></div>
+                      <h3 className="font-heading font-extrabold text-base tracking-tight">{a.title}</h3>
+                      <div className="text-xs text-slate-600 font-sans mt-0.5">{a.created_by_name} · {fmtDate(a.created_at)} · <span className="badge badge-blue">{a.audience}</span></div>
                     </div>
                     {canManage(a) && <RowActions testid={`announce-${a.id}`} onEdit={() => openEdit(a)} onDelete={() => setRemoving(a)} />}
                   </div>
-                  <p className="text-sm text-slate-700 mt-3 font-jakarta whitespace-pre-wrap">{a.body}</p>
+                  <p className="text-sm text-slate-700 mt-3 font-sans whitespace-pre-wrap">{a.body}</p>
                 </div>
               </div>
             </div>

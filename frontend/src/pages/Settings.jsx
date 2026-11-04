@@ -81,7 +81,7 @@ export default function Settings() {
 
         {isAdmin && (
           <Card title={t.centreDetails} testid="centre-card" className="lg:col-span-2">
-            <p className="mb-3 text-xs text-slate-600 font-jakarta">{t.centreHint}</p>
+            <p className="mb-3 text-xs text-slate-600 font-sans">{t.centreHint}</p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Input label={t.centreName} value={centre.centre_name} onChange={(e) => setCentre({ ...centre, centre_name: e.target.value })} className="sm:col-span-2" testid="centre-name" />
               <Textarea label={t.address} rows={2} value={centre.address || ""} onChange={(e) => setCentre({ ...centre, address: e.target.value })} className="sm:col-span-2" />

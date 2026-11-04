@@ -42,13 +42,13 @@ export function SheetHeader({ centre, heading, meta }) {
   return (
     <header className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-slate-800 pb-4">
       <div>
-        <div className="font-outfit text-xl font-bold text-slate-900">{centre?.centre_name || "EduCentre"}</div>
-        {centre?.address && <div className="mt-1 whitespace-pre-line text-xs text-slate-600 font-jakarta">{centre.address}</div>}
-        <div className="text-xs text-slate-600 font-jakarta">{[centre?.phone, centre?.email].filter(Boolean).join(" · ")}</div>
+        <div className="font-heading text-xl font-bold text-slate-900">{centre?.centre_name || "EduCentre"}</div>
+        {centre?.address && <div className="mt-1 whitespace-pre-line text-xs text-slate-600 font-sans">{centre.address}</div>}
+        <div className="text-xs text-slate-600 font-sans">{[centre?.phone, centre?.email].filter(Boolean).join(" · ")}</div>
       </div>
       <div className="text-right">
-        <div className="font-outfit text-2xl font-bold tracking-wide text-slate-900">{heading}</div>
-        {meta && <div className="mt-1 text-xs text-slate-600 font-jakarta">{meta}</div>}
+        <div className="font-heading text-2xl font-bold tracking-wide text-slate-900">{heading}</div>
+        {meta && <div className="mt-1 text-xs text-slate-600 font-sans">{meta}</div>}
       </div>
     </header>
   );
@@ -57,8 +57,8 @@ export function SheetHeader({ centre, heading, meta }) {
 export function Field({ label, children }) {
   return (
     <div>
-      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-outfit">{label}</div>
-      <div className="mt-0.5 text-sm text-slate-900 font-jakarta">{children || "—"}</div>
+      <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-heading">{label}</div>
+      <div className="mt-0.5 text-sm text-slate-900 font-sans">{children || "—"}</div>
     </div>
   );
 }
