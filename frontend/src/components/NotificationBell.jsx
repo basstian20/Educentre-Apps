@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Bell, CalendarClock, MessageCircle, UserX } from "lucide-react";
 import { useLang } from "@/lib/i18n";
@@ -34,6 +35,17 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [centre, setCentre] = useState("EduCentre");
   const wrapRef = useRef(null);
+  const btnRef = useRef(null);
+  const panelRef = useRef(null);
+  const [pos, setPos] = useState({ top: 72, right: 12 });
+
+  // Panel dirender lewat portal di <body>: topbar memakai backdrop-filter sehingga elemen anak
+  // yang absolute/fixed ikut terpotong dan tergeser. Posisinya dihitung dari tombol lonceng.
+  const place = useCallback(() => {
+    const r = btnRef.current?.getBoundingClientRect();
+    if (!r) return;
+    setPos({ top: Math.round(r.bottom + 10), right: Math.max(12, Math.round(document.documentElement.clientWidth - r.right)) });
+  }, []);
 
   const load = useCallback(() => {
     if (!user) return;
@@ -51,20 +63,30 @@ export default function NotificationBell() {
 
   useEffect(() => {
     if (!open) return undefined;
-    const onDown = (e) => wrapRef.current && !wrapRef.current.contains(e.target) && setOpen(false);
+    const onDown = (e) => {
+      if (wrapRef.current?.contains(e.target) || panelRef.current?.contains(e.target)) return;
+      setOpen(false);
+    };
     const onKey = (e) => e.key === "Escape" && setOpen(false);
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
     return () => {
       document.removeEventListener("mousedown", onDown);
       document.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
     };
-  }, [open]);
+  }, [open, place]);
 
   const unread = items.filter((n) => !seen.has(n.id)).length;
 
   const toggle = () => {
-    if (!open) load();
+    if (!open) {
+      load();
+      place();
+    }
     setOpen((o) => !o);
   };
 
@@ -97,6 +119,7 @@ export default function NotificationBell() {
     <div className="relative" ref={wrapRef}>
       <button
         type="button"
+        ref={btnRef}
         className="glass-icon-button relative"
         title={t.notifTitle}
         aria-label={`${t.notifTitle}${unread ? ` (${unread})` : ""}`}
@@ -115,11 +138,13 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {open && (
+      {open && createPortal(
         <div
+          ref={panelRef}
           role="dialog"
           aria-label={t.notifTitle}
-          className="absolute right-0 top-full z-50 mt-2 w-[min(92vw,22rem)] clay-card"
+          className="notif-panel clay-card"
+          style={{ top: pos.top, right: pos.right }}
           data-testid="notif-panel"
         >
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
@@ -130,7 +155,7 @@ export default function NotificationBell() {
               </button>
             )}
           </div>
-          <ul className="max-h-96 overflow-y-auto pb-2">
+          <ul className="notif-list">
             {items.length === 0 && <li className="px-4 py-8 text-center text-sm text-slate-600 font-sans">{t.notifEmpty}</li>}
             {items.map((n) => {
               const Icon = ICONS[n.kind] || Bell;
@@ -161,7 +186,8 @@ export default function NotificationBell() {
               );
             })}
           </ul>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

@@ -510,11 +510,15 @@ async def list_classes(current=Depends(get_current_user)):
         cids = [e["class_id"] for e in enrolls]
         classes = [c for c in classes if c["id"] in cids]
     elif role == "parent":
-        kids = await db.students.find({"parent_id": current["id"]}, {"_id": 0, "id": 1}).to_list(50)
-        kid_ids = [k["id"] for k in kids]
-        enrolls = await db.enrollments.find({"student_id": {"$in": kid_ids}, "status": "active"}, {"_id": 0, "class_id": 1}).to_list(500)
-        cids = list({e["class_id"] for e in enrolls})
-        classes = [c for c in classes if c["id"] in cids]
+        kids = await db.students.find({"parent_id": current["id"]}, {"_id": 0, "id": 1, "full_name": 1}).to_list(50)
+        kid_names = {k["id"]: k["full_name"] for k in kids}
+        enrolls = await db.enrollments.find({"student_id": {"$in": list(kid_names)}, "status": "active"}, {"_id": 0, "class_id": 1, "student_id": 1}).to_list(500)
+        children_by_class = {}
+        for e in enrolls:
+            children_by_class.setdefault(e["class_id"], []).append(kid_names[e["student_id"]])
+        classes = [c for c in classes if c["id"] in children_by_class]
+        for c in classes:
+            c["child_names"] = sorted(set(children_by_class[c["id"]]))
     # enrich educator name + enrolled count
     edu_ids = list({c.get("educator_id") for c in classes if c.get("educator_id")})
     edus = await db.educators.find({"id": {"$in": edu_ids}}, {"_id": 0, "id": 1, "full_name": 1}).to_list(500)
@@ -683,15 +687,11 @@ async def create_invoice(payload: InvoiceCreate, current=Depends(require_roles("
 async def list_invoices(student_id: Optional[str] = None, status: Optional[str] = None, current=Depends(get_current_user)):
     q = {}
     role = current["role"]
-    if role == "student":
-        s = await db.students.find_one({"user_id": current["id"]}, {"_id": 0, "id": 1})
-        if not s:
-            return []
-        q["student_id"] = s["id"]
-    elif role == "parent":
+    if role == "parent":
         kids = await db.students.find({"parent_id": current["id"]}, {"_id": 0, "id": 1}).to_list(50)
         q["student_id"] = {"$in": [k["id"] for k in kids]}
-    elif role == "educator":
+    elif role != "admin":
+        # Finance belongs to admin and parents only; students and educators see nothing.
         return []
     if student_id and role == "admin":
         q["student_id"] = student_id
@@ -731,7 +731,7 @@ async def _invoice_for(iid: str, current: dict) -> dict:
     if not inv:
         raise HTTPException(404, "Invoice not found")
     visible = await _visible_student_ids(current)
-    if visible is not None and inv["student_id"] not in visible:
+    if current["role"] == "student" or (visible is not None and inv["student_id"] not in visible):
         raise HTTPException(403, "Not allowed to view this invoice")
     return inv
 
@@ -1226,10 +1226,12 @@ async def notifications(current=Depends(get_current_user)):
         return items
 
     visible = await _visible_student_ids(current)
-    q = {"status": {"$in": ["unpaid", "partial", "overdue"]}}
-    if visible is not None:
-        q["student_id"] = {"$in": list(visible)}
-    invoices = await db.invoices.find(q, {"_id": 0}).sort("due_date", 1).to_list(200)
+    invoices = []
+    if role in ("admin", "parent"):  # finance notices are for admin and parents only
+        q = {"status": {"$in": ["unpaid", "partial", "overdue"]}}
+        if visible is not None:
+            q["student_id"] = {"$in": list(visible)}
+        invoices = await db.invoices.find(q, {"_id": 0}).sort("due_date", 1).to_list(200)
 
     stu_ids = list({i["student_id"] for i in invoices})
     students = await db.students.find({"id": {"$in": stu_ids}}, {"_id": 0}).to_list(500)
@@ -1329,13 +1331,10 @@ async def _student_stats(user_id: str) -> dict:
     enrolls = await db.enrollments.find({"student_id": s["id"], "status": "active"}, {"_id": 0}).to_list(50)
     cids = [e["class_id"] for e in enrolls]
     my_classes = await db.classes.find({"id": {"$in": cids}}, {"_id": 0}).to_list(50)
-    invs = await db.invoices.find({"student_id": s["id"]}, {"_id": 0}).to_list(50)
-    outstanding = sum(i.get("balance_due", 0) for i in invs if i["status"] != "paid")
     att = await db.attendance.find({"student_id": s["id"]}, {"_id": 0}).to_list(500)
     return {
         "active_classes": len(my_classes),
         "today_classes": [c for c in my_classes if _today_dow() in (c.get("schedule_days") or [])],
-        "outstanding_fees": outstanding,
         "attendance_pct": _attendance_pct(att),
         "student": s,
     }

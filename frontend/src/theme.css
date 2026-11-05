@@ -643,6 +643,23 @@ html[data-motion="lite"] .app-canvas::after { animation: none; translate: none; 
 .tt-block:hover { transform: translateY(-2px); box-shadow: 0 10px 16px -8px var(--t, var(--pri)); }
 .tt-block .tt-n { font-size: 12px; font-weight: 800; color: var(--ink); font-family: var(--fh); }
 .tt-block .tt-s { font-size: 12px; color: var(--mut); line-height: 1.25; }
+.tt-block .tt-kid { font-size: 12px; font-weight: 700; color: var(--pri-text); line-height: 1.25; }
+.tt-block:hover { z-index: 2; }
+
+/* Panel notifikasi (dirender di <body> lewat portal) */
+.notif-panel {
+  position: fixed;
+  z-index: 60;
+  width: min(22rem, calc(100vw - 24px));
+  overflow: hidden;
+  border-radius: var(--r);
+}
+.notif-list {
+  max-height: min(24rem, 60vh);
+  overflow-y: auto;
+  padding-bottom: 0.5rem;
+  overscroll-behavior: contain;
+}
 .tt-day { border-radius: var(--rs); border: 1px solid var(--line); overflow: hidden; }
 .tt-day-h { background: var(--soft); padding: 0.5rem 0.75rem; font-size: 12px; font-weight: 700; color: var(--mut); }
 .tt-item {
