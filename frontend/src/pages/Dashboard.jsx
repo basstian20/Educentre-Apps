@@ -82,11 +82,17 @@ export default function Dashboard() {
       ...(role === "parent" && { invoices: "/invoices" }),
     };
     const keys = Object.keys(wanted);
-    Promise.allSettled(keys.map((key) => api.get(wanted[key]))).then((results) => {
+    // Presensi dipaginasi di server: dasbor cukup memuat sesi 3 minggu terakhir (grafik 8 tanggal + absensi hari ini).
+    const attendanceFrom = new Date(Date.now() - 21 * 86400000).toISOString().slice(0, 10);
+    const request = (key) =>
+      key === "attendance"
+        ? api.get(wanted[key], { params: { date_from: attendanceFrom, limit: 500 } })
+        : api.get(wanted[key]);
+    Promise.allSettled(keys.map(request)).then((results) => {
       if (!active) return;
       const next = { stats: {}, announcements: [], classes: [], students: [], invoices: [], grades: [], assessments: [], attendance: [], payments: [] };
       keys.forEach((key, i) => {
-        next[key] = ok(results[i], key === "stats" ? {} : []);
+        next[key] = key === "attendance" ? ok(results[i], {}).items || [] : ok(results[i], key === "stats" ? {} : []);
       });
       setData(next);
       setLoading(false);
@@ -113,8 +119,8 @@ export default function Dashboard() {
     }
     let active = true;
     api
-      .get("/attendance", { params: { student_id: kid.id } })
-      .then((r) => active && setKidAttendance(r.data || []))
+      .get("/attendance", { params: { student_id: kid.id, limit: 500 } })
+      .then((r) => active && setKidAttendance(r.data?.items || []))
       .catch(() => active && setKidAttendance([]));
     return () => {
       active = false;
