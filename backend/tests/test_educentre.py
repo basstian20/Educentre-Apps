@@ -264,6 +264,58 @@ class TestAttendance:
     def test_list_attendance(self, admin):
         r = admin.get(f"{API}/attendance")
         assert r.status_code == 200
+        body = r.json()
+        assert set(body) >= {"items", "total", "limit", "skip"}
+        assert len(body["items"]) <= body["limit"] <= 500
+        assert body["total"] >= len(body["items"])
+
+    def test_attendance_limit_is_capped(self, admin):
+        body = admin.get(f"{API}/attendance", params={"limit": 100000}).json()
+        assert body["limit"] == 500
+        assert len(body["items"]) <= 500
+
+    def test_attendance_paging_has_no_overlap(self, admin):
+        first = admin.get(f"{API}/attendance", params={"limit": 20, "skip": 0}).json()
+        second = admin.get(f"{API}/attendance", params={"limit": 20, "skip": 20}).json()
+        assert first["total"] == second["total"]
+        ids1 = {r["id"] for r in first["items"]}
+        ids2 = {r["id"] for r in second["items"]}
+        assert not ids1 & ids2
+
+    def test_attendance_date_range_filter(self, admin):
+        newest = admin.get(f"{API}/attendance", params={"limit": 1}).json()["items"]
+        if not newest:
+            pytest.skip("No attendance data")
+        d = newest[0]["session_date"]
+        body = admin.get(f"{API}/attendance", params={"date_from": d, "date_to": d, "limit": 500}).json()
+        assert body["items"] and all(r["session_date"] == d for r in body["items"])
+        empty = admin.get(f"{API}/attendance", params={"date_from": "1999-01-01", "date_to": "1999-12-31"}).json()
+        assert empty["total"] == 0 and empty["items"] == []
+
+    def test_attendance_student_sees_only_self(self, student):
+        items = student.get(f"{API}/attendance", params={"limit": 500}).json()["items"]
+        assert len({r["student_id"] for r in items}) <= 1
+
+    def test_attendance_parent_sees_only_own_children(self, parent, tokens):
+        kids = {k["id"] for k in parent.get(f"{API}/dashboard/stats").json().get("children", [])}
+        items = parent.get(f"{API}/attendance", params={"limit": 500}).json()["items"]
+        assert {r["student_id"] for r in items} <= kids
+
+    def test_attendance_educator_sees_only_own_classes(self, educator):
+        cls_ids = {c["id"] for c in educator.get(f"{API}/classes").json()}
+        items = educator.get(f"{API}/attendance", params={"limit": 500}).json()["items"]
+        assert {r["class_id"] for r in items} <= cls_ids
+
+    def test_dashboard_attendance_pct_matches_full_history(self, admin, student):
+        """Dashboard percentage must come from all rows, not a truncated sample."""
+        stats = student.get(f"{API}/dashboard/stats").json()
+        sid = stats["student"]["id"]
+        rows = admin.get(f"{API}/attendance", params={"student_id": sid, "limit": 500}).json()
+        if rows["total"] > 500:
+            pytest.skip("More rows than one page")
+        present = sum(1 for r in rows["items"] if r["status"] == "present")
+        expected = round(present / rows["total"] * 100, 1) if rows["total"] else 100
+        assert stats["attendance_pct"] == expected
 
     def test_mark_attendance_educator(self, educator, admin):
         # Get a class for the educator

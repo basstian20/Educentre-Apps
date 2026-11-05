@@ -627,33 +627,68 @@ async def mark_attendance(payload: AttendanceMark, current=Depends(require_roles
     return {"count": len(docs), "records": docs}
 
 
+ATTENDANCE_DEFAULT_LIMIT = 200
+ATTENDANCE_MAX_LIMIT = 500
+
+
 @api.get("/attendance")
-async def list_attendance(class_id: Optional[str] = None, student_id: Optional[str] = None, session_date: Optional[str] = None, current=Depends(get_current_user)):
-    q = {}
+async def list_attendance(
+    class_id: Optional[str] = None,
+    student_id: Optional[str] = None,
+    session_date: Optional[str] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    limit: int = ATTENDANCE_DEFAULT_LIMIT,
+    skip: int = 0,
+    current=Depends(get_current_user),
+):
+    """Paged attendance history, newest first. Returns {items, total, limit, skip}.
+
+    Each role only sees its own scope: students and parents their children,
+    educators their own classes, admin everything.
+    """
+    limit = max(1, min(limit, ATTENDANCE_MAX_LIMIT))
+    skip = max(0, skip)
+    filters = []
     if class_id:
-        q["class_id"] = class_id
+        filters.append({"class_id": class_id})
     if student_id:
-        q["student_id"] = student_id
+        filters.append({"student_id": student_id})
     if session_date:
-        q["session_date"] = session_date
-    records = await db.attendance.find(q, {"_id": 0}).sort("session_date", -1).to_list(2000)
-    
-    # 🔥 ambil semua student_id unik
+        filters.append({"session_date": session_date})
+    if date_from:
+        filters.append({"session_date": {"$gte": date_from}})
+    if date_to:
+        filters.append({"session_date": {"$lte": date_to}})
+
+    role = current["role"]
+    if role == "educator":
+        edu_id = await _resolve_educator_id(current["id"])
+        mine = await db.classes.find({"educator_id": edu_id}, {"_id": 0, "id": 1}).to_list(500)
+        filters.append({"class_id": {"$in": [c["id"] for c in mine]}})
+    elif role != "admin":
+        visible = await _visible_student_ids(current)
+        filters.append({"student_id": {"$in": list(visible or [])}})
+    q = {"$and": filters} if filters else {}
+
+    total = await db.attendance.count_documents(q)
+    records = await (
+        db.attendance.find(q, {"_id": 0})
+        .sort([("session_date", -1), ("class_id", 1), ("student_id", 1)])
+        .skip(skip)
+        .limit(limit)
+        .to_list(limit)
+    )
+
     student_ids = list({r["student_id"] for r in records})
-
-    # 🔥 ambil nama student dari collection students
     students = await db.students.find(
-        {"id": {"$in": student_ids}},
-        {"_id": 0, "id": 1, "full_name": 1}
-    ).to_list(500)
-
+        {"id": {"$in": student_ids}}, {"_id": 0, "id": 1, "full_name": 1}
+    ).to_list(len(student_ids) or 1)
     student_map = {s["id"]: s["full_name"] for s in students}
-
-    # 🔥 tambahkan student_name ke setiap record
     for r in records:
         r["student_name"] = student_map.get(r["student_id"], "—")
 
-    return records
+    return {"items": records, "total": total, "limit": limit, "skip": skip}
 
 
 # ── Invoices ──
@@ -1151,16 +1186,7 @@ async def student_report(sid: str, current=Depends(get_current_user)):
     edus = await db.educators.find({"id": {"$in": [c.get("educator_id") for c in classes]}}, {"_id": 0, "id": 1, "full_name": 1}).to_list(100)
     edu_map = {e["id"]: e["full_name"] for e in edus}
 
-    att = await db.attendance.find({"student_id": sid}, {"_id": 0}).to_list(5000)
-    summary = {"present": 0, "late": 0, "absent": 0, "excused": 0}
-    by_class = {}
-    for a in att:
-        st = a.get("status", "present")
-        if st in summary:
-            summary[st] += 1
-        row = by_class.setdefault(a["class_id"], {"present": 0, "late": 0, "absent": 0, "excused": 0})
-        if st in row:
-            row[st] += 1
+    summary, by_class = await _attendance_counts({"student_id": sid})
     total = sum(summary.values())
     attended = summary["present"] + summary["late"]
 
@@ -1317,11 +1343,32 @@ async def _educator_stats(user_id: str) -> dict:
     }
 
 
-def _attendance_pct(att_records: list) -> float:
-    if not att_records:
+_ATT_STATUSES = ("present", "late", "absent", "excused")
+
+
+async def _attendance_counts(match: dict):
+    """Count attendance by status (overall and per class) inside MongoDB, never loading raw rows."""
+    rows = await db.attendance.aggregate([
+        {"$match": match},
+        {"$group": {"_id": {"c": "$class_id", "s": "$status"}, "n": {"$sum": 1}}},
+    ]).to_list(None)
+    summary = {s: 0 for s in _ATT_STATUSES}
+    by_class = {}
+    for r in rows:
+        st = r["_id"].get("s") or "present"
+        if st not in summary:
+            continue
+        summary[st] += r["n"]
+        by_class.setdefault(r["_id"]["c"], {s: 0 for s in _ATT_STATUSES})[st] += r["n"]
+    return summary, by_class
+
+
+async def _attendance_pct(match: dict) -> float:
+    summary, _ = await _attendance_counts(match)
+    total = sum(summary.values())
+    if not total:
         return 100
-    present = sum(1 for a in att_records if a["status"] == "present")
-    return round(present / len(att_records) * 100, 1)
+    return round(summary["present"] / total * 100, 1)
 
 
 async def _student_stats(user_id: str) -> dict:
@@ -1331,11 +1378,10 @@ async def _student_stats(user_id: str) -> dict:
     enrolls = await db.enrollments.find({"student_id": s["id"], "status": "active"}, {"_id": 0}).to_list(50)
     cids = [e["class_id"] for e in enrolls]
     my_classes = await db.classes.find({"id": {"$in": cids}}, {"_id": 0}).to_list(50)
-    att = await db.attendance.find({"student_id": s["id"]}, {"_id": 0}).to_list(500)
     return {
         "active_classes": len(my_classes),
         "today_classes": [c for c in my_classes if _today_dow() in (c.get("schedule_days") or [])],
-        "attendance_pct": _attendance_pct(att),
+        "attendance_pct": await _attendance_pct({"student_id": s["id"]}),
         "student": s,
     }
 
@@ -1348,13 +1394,12 @@ async def _parent_stats(user_id: str) -> dict:
     my_classes = await db.classes.find({"id": {"$in": cids}}, {"_id": 0}).to_list(50)
     invs = await db.invoices.find({"student_id": {"$in": kid_ids}}, {"_id": 0}).to_list(200)
     outstanding = sum(i.get("balance_due", 0) for i in invs if i["status"] != "paid")
-    att = await db.attendance.find({"student_id": {"$in": kid_ids}}, {"_id": 0}).to_list(500)
     return {
         "children_count": len(kids),
         "children": kids,
         "active_classes": len(my_classes),
         "outstanding_fees": outstanding,
-        "attendance_pct": _attendance_pct(att),
+        "attendance_pct": await _attendance_pct({"student_id": {"$in": kid_ids}}),
         "today_classes": [c for c in my_classes if _today_dow() in (c.get("schedule_days") or [])],
     }
 
@@ -1406,6 +1451,8 @@ async def on_startup():
     await db.classes.create_index("id", unique=True)
     await db.enrollments.create_index([("student_id", 1), ("class_id", 1)])
     await db.attendance.create_index([("class_id", 1), ("session_date", 1), ("student_id", 1)])
+    await db.attendance.create_index([("student_id", 1), ("session_date", -1)])
+    await db.attendance.create_index([("session_date", -1)])
     await db.invoices.create_index("invoice_number", unique=True)
 
     # seed

@@ -17,17 +17,40 @@ _CONNECT_ATTEMPTS = 5
 _RETRY_DELAY_SECONDS = 3
 
 
+def _use_public_dns():
+    """Make dnspython (used by pymongo for mongodb+srv://) ask public resolvers instead of the OS ones.
+
+    Some networks (hotspots, ISP/router resolvers, broken IPv6 DNS) do not answer the SRV/TXT lookups
+    Atlas needs. Override the servers with DNS_NAMESERVERS="1.1.1.1,8.8.8.8".
+    """
+    import dns.resolver
+
+    servers = [s.strip() for s in os.environ.get("DNS_NAMESERVERS", "1.1.1.1,8.8.8.8").split(",") if s.strip()]
+    resolver = dns.resolver.Resolver(configure=False)
+    resolver.nameservers = servers
+    resolver.lifetime = 10.0
+    dns.resolver.default_resolver = resolver
+    logger.warning("SRV lookup failed with system DNS; retrying with %s", ", ".join(servers))
+
+
 def get_db():
     """Lazily initialise the shared db handle, retrying transient connection failures."""
     global _client, _db
     if _db is None:
         mongo_url = os.environ["MONGO_URL"]
         db_name = os.environ["DB_NAME"]
+        public_dns_tried = False
         for attempt in range(1, _CONNECT_ATTEMPTS + 1):
             try:
                 _client = AsyncIOMotorClient(mongo_url)
                 break
             except Exception:
+                # mongodb+srv:// resolves DNS while the client is constructed; if the system
+                # resolver cannot answer SRV records, fall back to public DNS once, right away.
+                if mongo_url.startswith("mongodb+srv://") and not public_dns_tried:
+                    public_dns_tried = True
+                    _use_public_dns()
+                    continue
                 if attempt == _CONNECT_ATTEMPTS:
                     raise
                 logger.warning(

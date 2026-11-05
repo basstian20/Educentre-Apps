@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, Btn, Select, Empty, StatusBadge } from "@/components/UI";
+import { useTx } from "@/components/dashboard/widgets";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { api, fmtDate, formatApiError } from "@/lib/api";
@@ -13,8 +14,11 @@ const STATUSES = [
   { key: "excused", color: "excused" },
 ];
 
+const HISTORY_PAGE = 100;
+
 export default function Attendance() {
   const { t } = useLang();
+  const tx = useTx();
   const { user } = useAuth();
   const [classes, setClasses] = useState([]);
   const [classId, setClassId] = useState("");
@@ -22,8 +26,55 @@ export default function Attendance() {
   const [students, setStudents] = useState([]);
   const [marks, setMarks] = useState({});
   const [history, setHistory] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const isMarker = user?.role === "admin" || user?.role === "educator";
+
+  // Riwayat dipaginasi di server: satu bulan per tampilan, "muat lebih banyak" untuk sisanya.
+  const historyParams = useCallback(
+    (extra = {}) => ({
+      ...(classId ? { class_id: classId } : {}),
+      ...(month ? { date_from: `${month}-01`, date_to: `${month}-31` } : {}),
+      limit: HISTORY_PAGE,
+      ...extra,
+    }),
+    [classId, month],
+  );
+
+  const loadHistory = useCallback(() => {
+    if (isMarker && !classId) {
+      setHistory([]);
+      setTotal(0);
+      return Promise.resolve();
+    }
+    return api
+      .get("/attendance", { params: historyParams() })
+      .then((r) => {
+        setHistory(r.data?.items || []);
+        setTotal(r.data?.total || 0);
+      })
+      .catch(() => {
+        setHistory([]);
+        setTotal(0);
+      });
+  }, [isMarker, classId, historyParams]);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
+
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const r = await api.get("/attendance", { params: historyParams({ skip: history.length }) });
+      setHistory((prev) => [...prev, ...(r.data?.items || [])]);
+      setTotal(r.data?.total || 0);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
     api.get("/classes").then((r) => setClasses(r.data || []));
@@ -51,22 +102,14 @@ export default function Attendance() {
         }
       });
     }
-    api.get("/attendance", { params: { class_id: classId } }).then((r) => setHistory(r.data || []));
   }, [classId, isMarker]);
-
-  // For students/parents: load own attendance
-  useEffect(() => {
-    if (!isMarker) {
-      api.get("/attendance").then((r) => setHistory(r.data || []));
-    }
-  }, [isMarker]);
 
   const submit = async () => {
     try {
       const records = Object.entries(marks).map(([student_id, status]) => ({ student_id, status }));
       await api.post("/attendance", { class_id: classId, session_date: date, records });
       toast.success(t.toastAttendanceSaved);
-      api.get("/attendance", { params: { class_id: classId } }).then((r) => setHistory(r.data || []));
+      loadHistory();
     } catch (e) {
       toast.error(formatApiError(e.response?.data?.detail));
     }
@@ -134,7 +177,21 @@ export default function Attendance() {
         </Card>
       )}
 
-      <Card title={`Recent records (${history.length})`} className="mt-5" testid="att-history">
+      <Card
+        title={`${tx("Riwayat presensi", "Attendance records")} (${history.length}/${total})`}
+        className="mt-5"
+        testid="att-history"
+        action={
+          <input
+            type="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            data-testid="att-month"
+            aria-label={tx("Bulan", "Month")}
+            className="field-clay h-10 px-3 text-sm"
+          />
+        }
+      >
         {history.length === 0 ? <Empty message={t.noData} /> : (
           <div className="overflow-x-auto -mx-4 sm:-mx-5">
             <table className="rtable clay-table w-full min-w-[560px]">
@@ -146,7 +203,7 @@ export default function Attendance() {
                 </tr>
               </thead>
               <tbody>
-                {history.slice(0, 30).map((h) => (
+                {history.map((h) => (
                   <tr key={h.id}>
                     <td className="px-5 py-3 text-sm font-sans">{fmtDate(h.session_date)}</td>
                     <td className="px-5 py-3 text-sm font-sans">{h.student_name}</td>
@@ -155,6 +212,13 @@ export default function Attendance() {
                 ))}
               </tbody>
             </table>
+            {history.length < total && (
+              <div className="px-5 pt-4 text-center">
+                <Btn variant="outline" onClick={loadMore} disabled={loadingMore} testid="att-load-more">
+                  {loadingMore ? "…" : tx("Muat lebih banyak", "Load more")}
+                </Btn>
+              </div>
+            )}
           </div>
         )}
       </Card>
