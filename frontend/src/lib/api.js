@@ -55,8 +55,22 @@ function currentLang() {
   }
 }
 
+// Messages that carry a value (e.g. the lock duration) cannot be looked up verbatim.
+const ID_ERROR_PATTERNS = [
+  [
+    /^Too many login attempts\. Try again in (\d+) minutes?\.$/,
+    (_, minutes) => `Terlalu banyak percobaan masuk. Coba lagi dalam ${minutes} menit.`,
+  ],
+];
+
 function translateError(message) {
-  return currentLang() === "id" ? ID_ERRORS[message] || message : message;
+  if (currentLang() !== "id") return message;
+  if (ID_ERRORS[message]) return ID_ERRORS[message];
+  for (const [pattern, render] of ID_ERROR_PATTERNS) {
+    const match = typeof message === "string" && message.match(pattern);
+    if (match) return render(...match);
+  }
+  return message;
 }
 
 export function formatApiError(detail) {

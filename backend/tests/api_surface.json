@@ -1,5 +1,6 @@
 [
   "DELETE /api/announcements/{aid}",
+  "DELETE /api/auth/lockouts/{email}",
   "DELETE /api/classes/{cid}",
   "DELETE /api/educators/{eid}",
   "DELETE /api/enrollments/{eid}",
@@ -11,6 +12,7 @@
   "GET /api/announcements",
   "GET /api/assessments",
   "GET /api/attendance",
+  "GET /api/auth/lockouts",
   "GET /api/auth/me",
   "GET /api/classes",
   "GET /api/classes/{cid}",
