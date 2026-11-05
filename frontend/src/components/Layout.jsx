@@ -115,7 +115,7 @@ export default function Layout({ title, subtitle, actions, children }) {
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="app-content min-w-0 md:pl-[248px]">
           <Topbar title={title} subtitle={subtitle} actions={actions} onMenuClick={() => setSidebarOpen(true)} onSearch={() => setPaletteOpen(true)} />
-          <main id="main-content" tabIndex={-1} ref={mainRef} className="animate-fadeUp px-4 pb-28 sm:px-6 md:pb-20 lg:px-8" data-testid="main-content">
+          <main id="main-content" tabIndex={-1} ref={mainRef} className="animate-fadeUp px-4 pt-4 pb-28 sm:px-6 md:pb-20 lg:px-8" data-testid="main-content">
             {children}
           </main>
         </div>

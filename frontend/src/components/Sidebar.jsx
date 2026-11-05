@@ -88,9 +88,6 @@ export function getNav(role, t) {
         { label: t.materials, to: "/materials", icon: FolderOpen, testid: "nav-materials" },
         { label: t.attendance, to: "/attendance", icon: CheckSquare, testid: "nav-attendance" },
       ]},
-      { section: t.finance, items: [
-        { label: t.myFees, to: "/invoices", icon: Receipt, testid: "nav-invoices" },
-      ]},
       { section: t.system, items: [
         { label: t.announcements, to: "/announcements", icon: Megaphone, testid: "nav-announcements" },
       ]},

@@ -105,8 +105,12 @@ class TestDashboard:
         r = student.get(f"{API}/dashboard/stats")
         assert r.status_code == 200
         d = r.json()
-        for k in ["active_classes", "attendance_pct", "outstanding_fees"]:
+        for k in ["active_classes", "attendance_pct"]:
             assert k in d
+        assert "outstanding_fees" not in d  # finance is for admin and parents only
+
+    def test_student_has_no_invoices(self, student):
+        assert student.get(f"{API}/invoices").json() == []
 
     def test_parent_stats(self, parent):
         r = parent.get(f"{API}/dashboard/stats")

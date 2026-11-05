@@ -8,7 +8,7 @@ import { getNav } from "./Sidebar";
 const PICKS = {
   admin: ["nav-dashboard", "nav-students", "nav-classes", "nav-invoices"],
   educator: ["nav-dashboard", "nav-myclasses", "nav-attendance", "nav-grades"],
-  student: ["nav-dashboard", "nav-myclasses", "nav-results", "nav-invoices"],
+  student: ["nav-dashboard", "nav-myclasses", "nav-results", "nav-attendance"],
   parent: ["nav-dashboard", "nav-mychildren", "nav-results", "nav-invoices"],
 };
 

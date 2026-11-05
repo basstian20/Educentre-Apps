@@ -6,7 +6,7 @@ import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { useLoadState } from "@/lib/useLoadState";
 import { api, formatApiError, fmtIDR } from "@/lib/api";
-import { Plus, BookOpen, GraduationCap, Clock, CalendarDays } from "lucide-react";
+import { Plus, BookOpen, GraduationCap, Clock, CalendarDays, Users } from "lucide-react";
 import { toast } from "sonner";
 
 const DAYS = [1, 2, 3, 4, 5, 6, 7];
@@ -145,6 +145,7 @@ export default function Classes() {
                 {isAdmin && <div className="flex-shrink-0"><RowActions testid={`class-${c.id}`} onEdit={() => openEdit(c)} onDelete={() => setRemoving(c)} /></div>}
               </div>
               <div className="class-meta mt-3 pl-2">
+                {(c.child_names || []).length > 0 && <div className="font-semibold"><Users />{c.child_names.join(", ")}</div>}
                 <div><GraduationCap />{c.educator_name || "—"}</div>
                 <div><Clock />{c.time_start} – {c.time_end}</div>
                 <div><CalendarDays />{(c.schedule_days || []).map((d) => t.days[d]).join(", ")}</div>
@@ -155,7 +156,7 @@ export default function Classes() {
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2 mt-2">
                   <span className="text-xs text-slate-600 font-sans">{c.enrolled_count}/{c.capacity} {t.enrolled.toLowerCase()}</span>
-                  <span className="text-sm font-heading font-extrabold text-slate-900">{fmtIDR(c.fee_amount)}</span>
+                  {user?.role !== "student" && <span className="text-sm font-heading font-extrabold text-slate-900">{fmtIDR(c.fee_amount)}</span>}
                 </div>
               </div>
             </div>
@@ -227,19 +228,56 @@ export default function Classes() {
   );
 }
 
-function Timetable({ classes, t }) {
-  const startHour = 8;
-  const endHour = 18;
-  const hours = Array.from({ length: endHour - startHour }, (_, i) => startHour + i);
-  const days = [1, 2, 3, 4, 5, 6, 7];
+const toMin = (str) => {
+  const [h, m] = (str || "00:00").split(":").map(Number);
+  return h * 60 + (m || 0);
+};
 
-  const minutesFromStart = (timeStr) => {
-    const [h, m] = (timeStr || "00:00").split(":").map(Number);
-    return (h - startHour) * 60 + m;
+/** Bagi kelas yang jamnya bertumpuk di satu hari ke beberapa lajur agar tidak saling menimpa. */
+function layoutDay(items) {
+  const sorted = items.slice().sort((a, b) => toMin(a.time_start) - toMin(b.time_start) || toMin(a.time_end) - toMin(b.time_end));
+  const placed = [];
+  let cluster = [];
+  let clusterEnd = -1;
+  const flush = () => {
+    const lanes = Math.max(1, ...cluster.map((p) => p.lane + 1));
+    cluster.forEach((p) => placed.push({ ...p, lanes }));
+    cluster = [];
   };
+  const laneEnds = [];
+  sorted.forEach((c) => {
+    const start = toMin(c.time_start);
+    if (cluster.length && start >= clusterEnd) {
+      flush();
+      laneEnds.length = 0;
+    }
+    let lane = laneEnds.findIndex((end) => end <= start);
+    if (lane === -1) lane = laneEnds.length;
+    laneEnds[lane] = toMin(c.time_end);
+    cluster.push({ c, lane });
+    clusterEnd = Math.max(clusterEnd, toMin(c.time_end));
+  });
+  if (cluster.length) flush();
+  return placed;
+}
+
+function Timetable({ classes, t }) {
+  const scheduled = classes.filter((c) => c.time_start && c.time_end);
+  const hasKids = scheduled.some((c) => (c.child_names || []).length);
+  const kidsOf = (c) => (c.child_names || []).join(", ");
+
+  // Jam dan hari mengikuti jadwal yang ada: tidak menampilkan ruang kosong di luar itu.
+  const startHour = scheduled.length ? Math.floor(Math.min(...scheduled.map((c) => toMin(c.time_start))) / 60) : 8;
+  const endHour = scheduled.length ? Math.max(startHour + 1, Math.ceil(Math.max(...scheduled.map((c) => toMin(c.time_end))) / 60)) : 12;
+  const hours = Array.from({ length: endHour - startHour }, (_, i) => startHour + i);
+  const usedDays = [1, 2, 3, 4, 5, 6, 7].filter((d) => scheduled.some((c) => (c.schedule_days || []).includes(d)));
+  const days = usedDays.length ? usedDays : [1, 2, 3, 4, 5];
+
+  const headH = 40;
   const cellH = 56;
+  const minHeight = hasKids ? 58 : 40;
   const classesForDay = (day) =>
-    classes
+    scheduled
       .filter((c) => (c.schedule_days || []).includes(day))
       .sort((a, b) => (a.time_start || "").localeCompare(b.time_start || ""));
 
@@ -252,72 +290,74 @@ function Timetable({ classes, t }) {
               {t.days[d]}
             </div>
             <div className="space-y-2 p-3">
-              {classesForDay(d).length === 0 ? (
-                <div className="text-xs text-slate-600 font-sans">{t.noClasses}</div>
-              ) : (
-                classesForDay(d).map((c) => (
-                  <div key={`${c.id}-mobile-${d}`} className="tt-item" style={{ "--t": c.color_hex || "var(--pri)" }}>
-                    <div className="font-heading text-sm font-semibold text-slate-900">{c.subject_name}</div>
-                    <div className="mt-1 text-xs text-slate-600 font-sans">
-                      {c.time_start}-{c.time_end} - {c.room}
+              {classesForDay(d).map((c) => (
+                <div key={`${c.id}-mobile-${d}`} className="tt-item" style={{ "--t": c.color_hex || "var(--pri)" }}>
+                  <div className="font-heading text-sm font-semibold text-slate-900">{c.subject_name}</div>
+                  {kidsOf(c) && (
+                    <div className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-slate-800 font-sans" data-testid="tt-child">
+                      <Users className="h-3 w-3 flex-shrink-0" />
+                      <span className="min-w-0 [overflow-wrap:anywhere]">{kidsOf(c)}</span>
                     </div>
+                  )}
+                  <div className="mt-1 text-xs text-slate-600 font-sans">
+                    {c.time_start}-{c.time_end} - {c.room}
                   </div>
-                ))
-              )}
+                </div>
+              ))}
             </div>
           </div>
         ))}
+        {usedDays.length === 0 && <div className="text-xs text-slate-600 font-sans">{t.noClasses}</div>}
       </div>
       <div className="hidden overflow-x-auto md:block">
-        <div className="min-w-[760px] relative">
-        <div className="tt-grid grid" style={{ gridTemplateColumns: `60px repeat(7, 1fr)` }}>
-          <div className="tt-head" />
-          {days.map((d) => (
-            <div key={d} className="tt-head font-heading">
-              {t.days[d]}
-            </div>
-          ))}
-          {hours.map((h) => (
-            <div key={`row-${h}`} className="contents">
-              <div className="tt-hour font-sans" style={{ height: cellH }}>
-                {h}:00
+        <div className="relative" style={{ minWidth: 60 + days.length * 108 }}>
+          <div className="tt-grid grid" style={{ gridTemplateColumns: `60px repeat(${days.length}, minmax(0, 1fr))`, gridTemplateRows: `${headH}px repeat(${hours.length}, ${cellH}px)` }}>
+            <div className="tt-head" style={{ padding: 0 }} />
+            {days.map((d) => (
+              <div key={d} className="tt-head font-heading" style={{ padding: 0, lineHeight: `${headH}px` }}>
+                {t.days[d]}
               </div>
-              {days.map((d) => (
-                <div key={`cell-${h}-${d}`} className="timetable-cell" />
-              ))}
-            </div>
-          ))}
-        </div>
-        {/* Render class blocks */}
-        {classes.map((c) =>
-          (c.schedule_days || []).map((d) => {
-            const dayIdx = days.indexOf(d);
-            if (dayIdx < 0) return null;
-            const top = (minutesFromStart(c.time_start) / 60) * cellH + cellH; // first row is header
-            const height = ((minutesFromStart(c.time_end) - minutesFromStart(c.time_start)) / 60) * cellH;
-            const left = `calc(60px + ${dayIdx} * ((100% - 60px) / 7) + 2px)`;
-            const width = `calc((100% - 60px) / 7 - 4px)`;
-            return (
-              <div
-                key={`${c.id}-${d}`}
-                className="tt-block"
-                style={{
-                  top,
-                  left,
-                  width,
-                  height: Math.max(40, height),
-                  "--t": c.color_hex || "var(--pri)",
-                }}
-                title={c.subject_name}
-              >
-                <div className="tt-n truncate">{c.subject_name}</div>
-                <div className="tt-s truncate">{c.room}</div>
-                <div className="tt-s">{c.time_start}–{c.time_end}</div>
+            ))}
+            {hours.map((h) => (
+              <div key={`row-${h}`} className="contents">
+                <div className="tt-hour font-sans">
+                  {h}:00
+                </div>
+                {days.map((d) => (
+                  <div key={`cell-${h}-${d}`} className="timetable-cell" />
+                ))}
               </div>
-            );
-          })
-        )}
+            ))}
+          </div>
+          {/* Blok kelas */}
+          {days.flatMap((d, dayIdx) =>
+            layoutDay(classesForDay(d)).map(({ c, lane, lanes }) => {
+              const top = headH + ((toMin(c.time_start) - startHour * 60) / 60) * cellH;
+              const height = ((toMin(c.time_end) - toMin(c.time_start)) / 60) * cellH;
+              const colW = `((100% - 60px) / ${days.length})`;
+              return (
+                <div
+                  key={`${c.id}-${d}`}
+                  className="tt-block"
+                  style={{
+                    top: top + 1,
+                    left: `calc(60px + ${dayIdx} * ${colW} + ${colW} * ${lane} / ${lanes} + 2px)`,
+                    width: `calc(${colW} / ${lanes} - 4px)`,
+                    height: Math.max(minHeight, height - 2),
+                    "--t": c.color_hex || "var(--pri)",
+                  }}
+                  title={[c.subject_name, kidsOf(c), c.room, `${c.time_start}–${c.time_end}`].filter(Boolean).join(" · ")}
+                >
+                  <div className="tt-n truncate">{c.subject_name}</div>
+                  {kidsOf(c) && <div className="tt-kid truncate" data-testid="tt-child">{kidsOf(c)}</div>}
+                  <div className="tt-s truncate">{c.room}</div>
+                  <div className="tt-s">{c.time_start}–{c.time_end}</div>
+                </div>
+              );
+            })
+          )}
         </div>
+        {usedDays.length === 0 && <div className="py-3 text-center text-xs text-slate-600 font-sans">{t.noClasses}</div>}
       </div>
     </>
   );

@@ -78,7 +78,8 @@ export default function Dashboard() {
       classes: "/classes",
       ...(role === "admin" && { students: "/students", invoices: "/invoices", attendance: "/attendance", payments: "/payments" }),
       ...(role === "educator" && { attendance: "/attendance", assessments: "/assessments" }),
-      ...((role === "student" || role === "parent") && { invoices: "/invoices", grades: "/grades", assessments: "/assessments" }),
+      ...((role === "student" || role === "parent") && { grades: "/grades", assessments: "/assessments" }),
+      ...(role === "parent" && { invoices: "/invoices" }),
     };
     const keys = Object.keys(wanted);
     Promise.allSettled(keys.map((key) => api.get(wanted[key]))).then((results) => {
@@ -491,7 +492,11 @@ function FamilyView({ data, loading, tx, lang, now, todayClasses, kid, kids, set
       <div className="dg-kpis k4" data-testid="metric-grid">
         <KpiTile loading={loading} tone={1} icon={BookOpen} testid="stat-classes" label={tx("Kelas aktif", "Active classes")} value={stats.active_classes ?? 0} />
         <KpiTile loading={loading} tone={4} icon={CheckCircle2} testid="stat-attendance" label={tx("Kehadiran", "Attendance rate")} value={attPct} format={(n) => `${n}%`} sub={role === "parent" && kid ? kid.full_name.split(" ")[0] : undefined} />
-        <KpiTile loading={loading} tone={5} icon={Receipt} testid="stat-fees" label={tx("Tagihan aktif", "Outstanding fees")} value={Number(stats.outstanding_fees) || 0} format={compactIDR(lang)} sub={fmtIDR(stats.outstanding_fees || 0)} />
+        {role === "parent" ? (
+          <KpiTile loading={loading} tone={5} icon={Receipt} testid="stat-fees" label={tx("Tagihan aktif", "Outstanding fees")} value={Number(stats.outstanding_fees) || 0} format={compactIDR(lang)} sub={fmtIDR(stats.outstanding_fees || 0)} />
+        ) : (
+          <KpiTile loading={loading} tone={5} icon={Award} testid="stat-average" label={tx("Rata-rata nilai", "Average score")} value={avg === null ? 0 : Math.round(avg)} />
+        )}
         <KpiTile loading={loading} tone={3} icon={CalendarDays} testid="stat-today" label={tx("Kelas hari ini", "Classes today")} value={todayClasses.length} />
       </div>
 
@@ -524,7 +529,7 @@ function FamilyView({ data, loading, tx, lang, now, todayClasses, kid, kids, set
         )}
       </div>
 
-      <DCard className="span-3" testid="card-learning-statistics" title={tx("Ringkasan belajar", "Learning summary")} to="/results">
+      <DCard className={role === "parent" ? "span-3" : "span-6"} testid="card-learning-statistics" title={tx("Ringkasan belajar", "Learning summary")} to="/results">
         {loading ? <SkeletonBlock /> : (
           <div className="rings r3">
             <Ring pct={attPct} value={`${attPct}%`} sub={tx("Kehadiran", "Attendance")} color="var(--ok)" />
@@ -534,23 +539,25 @@ function FamilyView({ data, loading, tx, lang, now, todayClasses, kid, kids, set
         )}
       </DCard>
 
-      <DCard className="span-3" title={tx("Biaya", "Fees")} to="/invoices" action={tx("Detail", "Details")}>
-        {loading ? <SkeletonBlock /> : openInvoices.length ? (
-          <ul className="dlist">
-            {openInvoices.map((i) => (
-              <li key={i.id}>
-                <span className="grow"><b>{i.invoice_number}</b><small>{tx("tempo", "due")} {i.due_date}</small></span>
-                <b className="num">{fmtIDR(i.balance_due)}</b>
-                <span className={`badge ${i.status === "overdue" ? "badge-red" : i.status === "partial" ? "badge-blue" : "badge-amber"}`}>
-                  {i.status === "overdue" ? tx("Terlambat", "Overdue") : i.status === "partial" ? tx("Sebagian", "Partial") : tx("Belum bayar", "Unpaid")}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <EmptyBlock icon={CheckCircle2} title={tx("Tidak ada tagihan terbuka", "No open invoices")} />
-        )}
-      </DCard>
+      {role === "parent" && (
+        <DCard className="span-3" title={tx("Biaya", "Fees")} to="/invoices" action={tx("Detail", "Details")}>
+          {loading ? <SkeletonBlock /> : openInvoices.length ? (
+            <ul className="dlist">
+              {openInvoices.map((i) => (
+                <li key={i.id}>
+                  <span className="grow"><b>{i.invoice_number}</b><small>{tx("tempo", "due")} {i.due_date}</small></span>
+                  <b className="num">{fmtIDR(i.balance_due)}</b>
+                  <span className={`badge ${i.status === "overdue" ? "badge-red" : i.status === "partial" ? "badge-blue" : "badge-amber"}`}>
+                    {i.status === "overdue" ? tx("Terlambat", "Overdue") : i.status === "partial" ? tx("Sebagian", "Partial") : tx("Belum bayar", "Unpaid")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyBlock icon={CheckCircle2} title={tx("Tidak ada tagihan terbuka", "No open invoices")} />
+          )}
+        </DCard>
+      )}
 
       <DCard className="span-6" {...(role === "student" ? { testid: "card-overview-table" } : {})} title={tx("Hasil terbaru", "Recent results")} to="/results">
         {loading ? <SkeletonBlock /> : recent.length ? (

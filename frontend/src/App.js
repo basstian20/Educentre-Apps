@@ -35,10 +35,11 @@ function LoadingScreen() {
   );
 }
 
-function Protected({ children }) {
+function Protected({ children, roles }) {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
+  if (roles && !roles.includes(user.role)) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
@@ -70,11 +71,11 @@ export default function App() {
             <Route path="/grades" element={<Protected><Grades /></Protected>} />
             <Route path="/results" element={<Protected><Results /></Protected>} />
             <Route path="/materials" element={<Protected><Materials /></Protected>} />
-            <Route path="/invoices" element={<Protected><Invoices /></Protected>} />
+            <Route path="/invoices" element={<Protected roles={["admin", "parent"]}><Invoices /></Protected>} />
             <Route path="/announcements" element={<Protected><Announcements /></Protected>} />
             <Route path="/reports" element={<Protected><Reports /></Protected>} />
             <Route path="/settings" element={<Protected><Settings /></Protected>} />
-            <Route path="/invoices/:id/print" element={<Protected><PrintInvoice /></Protected>} />
+            <Route path="/invoices/:id/print" element={<Protected roles={["admin", "parent"]}><PrintInvoice /></Protected>} />
             <Route path="/students/:sid/report" element={<Protected><ReportCard /></Protected>} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
