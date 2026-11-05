@@ -19,6 +19,15 @@ class LoginInput(BaseModel):
     password: str
 
 
+class ForgotPasswordInput(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordInput(BaseModel):
+    token: str
+    new_password: str
+
+
 class RegisterInput(BaseModel):
     email: EmailStr
     password: str

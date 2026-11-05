@@ -80,6 +80,18 @@ address is used (see `backend/.env.example` for all knobs).
 
 ---
 
+## Password reset
+
+"Forgot password?" on the sign-in page emails a one-time link (valid 30 minutes, at most 3 per account per
+hour). The API answers the same whether or not the address has an account, and only a hash of the token is
+stored. Email goes out through `MAIL_PROVIDER`: `console` (default) only logs the message, which suits local
+development and the demo because the seeded `@educentre.id` addresses are not real mailboxes; set `smtp`
+plus the `SMTP_*`, `MAIL_FROM` and `FRONTEND_URL` variables for production (see `backend/.env.example`).
+For demos you can set `PASSWORD_RESET_DEBUG_LINK=true` so the page shows the link directly; it only works
+with the console mailer and must stay off in production.
+
+---
+
 ## Testing
 
 ```bash
