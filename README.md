@@ -58,7 +58,9 @@ educentre/
 │   ├── src/
 │   └── .env           # REACT_APP_API_URL
 ├── backend/           # FastAPI server
-│   ├── server.py      # Main API — all routes
+│   ├── server.py      # App entry point — middleware, router mounting, startup
+│   ├── core.py        # Shared db handle, logger and helpers
+│   ├── routers/       # One module per domain (students, invoices, attendance, ...)
 │   ├── auth.py        # JWT & password utilities
 │   ├── database.py    # MongoDB connection
 │   ├── models.py      # Pydantic request models
