@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
@@ -120,6 +120,9 @@ export default function Login() {
               autoComplete="current-password"
               icon={LockKeyhole}
             />
+            <Link className="lg-forgot" to="/forgot-password" data-testid="login-forgot">
+              {t.forgotLink}
+            </Link>
             {error && (
               <div className="lg-error" data-testid="login-error" role="alert">
                 {error}

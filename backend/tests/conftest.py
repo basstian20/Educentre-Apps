@@ -18,6 +18,7 @@ import tempfile
 import time
 from pathlib import Path
 
+import pytest
 import requests
 from dotenv import dotenv_values
 
@@ -62,6 +63,10 @@ def pytest_configure(config):
         # Short lock so the lock-expiry test is quick; proxy header trusted so tests can vary the client IP.
         "LOGIN_LOCK_SECONDS": "6",
         "TRUST_PROXY": "true",
+        # Reset links come back in the API response (no inbox in tests); never enabled outside the test server.
+        "MAIL_PROVIDER": "console",
+        "PASSWORD_RESET_DEBUG_LINK": "true",
+        "FRONTEND_URL": "http://localhost:3000",
     }
     log = tempfile.NamedTemporaryFile("w+", prefix="educentre-test-server-", suffix=".log", delete=False)
     proc = subprocess.Popen(
@@ -121,3 +126,15 @@ def pytest_unconfigure(config):
             os.unlink(_state["log"].name)
         except OSError:
             pass
+
+
+@pytest.fixture(scope="session")
+def mongo_db():
+    """Direct handle on the throw-away test database (only when this conftest started the server)."""
+    if not _state["proc"]:
+        pytest.skip("test server was not started by conftest; its database is out of reach")
+    from pymongo import MongoClient
+
+    client = MongoClient(_state["mongo_url"], serverSelectionTimeoutMS=15000)
+    yield client[_state["db_name"]]
+    client.close()

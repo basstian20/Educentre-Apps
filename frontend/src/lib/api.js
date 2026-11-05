@@ -20,6 +20,7 @@ const ID_ERRORS = {
   "Email already registered": "Email sudah terdaftar",
   "Invalid email or password": "Email atau kata sandi salah",
   "Account disabled": "Akun dinonaktifkan",
+  "Invalid or expired reset link": "Tautan atur ulang tidak valid atau sudah kedaluwarsa. Minta tautan baru.",
   "Not authenticated": "Silakan masuk terlebih dahulu",
   "Token expired": "Sesi berakhir, silakan masuk lagi",
   "Insufficient permissions": "Anda tidak punya izin untuk tindakan ini",

@@ -108,3 +108,10 @@ html.dark .lg-hero { background: linear-gradient(150deg, #3f63d6 0%, #2447b8 55%
 @media (prefers-reduced-motion: reduce) {
   .lg-hero .clay i { animation: none; translate: none; }
 }
+
+/* ---------- Lupa / atur ulang kata sandi ---------- */
+.lg-forgot { justify-self: end; margin-top: -6px; font-size: 13px; font-weight: 700; color: var(--pri-text); text-decoration: none; }
+.lg-forgot:hover, .lg-back:hover { text-decoration: underline; }
+.lg-back { display: inline-flex; align-items: center; gap: 6px; justify-self: start; font-size: 13.5px; font-weight: 700; color: var(--pri-text); text-decoration: none; }
+.lg-notice { padding: 12px 14px; border-radius: var(--rs); background: color-mix(in srgb, var(--pri) 12%, transparent); color: var(--ink); font-size: 14px; font-weight: 600; line-height: 1.5; }
+.lg-notice-dev { display: block; text-decoration: none; color: var(--pri-text); word-break: break-word; }

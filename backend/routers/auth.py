@@ -1,9 +1,13 @@
 """auth routes."""
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+import os
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
 from auth import create_access_token, create_refresh_token, get_current_user, hash_password, require_roles, verify_password
 from core import _clear_cookies, _set_auth_cookies, db, new_id, now_iso
 import login_guard
-from models import LoginInput, RegisterInput
+import mailer
+import password_reset
+from models import ForgotPasswordInput, LoginInput, RegisterInput, ResetPasswordInput
 
 router = APIRouter()
 
@@ -75,3 +79,25 @@ async def clear_lockout(email: str, current=Depends(require_roles("admin"))):
     """Admin: lift the lock and reset the failure counters for an email address."""
     cleared = await login_guard.clear_email(email.lower().strip())
     return {"ok": True, "cleared": cleared}
+
+
+@router.post("/auth/forgot-password")
+async def forgot_password(payload: ForgotPasswordInput, background: BackgroundTasks):
+    """Email a one-time reset link. The answer is the same whether or not the address has an account."""
+    issued = await password_reset.issue_token(payload.email.lower().strip())
+    response = {"ok": True}
+    if issued:
+        user, link = issued
+        subject, body = password_reset.email_body(user.get("full_name") or user["email"], link)
+        background.add_task(mailer.send_email, user["email"], subject, body)
+        # Development/demo convenience only: the console mailer has no inbox, so the link can be returned.
+        debug = os.environ.get("PASSWORD_RESET_DEBUG_LINK", "").strip().lower() in ("1", "true", "yes")
+        if mailer.provider() == "console" and debug:
+            response["debug_reset_url"] = link
+    return response
+
+
+@router.post("/auth/reset-password")
+async def reset_password(payload: ResetPasswordInput):
+    await password_reset.reset_password(payload.token.strip(), payload.new_password)
+    return {"ok": True}

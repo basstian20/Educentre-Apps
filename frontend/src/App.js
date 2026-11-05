@@ -8,6 +8,8 @@ import { ThemeProvider } from "@/lib/theme";
 import { MotionProvider } from "@/lib/motion";
 
 import Login from "@/pages/Login";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import Dashboard from "@/pages/Dashboard";
 import Students from "@/pages/Students";
 import Educators from "@/pages/Educators";
@@ -61,6 +63,8 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
             <Route path="/" element={<PublicOnly><Login /></PublicOnly>} />
+            <Route path="/forgot-password" element={<PublicOnly><ForgotPassword /></PublicOnly>} />
+            <Route path="/reset-password" element={<PublicOnly><ResetPassword /></PublicOnly>} />
             <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
             <Route path="/students" element={<Protected><Students /></Protected>} />
             <Route path="/educators" element={<Protected><Educators /></Protected>} />

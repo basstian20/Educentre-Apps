@@ -70,6 +70,8 @@ async def on_startup():
     await db.invoices.create_index("invoice_number", unique=True)
     # login_guard: rows expire on their own once the lock/failure window has passed
     await db.login_attempts.create_index("expires_at", expireAfterSeconds=0)
+    await db.password_resets.create_index("purge_at", expireAfterSeconds=0)
+    await db.password_resets.create_index([("user_id", 1), ("created_at", -1)])
 
     # seed
     from seed import seed_all
