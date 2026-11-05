@@ -68,6 +68,8 @@ async def on_startup():
     await db.attendance.create_index([("student_id", 1), ("session_date", -1)])
     await db.attendance.create_index([("session_date", -1)])
     await db.invoices.create_index("invoice_number", unique=True)
+    # login_guard: rows expire on their own once the lock/failure window has passed
+    await db.login_attempts.create_index("expires_at", expireAfterSeconds=0)
 
     # seed
     from seed import seed_all

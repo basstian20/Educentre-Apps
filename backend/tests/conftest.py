@@ -59,6 +59,9 @@ def pytest_configure(config):
         "MONGO_URL": mongo_url,
         "DB_NAME": db_name,
         "JWT_SECRET": TEST_JWT_SECRET,
+        # Short lock so the lock-expiry test is quick; proxy header trusted so tests can vary the client IP.
+        "LOGIN_LOCK_SECONDS": "6",
+        "TRUST_PROXY": "true",
     }
     log = tempfile.NamedTemporaryFile("w+", prefix="educentre-test-server-", suffix=".log", delete=False)
     proc = subprocess.Popen(

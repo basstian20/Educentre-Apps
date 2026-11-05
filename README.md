@@ -70,6 +70,16 @@ educentre/
 
 ---
 
+## Login protection
+
+After 5 failed sign-ins for the same email from the same address (or 20 from any address) the account is
+locked for 15 minutes and `/api/auth/login` answers `429` with a `Retry-After` header; the correct password
+is refused while locked. Admins can list active locks with `GET /api/auth/lockouts` and lift one with
+`DELETE /api/auth/lockouts/{email}`. Behind a reverse proxy set `TRUST_PROXY=true` so the real client
+address is used (see `backend/.env.example` for all knobs).
+
+---
+
 ## Testing
 
 ```bash
