@@ -4,7 +4,8 @@ import pytest
 import requests
 from datetime import date, timedelta
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://educentre-hub.preview.emergentagent.com").rstrip("/")
+# conftest.py starts an isolated server and sets REACT_APP_BACKEND_URL unless one is supplied.
+BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/")
 API = f"{BASE_URL}/api"
 
 CREDS = {

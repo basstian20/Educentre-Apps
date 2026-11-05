@@ -70,6 +70,21 @@ educentre/
 
 ---
 
+## Testing
+
+```bash
+pip install -r backend/requirements.txt
+python -m pytest backend/tests
+```
+
+The suite starts its own API server against a throw-away database (`edu_test`, dropped afterwards), so
+the demo data in `edu_db` is never touched. It uses `MONGO_URL` from the environment or `backend/.env`.
+Set `REACT_APP_BACKEND_URL` to test an already-running server instead. If you change the API on purpose,
+refresh the route snapshot with `UPDATE_API_SURFACE=1 python -m pytest backend/tests/test_api_surface.py`.
+CI (`.github/workflows/ci.yml`) runs pyflakes, the backend tests and a strict frontend build on every pull request.
+
+---
+
 ## Running Locally
 
 ### Prerequisites
