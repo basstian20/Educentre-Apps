@@ -94,3 +94,7 @@ credentials.json
 *.pem
 *.key
 .credentials
+
+# Keep the documented example env file tracked
+!.env.example
+!backend/.env.example
