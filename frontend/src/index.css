@@ -211,13 +211,14 @@
     right: auto;
     left: 50%;
     bottom: max(10px, env(safe-area-inset-bottom));
-    width: 212px;
-    min-width: 212px;
+    width: max-content;
+    min-width: 0;
     max-width: calc(100vw - 20px);
     height: 40px;
     gap: 7px;
     padding: 6px 10px 6px 12px;
-    font-size: 12px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
     transform: translateX(-50%);
   }
 
@@ -225,11 +226,18 @@
     transform: translate(-50%, -2px);
   }
 
+  .developer-credit-label {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .developer-credit-logo {
     width: 86px;
     max-width: 86px;
     height: 24px;
-    flex-basis: 86px;
+    flex: 0 0 86px;
   }
 }
 
