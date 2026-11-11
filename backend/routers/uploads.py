@@ -60,6 +60,8 @@ async def download_file(file_id: str, current=Depends(get_current_user)):
         raise HTTPException(404, "File not found")
     # only people who can see the owning material may download
     mat = await db.materials.find_one({"file_id": file_id}, {"_id": 0})
+    if mat and mat.get("deleted_at"):
+        raise HTTPException(404, "File not found")
     if mat and current["role"] in ("student", "parent", "educator"):
         visible = await list_materials(None, current)
         if not any(m["id"] == mat["id"] for m in visible):

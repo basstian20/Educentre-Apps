@@ -81,6 +81,9 @@ async def get_current_user(request: Request):
     user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
+    if user.get("is_active") is False:
+        # disabled or trashed accounts lose access immediately, not when the token expires
+        raise HTTPException(status_code=401, detail="Account disabled")
     return user
 
 

@@ -2,7 +2,7 @@
 from datetime import date, timedelta
 from fastapi import APIRouter, Depends
 from auth import get_current_user
-from core import _resolve_educator_id, db
+from core import _resolve_educator_id, db, not_deleted
 from routers.dashboard import _today_dow
 from routers.invoices import _visible_student_ids
 
@@ -29,7 +29,7 @@ async def notifications(current=Depends(get_current_user)):
     visible = await _visible_student_ids(current)
     invoices = []
     if role in ("admin", "parent"):  # finance notices are for admin and parents only
-        q = {"status": {"$in": ["unpaid", "partial", "overdue"]}}
+        q = not_deleted({"status": {"$in": ["unpaid", "partial", "overdue"]}})
         if visible is not None:
             q["student_id"] = {"$in": list(visible)}
         invoices = await db.invoices.find(q, {"_id": 0}).sort("due_date", 1).to_list(200)
@@ -40,7 +40,7 @@ async def notifications(current=Depends(get_current_user)):
     phone_by_parent = {}
     if role == "admin":
         parent_ids = [s["parent_id"] for s in students if s.get("parent_id")]
-        for p in await db.parents.find({"user_id": {"$in": parent_ids}}, {"_id": 0, "user_id": 1, "phone": 1}).to_list(500):
+        for p in await db.parents.find(not_deleted({"user_id": {"$in": parent_ids}}), {"_id": 0, "user_id": 1, "phone": 1}).to_list(500):
             phone_by_parent[p["user_id"]] = p.get("phone")
 
     for inv in invoices:

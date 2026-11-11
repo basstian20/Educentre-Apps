@@ -1,7 +1,7 @@
 """parents routes."""
 from fastapi import APIRouter, Depends, HTTPException
 from auth import hash_password, require_roles
-from core import _sync_user, db, new_id, now_iso
+from core import _sync_user, db, deleted_fields, new_id, not_deleted, now_iso
 from models import ParentCreate, ParentUpdate
 
 router = APIRouter()
@@ -45,12 +45,12 @@ async def create_parent(payload: ParentCreate, current=Depends(require_roles("ad
 
 @router.get("/parents")
 async def list_parents(current=Depends(require_roles("admin"))):
-    return await db.parents.find({}, {"_id": 0}).to_list(200)
+    return await db.parents.find(not_deleted(), {"_id": 0}).to_list(200)
 
 
 @router.patch("/parents/{pid}")
 async def update_parent(pid: str, payload: ParentUpdate, current=Depends(require_roles("admin"))):
-    parent = await db.parents.find_one({"id": pid}, {"_id": 0})
+    parent = await db.parents.find_one(not_deleted({"id": pid}), {"_id": 0})
     if not parent:
         raise HTTPException(404, "Parent not found")
     update = {k: v for k, v in payload.model_dump().items() if v is not None}
@@ -71,11 +71,11 @@ async def update_parent(pid: str, payload: ParentUpdate, current=Depends(require
 
 @router.delete("/parents/{pid}")
 async def delete_parent(pid: str, current=Depends(require_roles("admin"))):
-    """Removes the parent account and unlinks (does not delete) their children."""
-    parent = await db.parents.find_one({"id": pid}, {"_id": 0})
+    """Moves the parent to the trash: the login is disabled and their children are unlinked (not deleted)."""
+    parent = await db.parents.find_one(not_deleted({"id": pid}), {"_id": 0})
     if not parent:
         raise HTTPException(404, "Parent not found")
     await db.students.update_many({"parent_id": parent["user_id"]}, {"$set": {"parent_id": None}})
-    await db.users.delete_one({"id": parent["user_id"]})
-    await db.parents.delete_one({"id": pid})
+    await db.users.update_one({"id": parent["user_id"]}, {"$set": {"is_active": False}})
+    await db.parents.update_one({"id": pid}, {"$set": deleted_fields(current["id"])})
     return {"ok": True}

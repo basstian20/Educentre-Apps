@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, Btn, Input, Textarea } from "@/components/UI";
+import TrashPanel from "@/components/TrashPanel";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { api, formatApiError } from "@/lib/api";
@@ -93,6 +94,8 @@ export default function Settings() {
             </div>
           </Card>
         )}
+
+        {isAdmin && <TrashPanel />}
       </div>
     </Layout>
   );

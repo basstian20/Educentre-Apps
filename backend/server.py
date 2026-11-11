@@ -27,6 +27,7 @@ from routers import (
     reports,
     notifications,
     dashboard,
+    trash,
 )
 
 app = FastAPI(title="EduCentre API")
@@ -35,7 +36,7 @@ api = APIRouter(prefix="/api")
 # Order matters only for overlapping paths; keep it identical to the pre-split server.py.
 for _module in (
     health, auth, users, students, educators, parents, classes, enrollments, attendance,
-    invoices, grades, materials, announcements, uploads, settings, reports, notifications, dashboard,
+    invoices, grades, materials, announcements, uploads, settings, reports, notifications, dashboard, trash,
 ):
     api.include_router(_module.router)
 
@@ -68,6 +69,8 @@ async def on_startup():
     await db.attendance.create_index([("student_id", 1), ("session_date", -1)])
     await db.attendance.create_index([("session_date", -1)])
     await db.invoices.create_index("invoice_number", unique=True)
+    for _coll in (db.parents, db.announcements, db.materials, db.invoices):
+        await _coll.create_index("deleted_at")
     # login_guard: rows expire on their own once the lock/failure window has passed
     await db.login_attempts.create_index("expires_at", expireAfterSeconds=0)
     await db.password_resets.create_index("purge_at", expireAfterSeconds=0)
