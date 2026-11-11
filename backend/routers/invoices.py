@@ -3,7 +3,7 @@ from datetime import date
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from auth import get_current_user, require_roles
-from core import _gen_invoice_number, db, new_id, now_iso
+from core import _gen_invoice_number, db, deleted_fields, new_id, not_deleted, now_iso
 from models import InvoiceCreate, InvoiceUpdate, PaymentRecord
 
 router = APIRouter()
@@ -38,7 +38,7 @@ async def create_invoice(payload: InvoiceCreate, current=Depends(require_roles("
 
 @router.get("/invoices")
 async def list_invoices(student_id: Optional[str] = None, status: Optional[str] = None, current=Depends(get_current_user)):
-    q = {}
+    q = not_deleted()
     role = current["role"]
     if role == "parent":
         kids = await db.students.find({"parent_id": current["id"]}, {"_id": 0, "id": 1}).to_list(50)
@@ -53,7 +53,7 @@ async def list_invoices(student_id: Optional[str] = None, status: Optional[str] 
     today = date.today().isoformat()
     # Persist overdue status
     await db.invoices.update_many(
-        {"status": {"$in": ["unpaid", "partial"]}, "due_date": {"$lt": today}},
+        not_deleted({"status": {"$in": ["unpaid", "partial"]}, "due_date": {"$lt": today}}),
         {"$set": {"status": "overdue"}},
     )
     invoices = await db.invoices.find(q, {"_id": 0}).sort("created_at", -1).to_list(500)
@@ -80,7 +80,7 @@ async def _get_centre() -> dict:
 
 
 async def _invoice_for(iid: str, current: dict) -> dict:
-    inv = await db.invoices.find_one({"id": iid}, {"_id": 0})
+    inv = await db.invoices.find_one(not_deleted({"id": iid}), {"_id": 0})
     if not inv:
         raise HTTPException(404, "Invoice not found")
     visible = await _visible_student_ids(current)
@@ -114,7 +114,7 @@ async def invoice_document(iid: str, current=Depends(get_current_user)):
 
 @router.patch("/invoices/{iid}")
 async def update_invoice(iid: str, payload: InvoiceUpdate, current=Depends(require_roles("admin"))):
-    inv = await db.invoices.find_one({"id": iid}, {"_id": 0})
+    inv = await db.invoices.find_one(not_deleted({"id": iid}), {"_id": 0})
     if not inv:
         raise HTTPException(404, "Invoice not found")
     update = {k: v for k, v in payload.model_dump(exclude={"items"}).items() if v is not None}
@@ -131,18 +131,18 @@ async def update_invoice(iid: str, payload: InvoiceUpdate, current=Depends(requi
 
 @router.delete("/invoices/{iid}")
 async def delete_invoice(iid: str, current=Depends(require_roles("admin"))):
-    inv = await db.invoices.find_one({"id": iid}, {"_id": 0})
+    inv = await db.invoices.find_one(not_deleted({"id": iid}), {"_id": 0})
     if not inv:
         raise HTTPException(404, "Invoice not found")
     if inv.get("amount_paid", 0) > 0 or await db.payments.count_documents({"invoice_id": iid}):
         raise HTTPException(400, "This invoice has payments and can't be deleted")
-    await db.invoices.delete_one({"id": iid})
+    await db.invoices.update_one({"id": iid}, {"$set": deleted_fields(current["id"])})
     return {"ok": True}
 
 
 @router.post("/payments")
 async def record_payment(payload: PaymentRecord, current=Depends(require_roles("admin"))):
-    inv = await db.invoices.find_one({"id": payload.invoice_id})
+    inv = await db.invoices.find_one(not_deleted({"id": payload.invoice_id}))
     if not inv:
         raise HTTPException(404, "Invoice not found")
     p = {

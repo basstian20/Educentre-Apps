@@ -11,6 +11,8 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import Response
+from pymongo import ReturnDocument
+from pymongo.errors import DuplicateKeyError
 
 from database import get_db
 
@@ -50,9 +52,44 @@ async def _gen_educator_code():
     return f"EDU-{datetime.now().year}-{(count + 1):04d}"
 
 
+def not_deleted(query: Optional[dict] = None) -> dict:
+    """Add the soft-delete filter to a Mongo query (documents without the field count as live)."""
+    return {**(query or {}), "deleted_at": None}
+
+
+def deleted_fields(actor_id: str) -> dict:
+    """Fields written when a document is moved to the trash."""
+    return {"deleted_at": now_iso(), "deleted_by": actor_id}
+
+
+UNDELETE_FIELDS = {"deleted_at": None, "deleted_by": None}
+
+
+async def _next_counter(name: str, current_max) -> int:
+    """Atomically increment a named counter; on first use start from the highest existing value."""
+    doc = await db.counters.find_one_and_update({"_id": name}, {"$inc": {"seq": 1}}, return_document=ReturnDocument.AFTER)
+    if doc is None:
+        try:
+            await db.counters.insert_one({"_id": name, "seq": await current_max()})
+        except DuplicateKeyError:
+            pass  # another request initialised it first
+        doc = await db.counters.find_one_and_update({"_id": name}, {"$inc": {"seq": 1}}, return_document=ReturnDocument.AFTER)
+    return doc["seq"]
+
+
+async def _highest_invoice_seq() -> int:
+    best = 0
+    async for inv in db.invoices.find({}, {"_id": 0, "invoice_number": 1}):
+        tail = (inv.get("invoice_number") or "").rsplit("-", 1)[-1]
+        if tail.isdigit():
+            best = max(best, int(tail))
+    return best
+
+
 async def _gen_invoice_number():
-    count = await db.invoices.count_documents({})
-    return f"INV-{datetime.now().year}-{(count + 1):05d}"
+    """Sequential and never reused, even after invoices are deleted (counter lives in `counters`)."""
+    seq = await _next_counter("invoice", _highest_invoice_seq)
+    return f"INV-{datetime.now().year}-{seq:05d}"
 
 
 async def _resolve_educator_id(user_id: str) -> Optional[str]:

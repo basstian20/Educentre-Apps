@@ -44,6 +44,8 @@ const ID_ERRORS = {
   "File not found": "File tidak ditemukan",
   "Invoice not found": "Tagihan tidak ditemukan",
   "Parent not found": "Orang tua tidak ditemukan",
+  "Item not found in the trash": "Data tidak ditemukan di tempat sampah",
+  "This invoice has payments and can't be deleted permanently": "Tagihan ini sudah ada pembayaran dan tidak bisa dihapus permanen",
   "Student not found": "Siswa tidak ditemukan",
   "Something went wrong. Please try again.": "Terjadi kesalahan. Silakan coba lagi.",
 };

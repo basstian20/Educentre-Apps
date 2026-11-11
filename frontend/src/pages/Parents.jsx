@@ -185,7 +185,7 @@ export default function Parents() {
         open={!!removing}
         onClose={() => setRemoving(null)}
         onConfirm={remove}
-        message={removing ? `${removing.full_name}. ${t.deleteHint}` : ""}
+        message={removing ? `${removing.full_name}. ${t.deleteToTrashHint}` : ""}
       />
     </Layout>
   );

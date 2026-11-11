@@ -2,7 +2,7 @@
 from datetime import date, datetime
 from fastapi import APIRouter, Depends
 from auth import get_current_user
-from core import _resolve_educator_id, db
+from core import _resolve_educator_id, db, not_deleted
 
 router = APIRouter()
 
@@ -12,7 +12,7 @@ async def _admin_stats(today: str) -> dict:
     students_count = await db.students.count_documents({"status": "active"})
     classes_count = await db.classes.count_documents({"is_active": True})
     educators_count = await db.educators.count_documents({"status": "active"})
-    invoices = await db.invoices.find({}, {"_id": 0}).to_list(2000)
+    invoices = await db.invoices.find(not_deleted(), {"_id": 0}).to_list(2000)
     outstanding = sum(i.get("balance_due", 0) for i in invoices if i["status"] != "paid")
     payments = await db.payments.find({}, {"_id": 0}).to_list(2000)
     revenue_this_month = sum(p["amount"] for p in payments if (p.get("paid_at") or "")[:7] == today[:7])
@@ -93,7 +93,7 @@ async def _parent_stats(user_id: str) -> dict:
     enrolls = await db.enrollments.find({"student_id": {"$in": kid_ids}, "status": "active"}, {"_id": 0}).to_list(200)
     cids = list({e["class_id"] for e in enrolls})
     my_classes = await db.classes.find({"id": {"$in": cids}}, {"_id": 0}).to_list(50)
-    invs = await db.invoices.find({"student_id": {"$in": kid_ids}}, {"_id": 0}).to_list(200)
+    invs = await db.invoices.find(not_deleted({"student_id": {"$in": kid_ids}}), {"_id": 0}).to_list(200)
     outstanding = sum(i.get("balance_due", 0) for i in invs if i["status"] != "paid")
     return {
         "children_count": len(kids),

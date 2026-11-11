@@ -2,7 +2,7 @@
 from typing import Optional
 from fastapi import APIRouter, Depends
 from auth import get_current_user, require_roles
-from core import _resolve_educator_id, db, new_id, now_iso
+from core import _resolve_educator_id, db, deleted_fields, new_id, not_deleted, now_iso
 from models import MaterialCreate
 
 router = APIRouter()
@@ -23,7 +23,7 @@ async def create_material(payload: MaterialCreate, current=Depends(require_roles
 
 @router.get("/materials")
 async def list_materials(class_id: Optional[str] = None, current=Depends(get_current_user)):
-    q = {}
+    q = not_deleted()
     role = current["role"]
     if class_id:
         q["class_id"] = class_id
@@ -46,8 +46,6 @@ async def list_materials(class_id: Optional[str] = None, current=Depends(get_cur
 
 @router.delete("/materials/{mid}")
 async def delete_material(mid: str, current=Depends(require_roles("admin", "educator"))):
-    mat = await db.materials.find_one({"id": mid}, {"_id": 0})
-    if mat and mat.get("file_id"):
-        await db.material_files.delete_one({"id": mat["file_id"]})
-    await db.materials.delete_one({"id": mid})
+    # the file stays in storage until the material is purged from the trash
+    await db.materials.update_one(not_deleted({"id": mid}), {"$set": deleted_fields(current["id"])})
     return {"ok": True}

@@ -1,7 +1,7 @@
 """announcements routes."""
 from fastapi import APIRouter, Depends, HTTPException
 from auth import get_current_user, require_roles
-from core import _resolve_educator_id, db, new_id, now_iso
+from core import _resolve_educator_id, db, deleted_fields, new_id, not_deleted, now_iso
 from models import AnnouncementCreate, AnnouncementUpdate
 
 router = APIRouter()
@@ -21,7 +21,7 @@ async def create_announcement(payload: AnnouncementCreate, current=Depends(requi
 
 
 async def _own_announcement_or_403(aid: str, current: dict) -> dict:
-    doc = await db.announcements.find_one({"id": aid}, {"_id": 0})
+    doc = await db.announcements.find_one(not_deleted({"id": aid}), {"_id": 0})
     if not doc:
         raise HTTPException(404, "Announcement not found")
     if current["role"] != "admin" and doc.get("created_by") != current["id"]:
@@ -41,7 +41,7 @@ async def update_announcement(aid: str, payload: AnnouncementUpdate, current=Dep
 @router.delete("/announcements/{aid}")
 async def delete_announcement(aid: str, current=Depends(require_roles("admin", "educator"))):
     await _own_announcement_or_403(aid, current)
-    await db.announcements.delete_one({"id": aid})
+    await db.announcements.update_one({"id": aid}, {"$set": deleted_fields(current["id"])})
     return {"ok": True}
 
 
@@ -50,7 +50,7 @@ async def list_announcements(current=Depends(get_current_user)):
     role = current["role"]
     role_to_audience = {"admin": ["all"], "educator": ["all", "educators"], "student": ["all", "students"], "parent": ["all", "parents"]}
     audiences = role_to_audience.get(role, ["all"])
-    docs = await db.announcements.find({"audience": {"$in": audiences + ["class"]}}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    docs = await db.announcements.find(not_deleted({"audience": {"$in": audiences + ["class"]}}), {"_id": 0}).sort("created_at", -1).to_list(200)
     # filter class-specific
     if role in ("student", "educator", "parent"):
         # find class ids the user has access to

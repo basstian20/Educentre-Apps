@@ -8,6 +8,7 @@
   "DELETE /api/materials/{mid}",
   "DELETE /api/parents/{pid}",
   "DELETE /api/students/{sid}",
+  "DELETE /api/trash/{kind}/{rid}",
   "GET /api/",
   "GET /api/announcements",
   "GET /api/assessments",
@@ -32,6 +33,7 @@
   "GET /api/students",
   "GET /api/students/{sid}",
   "GET /api/students/{sid}/report",
+  "GET /api/trash",
   "GET /api/users",
   "PATCH /api/announcements/{aid}",
   "PATCH /api/auth/me",
@@ -61,5 +63,6 @@
   "POST /api/payments",
   "POST /api/students",
   "POST /api/students/import",
+  "POST /api/trash/{kind}/{rid}/restore",
   "PUT /api/settings"
 ]

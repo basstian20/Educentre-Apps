@@ -220,7 +220,7 @@ export default function Invoices() {
         open={!!removing}
         onClose={() => setRemoving(null)}
         onConfirm={remove}
-        message={removing ? `${removing.invoice_number}. ${t.deleteHint}` : ""}
+        message={removing ? `${removing.invoice_number}. ${t.deleteToTrashHint}` : ""}
       />
 
       <Modal open={open} onClose={() => setOpen(false)} title={editing ? `${t.edit}: ${editing.invoice_number}` : t.newInvoice}

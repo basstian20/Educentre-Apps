@@ -144,7 +144,7 @@ export default function Materials() {
         open={!!removing}
         onClose={() => setRemoving(null)}
         onConfirm={remove}
-        message={removing ? `${removing.title}. ${t.deleteHint}` : ""}
+        message={removing ? `${removing.title}. ${t.deleteToTrashHint}` : ""}
       />
 
       <Modal open={open} onClose={() => setOpen(false)} title={t.addMaterial}
