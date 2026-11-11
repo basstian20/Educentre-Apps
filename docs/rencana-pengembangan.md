@@ -8,8 +8,15 @@ Kendala/temuan kode: `backend/server.py` satu file 1.420 baris; tes backend hany
 
 Prinsip (dari `PRODUCT.md`): tiap peran hanya melihat yang relevan, phone-first, Bahasa Indonesia utama, data demo realistis, tugas cepat > banyak fitur, kredit NobleDev tetap tampil.
 
+## Aturan alur cabang (berlaku sejak 2026-11-11)
+- `main` = **production** (Railway + Vercel otomatis deploy dari sini). Tidak ada pekerjaan pengembangan yang masuk ke `main` sampai seluruh rencana selesai.
+- `develop` = cabang integrasi. Setiap fungsi dikerjakan di branch `feat/...`/`refactor/...`/`chore/...` yang dibuat dari `develop`, lalu di-merge (`--no-ff`) ke `develop` setelah diperiksa. CI berjalan di `develop`.
+- Penggabungan `develop` → `main` hanya sekali, setelah semua rencana selesai dan diuji menyeluruh, dengan persetujuan eksplisit. Perbaikan darurat production: branch `hotfix/...` dari `main`, merge ke `main` lalu ke `develop`.
+- Jangan push `develop` ke `origin` tanpa persetujuan: Vercel membuat preview deployment untuk branch non-`main`.
+- Pengembangan lokal memakai database terpisah (bukan `edu_db`); tes memakai `edu_test`.
+
 ## Aturan pembaruan rencana
-Setiap satu fungsi (F0-x) selesai dan di-merge, file ini diperbarui di tabel "Status per fase" dan "Status fungsi" (tanggal, hash merge, ringkasan verifikasi, catatan/risiko). Setiap satu fase selesai, status fase diubah ke "Selesai" dan rinciannya difinalkan sebelum fase berikutnya dimulai.
+Setiap satu fungsi (F0-x) selesai dan di-merge ke `develop`, file ini diperbarui di tabel "Status per fase" dan "Status fungsi" (tanggal, hash merge, ringkasan verifikasi, catatan/risiko). Setiap satu fase selesai, status fase diubah ke "Selesai" dan rinciannya difinalkan sebelum fase berikutnya dimulai.
 
 ## Status per fase (diperbarui 2026-11-05)
 | Fase | Isi | Status |
@@ -34,7 +41,7 @@ Wajib duluan karena fase lain bergantung padanya. Satu branch per fungsi, merge 
 | F0-2 | `chore/test-ci` | DB uji terpisah, snapshot API, smoke per peran, GitHub Actions | **Selesai** — merge `455fd64` |
 | F0-3 | `feat/login-rate-limit` | Kunci login setelah gagal berulang + admin unlock | **Selesai** — merge `6ab9373` |
 | F0-4 | `feat/password-reset` | Lupa/reset password via token email | **Selesai** — merge `f23f295` |
-| F0-5 | `feat/soft-delete` | Soft delete + tempat sampah admin + counter nomor invoice | **Selesai di branch** (2026-11-11) — menunggu persetujuan merge |
+| F0-5 | `feat/soft-delete` | Soft delete + tempat sampah admin + counter nomor invoice | **Selesai** (2026-11-11) — merge ke `develop` |
 | F0-6 | `feat/audit-log` | Audit log + halaman viewer admin | Belum mulai |
 | F0-7 | `refactor/storage-service` | Abstraksi penyimpanan file (Mongo → S3/R2) | Belum mulai |
 | F0-8 | `perf/pagination-indexes` | Paginasi sisi server + indeks Mongo | Belum mulai |
