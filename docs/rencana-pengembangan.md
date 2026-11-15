@@ -44,7 +44,7 @@ Wajib duluan karena fase lain bergantung padanya. Satu branch per fungsi, merge 
 | F0-5 | `feat/soft-delete` | Soft delete + tempat sampah admin + counter nomor invoice | **Selesai** (2026-11-11) — merge ke `develop` |
 | F0-6 | `feat/audit-log` | Audit log + halaman viewer admin | **Selesai** (2026-11-15) — merge `58b9b70` ke `develop` |
 | F0-7 | `refactor/storage-service` | Abstraksi penyimpanan file (Mongo → S3/R2) | **Selesai** (2026-11-15) — merge `a69c7ad` ke `develop`. 9 tes unit lulus (termasuk S3 via moto); tes integrasi penuh belum bisa dijalankan lokal (Atlas tak terjangkau), diserahkan ke CI |
-| F0-8 | `perf/pagination-indexes` | Paginasi sisi server + indeks Mongo | **Selesai di cabang** (2026-11-15), belum di-merge ke `develop`. Lihat catatan hasil di bawah |
+| F0-8 | `perf/pagination-indexes` | Paginasi sisi server + indeks Mongo | **Selesai** (2026-11-15) — merge `f469ba2` ke `develop`. Lihat catatan hasil di bawah |
 | F0-9 | `chore/observability` | Log terstruktur, health check, Sentry | Belum mulai |
 | F0-10 | `test/e2e-playwright` | Tes E2E frontend di CI | Belum mulai |
 
