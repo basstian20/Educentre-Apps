@@ -21,7 +21,7 @@ Setiap satu fungsi (F0-x) selesai dan di-merge ke `develop`, file ini diperbarui
 ## Status per fase (diperbarui 2026-11-05)
 | Fase | Isi | Status |
 |---|---|---|
-| 0 | Fondasi teknis | **Berjalan — 4 dari 10 fungsi selesai** |
+| 0 | Fondasi teknis | **Selesai** (2026-11-15) — F0-1..F0-10 di `develop`; F0-5..F0-10 belum di-push/di `main` |
 | 1 | Uang & penagihan | Belum mulai |
 | 2 | Komunikasi | Belum mulai |
 | 3 | Akademik | Belum mulai |
@@ -46,7 +46,7 @@ Wajib duluan karena fase lain bergantung padanya. Satu branch per fungsi, merge 
 | F0-7 | `refactor/storage-service` | Abstraksi penyimpanan file (Mongo → S3/R2) | **Selesai** (2026-11-15) — merge `a69c7ad` ke `develop`. 9 tes unit lulus (termasuk S3 via moto); tes integrasi penuh belum bisa dijalankan lokal (Atlas tak terjangkau), diserahkan ke CI |
 | F0-8 | `perf/pagination-indexes` | Paginasi sisi server + indeks Mongo | **Selesai** (2026-11-15) — merge `f469ba2` ke `develop`. Lihat catatan hasil di bawah |
 | F0-9 | `chore/observability` | Log terstruktur, health check, Sentry | **Selesai** (2026-11-15) — lihat hasil di bawah |
-| F0-10 | `test/e2e-playwright` | Tes E2E frontend di CI | **Selesai** (2026-11-15) — lihat hasil di bawah |
+| F0-10 | `test/e2e-playwright` | Tes E2E frontend di CI | **Selesai** (2026-11-15) — merge `78f3a6f` ke `develop`. Lihat hasil di bawah |
 
 ### Hasil F0-1 s.d. F0-3 (ringkas)
 - **F0-1:** route/OpenAPI identik (63 route), 129 respons GET empat peran identik dengan versi lama, 47 pytest lulus.
