@@ -1,5 +1,6 @@
 """educators routes."""
 from fastapi import APIRouter, Depends, HTTPException
+import audit
 from auth import get_current_user, hash_password, require_roles
 from core import _gen_educator_code, _sync_user, db, new_id, now_iso
 from models import EducatorCreate, EducatorUpdate
@@ -43,6 +44,8 @@ async def create_educator(payload: EducatorCreate, current=Depends(require_roles
     await db.users.insert_one(user_doc)
     await db.educators.insert_one(edu_doc)
     edu_doc.pop("_id", None)
+    await audit.record(current, "create", "educator", educator_id, f"Created educator {edu_doc['full_name']} ({code})",
+                       audit.diff(None, edu_doc, ("full_name", "email", "phone", "subjects", "employment_type")))
     return edu_doc
 
 
@@ -61,7 +64,9 @@ async def update_educator(eid: str, payload: EducatorUpdate, current=Depends(req
     update["updated_at"] = now_iso()
     await db.educators.update_one({"id": eid}, {"$set": update})
     await _sync_user(edu.get("user_id"), update)
-    return await db.educators.find_one({"id": eid}, {"_id": 0})
+    after = await db.educators.find_one({"id": eid}, {"_id": 0})
+    await audit.record(current, "update", "educator", eid, f"Updated educator {after['full_name']}", audit.diff(edu, after, update.keys()))
+    return after
 
 
 @router.delete("/educators/{eid}")
@@ -72,4 +77,6 @@ async def deactivate_educator(eid: str, current=Depends(require_roles("admin")))
         raise HTTPException(404, "Educator not found")
     await db.educators.update_one({"id": eid}, {"$set": {"status": "inactive", "updated_at": now_iso()}})
     await _sync_user(edu.get("user_id"), {"status": "inactive"})
+    await audit.record(current, "delete", "educator", eid, f"Deactivated educator {edu['full_name']}",
+                       {"status": {"from": edu.get("status"), "to": "inactive"}})
     return {"ok": True}

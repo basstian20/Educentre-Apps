@@ -1,6 +1,7 @@
 """attendance routes."""
 from typing import Optional
 from fastapi import APIRouter, Depends
+import audit
 from auth import get_current_user, require_roles
 from core import _resolve_educator_id, db, new_id, now_iso
 from models import AttendanceMark
@@ -13,6 +14,10 @@ router = APIRouter()
 @router.post("/attendance")
 async def mark_attendance(payload: AttendanceMark, current=Depends(require_roles("admin", "educator"))):
     # remove existing for same class+date and insert fresh
+    previous = {
+        a["student_id"]: a.get("status")
+        async for a in db.attendance.find({"class_id": payload.class_id, "session_date": payload.session_date}, {"_id": 0, "student_id": 1, "status": 1})
+    }
     await db.attendance.delete_many({"class_id": payload.class_id, "session_date": payload.session_date})
     docs = []
     for r in payload.records:
@@ -30,6 +35,9 @@ async def mark_attendance(payload: AttendanceMark, current=Depends(require_roles
         await db.attendance.insert_many(docs)
     for d in docs:
         d.pop("_id", None)
+    changes = {d["student_id"]: {"from": previous.get(d["student_id"]), "to": d["status"]} for d in docs if previous.get(d["student_id"]) != d["status"]}
+    await audit.record(current, "update" if previous else "create", "attendance", payload.class_id,
+                       f"Marked attendance for {len(docs)} students on {payload.session_date}", changes)
     return {"count": len(docs), "records": docs}
 
 

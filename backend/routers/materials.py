@@ -1,6 +1,7 @@
 """materials routes."""
 from typing import Optional
 from fastapi import APIRouter, Depends
+import audit
 from auth import get_current_user, require_roles
 from core import _resolve_educator_id, db, deleted_fields, new_id, not_deleted, now_iso
 from models import MaterialCreate
@@ -18,6 +19,7 @@ async def create_material(payload: MaterialCreate, current=Depends(require_roles
     doc["created_at"] = now_iso()
     await db.materials.insert_one(doc)
     doc.pop("_id", None)
+    await audit.record(current, "create", "material", doc["id"], f"Added material {doc.get('title')}", audit.diff(None, doc, ("title", "class_id", "type")))
     return doc
 
 
@@ -47,5 +49,7 @@ async def list_materials(class_id: Optional[str] = None, current=Depends(get_cur
 @router.delete("/materials/{mid}")
 async def delete_material(mid: str, current=Depends(require_roles("admin", "educator"))):
     # the file stays in storage until the material is purged from the trash
-    await db.materials.update_one(not_deleted({"id": mid}), {"$set": deleted_fields(current["id"])})
+    result = await db.materials.update_one(not_deleted({"id": mid}), {"$set": deleted_fields(current["id"])})
+    if result.modified_count:
+        await audit.record(current, "delete", "material", mid, "Moved material to the trash")
     return {"ok": True}

@@ -1,6 +1,7 @@
 """enrollments routes."""
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
+import audit
 from auth import get_current_user, require_roles
 from core import _resolve_educator_id, _resolve_student_id, db, new_id, now_iso
 from models import EnrollmentCreate
@@ -30,6 +31,8 @@ async def create_enrollment(payload: EnrollmentCreate, current=Depends(require_r
     }
     await db.enrollments.insert_one(doc)
     doc.pop("_id", None)
+    await audit.record(current, "create", "enrollment", doc["id"], f"Enrolled student in class {klass.get('name')}",
+                       audit.diff(None, doc, ("student_id", "class_id")))
     return doc
 
 
@@ -56,5 +59,9 @@ async def list_enrollments(student_id: Optional[str] = None, class_id: Optional[
 
 @router.delete("/enrollments/{eid}")
 async def withdraw_enrollment(eid: str, current=Depends(require_roles("admin"))):
+    enr = await db.enrollments.find_one({"id": eid}, {"_id": 0})
     await db.enrollments.update_one({"id": eid}, {"$set": {"status": "withdrawn", "withdrawn_at": now_iso()}})
+    if enr:
+        await audit.record(current, "delete", "enrollment", eid, "Withdrew enrollment",
+                           {"status": {"from": enr.get("status"), "to": "withdrawn"}})
     return {"ok": True}

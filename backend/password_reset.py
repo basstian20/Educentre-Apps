@@ -96,7 +96,8 @@ def email_body(name: str, link: str) -> Tuple[str, str]:
     return subject, body
 
 
-async def reset_password(token: str, new_password: str) -> None:
+async def reset_password(token: str, new_password: str) -> dict:
+    """Consume the token and set the password. Returns the account (id, email, name, role) for the audit trail."""
     if len(new_password) < MIN_PASSWORD_LENGTH:
         # checked first so a typo in the new password does not burn the link
         raise HTTPException(400, "New password must be at least 6 characters")
@@ -116,3 +117,5 @@ async def reset_password(token: str, new_password: str) -> None:
     )
     await db.password_resets.update_many({"user_id": claimed["user_id"], "used_at": None}, {"$set": {"used_at": now}})
     await login_guard.clear_email(claimed["email"])
+    user = await db.users.find_one({"id": claimed["user_id"]}, {"_id": 0, "id": 1, "email": 1, "full_name": 1, "role": 1})
+    return user or {"id": claimed["user_id"], "email": claimed["email"]}

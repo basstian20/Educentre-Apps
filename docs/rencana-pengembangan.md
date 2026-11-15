@@ -42,7 +42,7 @@ Wajib duluan karena fase lain bergantung padanya. Satu branch per fungsi, merge 
 | F0-3 | `feat/login-rate-limit` | Kunci login setelah gagal berulang + admin unlock | **Selesai** — merge `6ab9373` |
 | F0-4 | `feat/password-reset` | Lupa/reset password via token email | **Selesai** — merge `f23f295` |
 | F0-5 | `feat/soft-delete` | Soft delete + tempat sampah admin + counter nomor invoice | **Selesai** (2026-11-11) — merge ke `develop` |
-| F0-6 | `feat/audit-log` | Audit log + halaman viewer admin | Belum mulai |
+| F0-6 | `feat/audit-log` | Audit log + halaman viewer admin | **Selesai** (2026-11-15) — branch `feat/audit-log`, siap merge ke `develop` |
 | F0-7 | `refactor/storage-service` | Abstraksi penyimpanan file (Mongo → S3/R2) | Belum mulai |
 | F0-8 | `perf/pagination-indexes` | Paginasi sisi server + indeks Mongo | Belum mulai |
 | F0-9 | `chore/observability` | Log terstruktur, health check, Sentry | Belum mulai |
@@ -82,6 +82,7 @@ Verifikasi: pytest + uji browser; migrasi data tidak diperlukan (field baru opsi
 4. Frontend: halaman `AuditLog.jsx` (admin saja; menu di sidebar) berisi tabel + filter, label ID/EN, tampilan perbandingan perubahan.
 5. Tes: tiap jenis aksi tercatat, field sensitif tersamar, non-admin ditolak (403), filter dan paginasi.
 Dependensi: F0-5 (aksi restore/purge). Risiko: pertumbuhan koleksi — ditutup indeks + opsi retensi (TTL lewat env, default mati).
+Hasil (2026-11-15): `backend/audit.py` (`record`, `diff`, penyamaran field sensitif, IP via contextvar dari middleware kecil di `server.py`; `AUDIT_RETENTION_DAYS`, default 0 = simpan selamanya); pencatatan di semua endpoint tulis + peristiwa auth (`login_success`, `login_locked`, `unlock`, `password_change`, `password_reset_requested`, `password_reset`); `GET /api/audit-logs` (admin; filter `entity`, `entity_id`, `actor_id`, `action`, `q`, `date_from`, `date_to`, `limit/skip`); frontend `AuditLog.jsx` + menu "Log audit" (admin). Verifikasi: 6 tes baru di `test_audit_log.py` + seluruh suite 167 lulus kecuali `test_login_guard` yang flaky pada Atlas jarak jauh (jendela kunci 6 dtk; gagal juga tanpa perubahan F0-6, tes yang gagal berbeda tiap run), build frontend `CI=true` hijau, uji browser (login → entri muncul → perbandingan sebelum/sesudah).
 
 ### F0-7 `refactor/storage-service` — abstraksi penyimpanan file
 Keadaan sekarang: unggahan materi disimpan sebagai bytes di MongoDB (`material_files`, maks. 5 MB) dan disajikan oleh `GET /files/{id}` dengan pemeriksaan izin di `routers/uploads.py`.

@@ -1,6 +1,7 @@
 """students routes."""
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
+import audit
 from auth import get_current_user, hash_password, require_roles
 from core import _gen_student_code, _resolve_educator_id, _sync_user, db, new_id, now_iso
 from models import StudentCreate, StudentImport, StudentUpdate
@@ -50,6 +51,8 @@ async def create_student(payload: StudentCreate, current=Depends(require_roles("
     await db.users.insert_one(user_doc)
     await db.students.insert_one(student_doc)
     student_doc.pop("_id", None)
+    await audit.record(current, "create", "student", student_id, f"Created student {student_doc['full_name']} ({code})",
+                       audit.diff(None, student_doc, ("full_name", "email", "phone", "school_name", "school_year", "parent_id")))
     return student_doc
 
 
@@ -95,6 +98,7 @@ async def import_students(payload: StudentImport, current=Depends(require_roles(
             "created_at": now_iso(),
         })
         created += 1
+    await audit.record(current, "import", "student", None, f"Imported {created} students ({len(errors)} rows failed)")
     return {"created": created, "errors": errors}
 
 
@@ -144,7 +148,9 @@ async def update_student(sid: str, payload: StudentUpdate, current=Depends(requi
     update["updated_at"] = now_iso()
     await db.students.update_one({"id": sid}, {"$set": update})
     await _sync_user(student.get("user_id"), update)
-    return await db.students.find_one({"id": sid}, {"_id": 0})
+    after = await db.students.find_one({"id": sid}, {"_id": 0})
+    await audit.record(current, "update", "student", sid, f"Updated student {after['full_name']}", audit.diff(student, after, update.keys()))
+    return after
 
 
 @router.delete("/students/{sid}")
@@ -155,4 +161,6 @@ async def deactivate_student(sid: str, current=Depends(require_roles("admin"))):
         raise HTTPException(404, "Student not found")
     await db.students.update_one({"id": sid}, {"$set": {"status": "inactive", "updated_at": now_iso()}})
     await _sync_user(student.get("user_id"), {"status": "inactive"})
+    await audit.record(current, "delete", "student", sid, f"Deactivated student {student['full_name']}",
+                       {"status": {"from": student.get("status"), "to": "inactive"}})
     return {"ok": True}

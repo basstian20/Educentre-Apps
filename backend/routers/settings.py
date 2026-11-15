@@ -1,5 +1,6 @@
 """settings routes."""
 from fastapi import APIRouter, Depends, HTTPException
+import audit
 from auth import get_current_user, hash_password, require_roles, verify_password
 from core import db, now_iso
 from models import CentreSettings, PasswordChange, ProfileUpdate
@@ -16,8 +17,10 @@ async def get_settings(current=Depends(get_current_user)):
 
 @router.put("/settings")
 async def put_settings(payload: CentreSettings, current=Depends(require_roles("admin"))):
+    before = await db.settings.find_one({"id": "centre"}, {"_id": 0})
     doc = {"id": "centre", **payload.model_dump(), "updated_at": now_iso()}
     await db.settings.update_one({"id": "centre"}, {"$set": doc}, upsert=True)
+    await audit.record(current, "update", "settings", "centre", "Updated centre settings", audit.diff(before, doc))
     return doc
 
 
@@ -31,7 +34,10 @@ async def update_me(payload: ProfileUpdate, current=Depends(get_current_user)):
         # keep the role profile (student/educator/parent) in step with the login account
         for coll in ("students", "educators", "parents"):
             await db[coll].update_one({"user_id": current["id"]}, {"$set": update})
-    return await db.users.find_one({"id": current["id"]}, {"_id": 0, "password_hash": 0})
+    after = await db.users.find_one({"id": current["id"]}, {"_id": 0, "password_hash": 0})
+    if update:
+        await audit.record(current, "update", "user", current["id"], "Updated own profile", audit.diff(current, after, update.keys()))
+    return after
 
 
 @router.post("/auth/change-password")
@@ -42,4 +48,5 @@ async def change_password(payload: PasswordChange, current=Depends(get_current_u
     if len(payload.new_password) < 6:
         raise HTTPException(400, "New password must be at least 6 characters")
     await db.users.update_one({"id": current["id"]}, {"$set": {"password_hash": hash_password(payload.new_password)}})
+    await audit.record(current, "password_change", "auth", current["id"], "Changed own password")
     return {"ok": True}

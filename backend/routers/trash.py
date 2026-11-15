@@ -1,6 +1,7 @@
 """Admin trash: list, restore and permanently purge soft-deleted records."""
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
+import audit
 from auth import require_roles
 from core import UNDELETE_FIELDS, db, now_iso
 
@@ -13,6 +14,14 @@ TRASH_TYPES = {
     "materials": (db.materials, "title", lambda d: d.get("uploader_name")),
     "invoices": (db.invoices, "invoice_number", lambda d: f"Rp {d.get('total_amount', 0):,.0f}".replace(",", ".")),
 }
+
+
+# trash type -> audit entity name (matches the entity used when the record was created/deleted)
+ENTITY = {"parents": "parent", "announcements": "announcement", "materials": "material", "invoices": "invoice"}
+
+
+def _label(kind: str, doc: dict) -> str:
+    return str(doc.get(TRASH_TYPES[kind][1]) or "")
 
 
 def _kind(kind: str):
@@ -67,6 +76,7 @@ async def restore_item(kind: str, rid: str, current=Depends(require_roles("admin
             await db.students.update_many(
                 {"id": {"$in": doc["children_ids"]}, "parent_id": None}, {"$set": {"parent_id": doc["user_id"]}}
             )
+    await audit.record(current, "restore", ENTITY[kind], rid, f"Restored {ENTITY[kind]} {_label(kind, doc)} from the trash")
     return {"ok": True}
 
 
@@ -81,4 +91,5 @@ async def purge_item(kind: str, rid: str, current=Depends(require_roles("admin")
     if kind == "parents":
         await db.users.delete_one({"id": doc["user_id"]})
     await coll.delete_one({"id": rid})
+    await audit.record(current, "purge", ENTITY[kind], rid, f"Permanently deleted {ENTITY[kind]} {_label(kind, doc)}")
     return {"ok": True}

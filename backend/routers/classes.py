@@ -1,5 +1,6 @@
 """classes routes."""
 from fastapi import APIRouter, Depends, HTTPException
+import audit
 from auth import get_current_user, require_roles
 from core import _resolve_educator_id, db, new_id, now_iso
 from models import ClassCreate, ClassUpdate
@@ -16,6 +17,7 @@ async def create_class(payload: ClassCreate, current=Depends(require_roles("admi
     doc["created_at"] = now_iso()
     await db.classes.insert_one(doc)
     doc.pop("_id", None)
+    await audit.record(current, "create", "class", doc["id"], f"Created class {doc.get('name')}", audit.diff(None, doc, payload.model_dump().keys()))
     return doc
 
 
@@ -64,13 +66,21 @@ async def get_class(cid: str, current=Depends(get_current_user)):
 
 @router.patch("/classes/{cid}")
 async def update_class(cid: str, payload: ClassUpdate, current=Depends(require_roles("admin"))):
+    before = await db.classes.find_one({"id": cid}, {"_id": 0})
     update = {k: v for k, v in payload.model_dump().items() if v is not None}
     update["updated_at"] = now_iso()
     await db.classes.update_one({"id": cid}, {"$set": update})
-    return await db.classes.find_one({"id": cid}, {"_id": 0})
+    after = await db.classes.find_one({"id": cid}, {"_id": 0})
+    if before and after:
+        await audit.record(current, "update", "class", cid, f"Updated class {after.get('name')}", audit.diff(before, after, update.keys()))
+    return after
 
 
 @router.delete("/classes/{cid}")
 async def delete_class(cid: str, current=Depends(require_roles("admin"))):
+    klass = await db.classes.find_one({"id": cid}, {"_id": 0, "name": 1, "is_active": 1})
     await db.classes.update_one({"id": cid}, {"$set": {"is_active": False}})
+    if klass:
+        await audit.record(current, "delete", "class", cid, f"Deactivated class {klass.get('name')}",
+                           {"is_active": {"from": klass.get("is_active"), "to": False}})
     return {"ok": True}
