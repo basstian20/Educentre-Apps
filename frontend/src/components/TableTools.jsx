@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, ChevronsUpDown, Pencil, Search, Trash2 } from "lucide-react";
 import { Btn, Modal } from "@/components/UI";
 import { useLang } from "@/lib/i18n";
+import { api } from "@/lib/api";
 
 const PAGE_SIZE = 10;
 
@@ -67,6 +68,76 @@ export function useTable(items, { searchKeys = [], sorters = {}, defaultSort = n
     pageSize,
     setPage,
     resetPage: () => setPage(1),
+  };
+}
+
+// Server-side search, sort and paging: same surface as useTable, but each page is fetched with
+// `paged=true` so the browser never holds the whole list.
+//   path:    list endpoint (GET returns {items,total,limit,skip} when paged=true)
+//   filters: extra query params (e.g. { status }); a change resets to page 1
+//   sortMap: column key -> sort_by value the API understands
+export function useServerTable(path, { filters = {}, pageSize = PAGE_SIZE, defaultSort = null, defaultDir = "asc" } = {}) {
+  const [query, setQueryRaw] = useState("");
+  const [debounced, setDebounced] = useState("");
+  const [sort, setSort] = useState({ key: defaultSort, dir: defaultDir });
+  const [page, setPage] = useState(1);
+  const [data, setData] = useState({ items: [], total: 0 });
+  const [state, setState] = useState({ loading: true, error: false });
+  const seq = useRef(0);
+  const filterKey = JSON.stringify(filters);
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(query.trim()), 300);
+    return () => clearTimeout(id);
+  }, [query]);
+
+  const params = useMemo(
+    () => ({
+      ...JSON.parse(filterKey),
+      ...(debounced && { search: debounced }),
+      ...(sort.key && { sort_by: sort.key, dir: sort.dir }),
+    }),
+    [filterKey, debounced, sort]
+  );
+
+  const reload = useCallback(() => {
+    const mine = ++seq.current;
+    setState((st) => ({ ...st, loading: true, error: false }));
+    return api
+      .get(path, { params: { ...params, paged: true, limit: pageSize, skip: (page - 1) * pageSize } })
+      .then((r) => {
+        if (mine !== seq.current) return; // a newer request superseded this one
+        setData({ items: r.data?.items || [], total: r.data?.total || 0 });
+        setState({ loading: false, error: false });
+      })
+      .catch(() => mine === seq.current && setState({ loading: false, error: true }));
+  }, [path, params, page, pageSize]);
+
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  // Any filter change goes back to the first page.
+  useEffect(() => setPage(1), [filterKey, debounced, sort]);
+
+  const pageCount = Math.max(1, Math.ceil(data.total / pageSize));
+  return {
+    rows: data.items,
+    total: data.total,
+    query,
+    setQuery: setQueryRaw,
+    sort,
+    toggleSort: (key) => setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" })),
+    page: Math.min(page, pageCount),
+    pageCount,
+    pageSize,
+    setPage,
+    loading: state.loading,
+    error: state.error,
+    reload,
+    filtered: !!debounced || Object.values(filters).some(Boolean),
+    // Everything matching the current search/filters (for CSV export), without paging.
+    fetchAll: () => api.get(path, { params }).then((r) => (Array.isArray(r.data) ? r.data : r.data?.items || [])),
   };
 }
 

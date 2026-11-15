@@ -5,6 +5,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
+import re
 import uuid
 import logging
 from datetime import datetime, timezone
@@ -63,6 +64,33 @@ def deleted_fields(actor_id: str) -> dict:
 
 
 UNDELETE_FIELDS = {"deleted_at": None, "deleted_by": None}
+
+
+PAGE_DEFAULT_LIMIT = 50
+PAGE_MAX_LIMIT = 200
+
+
+def regex_contains(text: str) -> dict:
+    """Case-insensitive 'contains' match that treats the user's text literally (no regex injection)."""
+    return {"$regex": re.escape(text), "$options": "i"}
+
+
+async def paginate(coll, query: dict, *, sort, paged: bool, limit: int, skip: int, legacy_cap: int,
+                   projection: Optional[dict] = None):
+    """List endpoint helper that keeps the old response shape unless the client asks for paging.
+
+    paged=False -> plain list capped at `legacy_cap` (old contract, unchanged for existing callers).
+    paged=True  -> {items, total, limit, skip}, sorted and sliced in Mongo.
+    """
+    projection = projection if projection is not None else {"_id": 0}
+    cursor = coll.find(query, projection).sort(sort)
+    if not paged:
+        return await cursor.to_list(legacy_cap)
+    limit = max(1, min(limit, PAGE_MAX_LIMIT))
+    skip = max(0, skip)
+    total = await coll.count_documents(query)
+    items = await cursor.skip(skip).limit(limit).to_list(limit)
+    return {"items": items, "total": total, "limit": limit, "skip": skip}
 
 
 async def _next_counter(name: str, current_max) -> int:

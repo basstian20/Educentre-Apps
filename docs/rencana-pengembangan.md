@@ -44,7 +44,7 @@ Wajib duluan karena fase lain bergantung padanya. Satu branch per fungsi, merge 
 | F0-5 | `feat/soft-delete` | Soft delete + tempat sampah admin + counter nomor invoice | **Selesai** (2026-11-11) — merge ke `develop` |
 | F0-6 | `feat/audit-log` | Audit log + halaman viewer admin | **Selesai** (2026-11-15) — merge `58b9b70` ke `develop` |
 | F0-7 | `refactor/storage-service` | Abstraksi penyimpanan file (Mongo → S3/R2) | **Selesai** (2026-11-15) — merge `a69c7ad` ke `develop`. 9 tes unit lulus (termasuk S3 via moto); tes integrasi penuh belum bisa dijalankan lokal (Atlas tak terjangkau), diserahkan ke CI |
-| F0-8 | `perf/pagination-indexes` | Paginasi sisi server + indeks Mongo | Belum mulai |
+| F0-8 | `perf/pagination-indexes` | Paginasi sisi server + indeks Mongo | **Selesai di cabang** (2026-11-15), belum di-merge ke `develop`. Lihat catatan hasil di bawah |
 | F0-9 | `chore/observability` | Log terstruktur, health check, Sentry | Belum mulai |
 | F0-10 | `test/e2e-playwright` | Tes E2E frontend di CI | Belum mulai |
 
@@ -98,6 +98,13 @@ Keadaan sekarang: hampir semua daftar memakai `.to_list(200/500/2000)` (siswa, p
 3. Indeks baru di startup: `invoices(student_id, created_at)`, `payments(invoice_id, paid_at)`, `grades(assessment_id, student_id)`, `assessments(class_id)`, `materials(class_id)`, `announcements(created_at)`, `enrollments(class_id, status)`.
 4. Ukur sebelum/sesudah (waktu respons daftar dan dasbor pada data 6 bulan) dan catat di sini.
 Dependensi: F0-5 (filter `deleted_at` ikut di query). Risiko: perubahan bentuk respons — ditutup opt-in `paged` + snapshot API.
+
+**Hasil F0-8 (2026-11-15):**
+- `core.paginate()` + `core.regex_contains()` (teks pencarian kini literal, bukan regex mentah). `GET /students`, `/invoices`, `/payments`, `/enrollments`, `/grades` menerima `paged=true&limit&skip` (limit dijepit 1–200); tanpa `paged` bentuk respons lama tetap (daftar polos). `/students` dan `/invoices` juga menerima `sort_by` + `dir`; `/invoices` menerima `search` (nomor, deskripsi, nama siswa). Filter kelas/terbit pada `/grades` dipindah ke query Mongo agar total dan halaman benar.
+- Dasbor admin memakai agregasi `$group` (tunggakan, tagihan lewat jatuh tempo, pendapatan bulan ini), tidak lagi memuat 2000 invoice/pembayaran.
+- Indeks baru di startup (`ensure_perf_indexes` di `server.py`): invoices(student_id, created_at) & (status, due_date), payments(invoice_id, paid_at) & (paid_at), grades(assessment_id, student_id) & (student_id), assessments(class_id), materials(class_id), announcements(created_at), enrollments(class_id, status), students(full_name) & (parent_id), classes(educator_id).
+- Frontend: hook `useServerTable` di `TableTools.jsx` (cari dengan debounce 300 ms, urut, filter, halaman, ekspor CSV mengambil semua hasil). Halaman `Students` dan `Invoices` beralih ke paginasi server; kolom Siswa di Tagihan tidak bisa diurut lagi. `Attendance` sudah berpaginasi sejak awal; `CommandPalette`, `Reports`, dan dropdown tetap memakai daftar penuh (dibatasi 500).
+- Verifikasi: `tests/test_pagination.py` (bentuk respons, jepit limit, tanpa tumpang tindih, urut, pencarian literal, filter, kecocokan agregasi dasbor dengan daftar invoice). Seluruh suite 191 lulus (2 dilewati) terhadap server dengan Mongo tiruan (`mongomock-motor`); build frontend `CI=true` bersih. **Belum diverifikasi:** tes terhadap MongoDB sungguhan (Atlas tak terjangkau dari mesin ini, diserahkan ke CI) dan **pengukuran waktu sebelum/sesudah pada data 6 bulan belum dilakukan** (Mongo tiruan tidak mewakili kinerja; ukur di DB nyata/CI).
 
 ### F0-9 `chore/observability` — log terstruktur, health check, Sentry
 1. Middleware ID permintaan + log JSON (metode, path, status, durasi, `user_id`, `request_id`); level lewat env `LOG_LEVEL`.

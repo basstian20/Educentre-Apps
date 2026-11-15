@@ -65,6 +65,23 @@ async def remember_client_ip(request, call_next):
 app.include_router(api)
 
 
+async def ensure_perf_indexes() -> None:
+    """Indexes backing the list endpoints and dashboard aggregates (F0-8). create_index is idempotent."""
+    await db.invoices.create_index([("student_id", 1), ("created_at", -1)])
+    await db.invoices.create_index([("status", 1), ("due_date", 1)])
+    await db.payments.create_index([("invoice_id", 1), ("paid_at", 1)])
+    await db.payments.create_index([("paid_at", -1)])
+    await db.grades.create_index([("assessment_id", 1), ("student_id", 1)])
+    await db.grades.create_index([("student_id", 1)])
+    await db.assessments.create_index([("class_id", 1)])
+    await db.materials.create_index([("class_id", 1)])
+    await db.announcements.create_index([("created_at", -1)])
+    await db.enrollments.create_index([("class_id", 1), ("status", 1)])
+    await db.students.create_index([("full_name", 1)])
+    await db.students.create_index([("parent_id", 1)])
+    await db.classes.create_index([("educator_id", 1)])
+
+
 @app.on_event("startup")
 async def on_startup():
     # indexes
@@ -79,6 +96,7 @@ async def on_startup():
     await db.attendance.create_index([("student_id", 1), ("session_date", -1)])
     await db.attendance.create_index([("session_date", -1)])
     await db.invoices.create_index("invoice_number", unique=True)
+    await ensure_perf_indexes()
     for _coll in (db.parents, db.announcements, db.materials, db.invoices):
         await _coll.create_index("deleted_at")
     # login_guard: rows expire on their own once the lock/failure window has passed

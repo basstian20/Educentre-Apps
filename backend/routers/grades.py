@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 import audit
 from auth import get_current_user, require_roles
-from core import db, new_id, now_iso
+from core import db, new_id, now_iso, paginate
 from models import AssessmentCreate, AssessmentPublish, GradeBulkSave
 
 router = APIRouter()
@@ -83,7 +83,8 @@ def _letter_grade(pct: Optional[float]) -> Optional[str]:
 
 
 @router.get("/grades")
-async def list_grades(assessment_id: Optional[str] = None, student_id: Optional[str] = None, class_id: Optional[str] = None, current=Depends(get_current_user)):
+async def list_grades(assessment_id: Optional[str] = None, student_id: Optional[str] = None, class_id: Optional[str] = None,
+                      paged: bool = False, limit: int = 50, skip: int = 0, current=Depends(get_current_user)):
     q = {}
     if assessment_id:
         q["assessment_id"] = assessment_id
@@ -98,20 +99,18 @@ async def list_grades(assessment_id: Optional[str] = None, student_id: Optional[
     if student_id and role == "admin":
         q["student_id"] = student_id
 
-    grades = await db.grades.find(q, {"_id": 0}).to_list(2000)
-
+    # Narrow by class / published state inside Mongo so totals and pages stay correct.
+    allowed = None
     if class_id:
-        # filter by assessments belonging to this class
-        ass_ids = [a["id"] for a in await db.assessments.find({"class_id": class_id}, {"_id": 0, "id": 1}).to_list(500)]
-        grades = [g for g in grades if g["assessment_id"] in ass_ids]
-
-    # for non-admin/non-educator, only return grades for published assessments
+        allowed = {a["id"] for a in await db.assessments.find({"class_id": class_id}, {"_id": 0, "id": 1}).to_list(500)}
     if role in ("student", "parent"):
-        ass_ids = list({g["assessment_id"] for g in grades})
-        published = await db.assessments.find({"id": {"$in": ass_ids}, "is_published": True}, {"_id": 0, "id": 1}).to_list(500)
-        pub_ids = {a["id"] for a in published}
-        grades = [g for g in grades if g["assessment_id"] in pub_ids]
-    return grades
+        pub = {a["id"] for a in await db.assessments.find({"is_published": True}, {"_id": 0, "id": 1}).to_list(5000)}
+        allowed = pub if allowed is None else allowed & pub
+    if allowed is not None:
+        if "assessment_id" in q:  # explicit assessment filter: keep it only if it is allowed
+            allowed &= {q["assessment_id"]}
+        q["assessment_id"] = {"$in": list(allowed)}
+    return await paginate(db.grades, q, sort=[("assessment_id", 1), ("student_id", 1)], paged=paged, limit=limit, skip=skip, legacy_cap=2000)
 
 
 @router.post("/assessments/publish")

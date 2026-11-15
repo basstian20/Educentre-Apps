@@ -4,13 +4,14 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 import audit
 from auth import get_current_user, require_roles
-from core import _gen_invoice_number, db, deleted_fields, new_id, not_deleted, now_iso
+from core import _gen_invoice_number, db, deleted_fields, new_id, not_deleted, now_iso, paginate, regex_contains
 from models import InvoiceCreate, InvoiceUpdate, PaymentRecord
 
 router = APIRouter()
 
 
 # ── Invoices ──
+INVOICE_SORT = {"created": "created_at", "number": "invoice_number", "amount": "total_amount", "due": "due_date", "status": "status"}
 @router.post("/invoices")
 async def create_invoice(payload: InvoiceCreate, current=Depends(require_roles("admin"))):
     items = [i.model_dump() for i in payload.items]
@@ -40,7 +41,9 @@ async def create_invoice(payload: InvoiceCreate, current=Depends(require_roles("
 
 
 @router.get("/invoices")
-async def list_invoices(student_id: Optional[str] = None, status: Optional[str] = None, current=Depends(get_current_user)):
+async def list_invoices(student_id: Optional[str] = None, status: Optional[str] = None, search: Optional[str] = None, paged: bool = False,
+                        limit: int = 50, skip: int = 0, sort_by: str = "created", dir: str = "desc",
+                        current=Depends(get_current_user)):
     q = not_deleted()
     role = current["role"]
     if role == "parent":
@@ -48,19 +51,28 @@ async def list_invoices(student_id: Optional[str] = None, status: Optional[str] 
         q["student_id"] = {"$in": [k["id"] for k in kids]}
     elif role != "admin":
         # Finance belongs to admin and parents only; students and educators see nothing.
-        return []
+        return {"items": [], "total": 0, "limit": limit, "skip": skip} if paged else []
     if student_id and role == "admin":
         q["student_id"] = student_id
     if status:
         q["status"] = status
+    if search:
+        # invoice number, line-item description, or the student's name
+        names = await db.students.find({"full_name": regex_contains(search)}, {"_id": 0, "id": 1}).to_list(200)
+        q["$or"] = [
+            {"invoice_number": regex_contains(search)},
+            {"items.description": regex_contains(search)},
+            {"student_id": {"$in": [n["id"] for n in names]}},
+        ]
     today = date.today().isoformat()
     # Persist overdue status
     await db.invoices.update_many(
         not_deleted({"status": {"$in": ["unpaid", "partial"]}, "due_date": {"$lt": today}}),
         {"$set": {"status": "overdue"}},
     )
-    invoices = await db.invoices.find(q, {"_id": 0}).sort("created_at", -1).to_list(500)
-    return invoices
+    field = INVOICE_SORT.get(sort_by, "created_at")
+    order = [(field, 1 if dir == "asc" else -1), ("id", 1)]
+    return await paginate(db.invoices, q, sort=order, paged=paged, limit=limit, skip=skip, legacy_cap=500)
 
 
 async def _visible_student_ids(current: dict) -> Optional[set]:
@@ -179,8 +191,9 @@ async def record_payment(payload: PaymentRecord, current=Depends(require_roles("
 
 
 @router.get("/payments")
-async def list_payments(invoice_id: Optional[str] = None, current=Depends(get_current_user)):
+async def list_payments(invoice_id: Optional[str] = None, paged: bool = False, limit: int = 50, skip: int = 0,
+                        current=Depends(get_current_user)):
     q = {}
     if invoice_id:
         q["invoice_id"] = invoice_id
-    return await db.payments.find(q, {"_id": 0}).sort("paid_at", -1).to_list(500)
+    return await paginate(db.payments, q, sort=[("paid_at", -1), ("id", 1)], paged=paged, limit=limit, skip=skip, legacy_cap=500)
