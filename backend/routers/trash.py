@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 import audit
 from auth import require_roles
 from core import UNDELETE_FIELDS, db, now_iso
+from services.storage import get_storage
 
 router = APIRouter()
 
@@ -87,7 +88,7 @@ async def purge_item(kind: str, rid: str, current=Depends(require_roles("admin")
     if kind == "invoices" and (doc.get("amount_paid", 0) > 0 or await db.payments.count_documents({"invoice_id": rid})):
         raise HTTPException(400, "This invoice has payments and can't be deleted permanently")
     if kind == "materials" and doc.get("file_id"):
-        await db.material_files.delete_one({"id": doc["file_id"]})
+        await get_storage().delete(doc["file_id"])
     if kind == "parents":
         await db.users.delete_one({"id": doc["user_id"]})
     await coll.delete_one({"id": rid})

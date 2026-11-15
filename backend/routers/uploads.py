@@ -5,11 +5,12 @@ import audit
 from auth import get_current_user, require_roles
 from core import db, new_id, now_iso
 from routers.materials import list_materials
+from services.storage import get_storage
 
 router = APIRouter()
 
 
-# ── Material file upload (stored in MongoDB, max 5 MB) ──
+# ── Material file upload (bytes go through services.storage; max 5 MB) ──
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
 
@@ -27,14 +28,9 @@ async def upload_material(
     if not data:
         raise HTTPException(400, "The file is empty")
     file_id = new_id()
-    await db.material_files.insert_one({
-        "id": file_id,
-        "filename": file.filename or "file",
-        "content_type": file.content_type or "application/octet-stream",
-        "size": len(data),
-        "data": data,
-        "created_at": now_iso(),
-    })
+    await get_storage().put(
+        file_id, data, file.filename or "file", file.content_type or "application/octet-stream", now_iso()
+    )
     doc = {
         "id": new_id(),
         "class_id": class_id,
@@ -58,9 +54,10 @@ async def upload_material(
 
 @router.get("/files/{file_id}")
 async def download_file(file_id: str, current=Depends(get_current_user)):
-    f = await db.material_files.find_one({"id": file_id}, {"_id": 0})
-    if not f:
+    found = await get_storage().get(file_id)
+    if not found:
         raise HTTPException(404, "File not found")
+    f, data = found
     # only people who can see the owning material may download
     mat = await db.materials.find_one({"file_id": file_id}, {"_id": 0})
     if mat and mat.get("deleted_at"):
@@ -71,7 +68,7 @@ async def download_file(file_id: str, current=Depends(get_current_user)):
             raise HTTPException(403, "Not allowed to open this file")
     safe_name = (f["filename"] or "file").replace('"', "")
     return Response(
-        content=bytes(f["data"]),
+        content=data,
         media_type=f["content_type"],
         headers={"Content-Disposition": f'inline; filename="{safe_name}"'},
     )
