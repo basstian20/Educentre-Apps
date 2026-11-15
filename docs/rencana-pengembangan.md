@@ -42,7 +42,7 @@ Wajib duluan karena fase lain bergantung padanya. Satu branch per fungsi, merge 
 | F0-3 | `feat/login-rate-limit` | Kunci login setelah gagal berulang + admin unlock | **Selesai** — merge `6ab9373` |
 | F0-4 | `feat/password-reset` | Lupa/reset password via token email | **Selesai** — merge `f23f295` |
 | F0-5 | `feat/soft-delete` | Soft delete + tempat sampah admin + counter nomor invoice | **Selesai** (2026-11-11) — merge ke `develop` |
-| F0-6 | `feat/audit-log` | Audit log + halaman viewer admin | **Selesai** (2026-11-15) — branch `feat/audit-log`, siap merge ke `develop` |
+| F0-6 | `feat/audit-log` | Audit log + halaman viewer admin | **Selesai** (2026-11-15) — merge `58b9b70` ke `develop` |
 | F0-7 | `refactor/storage-service` | Abstraksi penyimpanan file (Mongo → S3/R2) | Belum mulai |
 | F0-8 | `perf/pagination-indexes` | Paginasi sisi server + indeks Mongo | Belum mulai |
 | F0-9 | `chore/observability` | Log terstruktur, health check, Sentry | Belum mulai |
