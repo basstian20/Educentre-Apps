@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, Btn, Input, Select, StatusBadge, Modal, Empty, ErrorState, SkeletonRows } from "@/components/UI";
-import { ConfirmModal, NoMatches, Pagination, RowActions, SearchBox, SortTh, useTable } from "@/components/TableTools";
+import { ConfirmModal, NoMatches, Pagination, RowActions, SearchBox, SortTh, useServerTable } from "@/components/TableTools";
 import StudentImport from "@/components/StudentImport";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
-import { useLoadState } from "@/lib/useLoadState";
 import { api, formatApiError } from "@/lib/api";
 import { Link } from "react-router-dom";
 import { Download, FileText, Plus, Upload, UserX, Users } from "lucide-react";
@@ -17,7 +16,6 @@ const EMPTY_FORM = { full_name: "", email: "", password: "", phone: "", school_y
 export default function Students() {
   const { t } = useLang();
   const { user } = useAuth();
-  const [students, setStudents] = useState([]);
   const [statusFilter, setStatusFilter] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -26,27 +24,15 @@ export default function Students() {
   const [parents, setParents] = useState([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const isAdmin = user?.role === "admin";
-  const [state, track] = useLoadState();
-
-  const load = useCallback(() => track(api.get("/students").then((r) => setStudents(r.data || []))), [track]);
+  const table = useServerTable("/students", {
+    filters: { status: statusFilter },
+    defaultSort: "name",
+  });
+  const load = table.reload;
 
   useEffect(() => {
-    load();
     if (isAdmin) api.get("/users", { params: { role: "parent" } }).then((r) => setParents(r.data || []));
-  }, [load, isAdmin]);
-
-  const table = useTable(students, {
-    searchKeys: ["full_name", "email", "student_code", "school_name"],
-    sorters: {
-      name: (s) => s.full_name,
-      code: (s) => s.student_code,
-      school: (s) => s.school_name,
-      year: (s) => s.school_year,
-      status: (s) => s.status,
-    },
-    defaultSort: "name",
-    filter: useCallback((s) => !statusFilter || s.status === statusFilter, [statusFilter]),
-  });
+  }, [isAdmin]);
 
   const openAdd = () => {
     setEditing(null);
@@ -97,7 +83,7 @@ export default function Students() {
     }
   };
 
-  const exportStudents = () =>
+  const exportStudents = async () =>
     exportCsv("students.csv", [
       { label: t.code, value: (s) => s.student_code },
       { label: t.name, value: (s) => s.full_name },
@@ -106,7 +92,7 @@ export default function Students() {
       { label: t.school, value: (s) => s.school_name },
       { label: t.yearLevel, value: (s) => s.school_year },
       { label: t.status, value: (s) => s.status },
-    ], table.all);
+    ], await table.fetchAll());
 
   const clearFilters = () => {
     table.setQuery("");
@@ -116,11 +102,11 @@ export default function Students() {
   return (
     <Layout
       title={user?.role === "parent" ? t.myChildren : t.students}
-      subtitle={`${students.length} ${t.students.toLowerCase()}`}
+      subtitle={`${table.total} ${t.students.toLowerCase()}`}
       actions={
         isAdmin && (
           <>
-            <Btn onClick={exportStudents} testid="export-students-btn" size="sm" variant="outline" ariaLabel={t.exportCsv} disabled={students.length === 0}>
+            <Btn onClick={exportStudents} testid="export-students-btn" size="sm" variant="outline" ariaLabel={t.exportCsv} disabled={table.total === 0}>
               <Download className="w-4 h-4" />
               <span className="hidden sm:inline">{t.exportCsv}</span>
             </Btn>
@@ -152,7 +138,7 @@ export default function Students() {
           />
         </div>
 
-        {state.loading ? <SkeletonRows /> : state.error ? <ErrorState onRetry={load} /> : students.length === 0 ? (
+        {table.loading && table.rows.length === 0 ? <SkeletonRows /> : table.error ? <ErrorState onRetry={load} /> : table.total === 0 && !table.filtered ? (
           <Empty
             message={t.noData}
             icon={Users}

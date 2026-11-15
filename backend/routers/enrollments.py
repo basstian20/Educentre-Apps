@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 import audit
 from auth import get_current_user, require_roles
-from core import _resolve_educator_id, _resolve_student_id, db, new_id, now_iso
+from core import _resolve_educator_id, _resolve_student_id, db, new_id, now_iso, paginate
 from models import EnrollmentCreate
 
 router = APIRouter()
@@ -37,7 +37,8 @@ async def create_enrollment(payload: EnrollmentCreate, current=Depends(require_r
 
 
 @router.get("/enrollments")
-async def list_enrollments(student_id: Optional[str] = None, class_id: Optional[str] = None, current=Depends(get_current_user)):
+async def list_enrollments(student_id: Optional[str] = None, class_id: Optional[str] = None, paged: bool = False,
+                           limit: int = 50, skip: int = 0, current=Depends(get_current_user)):
     q = {}
     role = current["role"]
     if role == "student":
@@ -54,7 +55,7 @@ async def list_enrollments(student_id: Optional[str] = None, class_id: Optional[
         q["student_id"] = student_id
     if class_id and role in ("admin", "educator"):
         q["class_id"] = class_id
-    return await db.enrollments.find(q, {"_id": 0}).to_list(500)
+    return await paginate(db.enrollments, q, sort=[("enrolled_at", -1), ("id", 1)], paged=paged, limit=limit, skip=skip, legacy_cap=500)
 
 
 @router.delete("/enrollments/{eid}")

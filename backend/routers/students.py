@@ -3,13 +3,14 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 import audit
 from auth import get_current_user, hash_password, require_roles
-from core import _gen_student_code, _resolve_educator_id, _sync_user, db, new_id, now_iso
+from core import _gen_student_code, _resolve_educator_id, _sync_user, db, new_id, now_iso, paginate, regex_contains
 from models import StudentCreate, StudentImport, StudentUpdate
 
 router = APIRouter()
 
 
 # ── Students ──
+STUDENT_SORT = {"name": "full_name", "code": "student_code", "school": "school_name", "year": "school_year", "status": "status"}
 @router.post("/students")
 async def create_student(payload: StudentCreate, current=Depends(require_roles("admin"))):
     email = payload.email.lower().strip()
@@ -103,7 +104,9 @@ async def import_students(payload: StudentImport, current=Depends(require_roles(
 
 
 @router.get("/students")
-async def list_students(search: Optional[str] = None, status: Optional[str] = None, current=Depends(get_current_user)):
+async def list_students(search: Optional[str] = None, status: Optional[str] = None, paged: bool = False,
+                        limit: int = 50, skip: int = 0, sort_by: str = "name", dir: str = "asc",
+                        current=Depends(get_current_user)):
     role = current["role"]
     q = {}
     if role == "student":
@@ -123,12 +126,14 @@ async def list_students(search: Optional[str] = None, status: Optional[str] = No
         q["status"] = status
     if search:
         q["$or"] = [
-            {"full_name": {"$regex": search, "$options": "i"}},
-            {"student_code": {"$regex": search, "$options": "i"}},
-            {"email": {"$regex": search, "$options": "i"}},
+            {"full_name": regex_contains(search)},
+            {"student_code": regex_contains(search)},
+            {"email": regex_contains(search)},
+            {"school_name": regex_contains(search)},
         ]
-    students = await db.students.find(q, {"_id": 0}).to_list(500)
-    return students
+    field = STUDENT_SORT.get(sort_by, "full_name")
+    order = [(field, -1 if dir == "desc" else 1), ("id", 1)]
+    return await paginate(db.students, q, sort=order, paged=paged, limit=limit, skip=skip, legacy_cap=500)
 
 
 @router.get("/students/{sid}")

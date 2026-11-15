@@ -12,14 +12,25 @@ async def _admin_stats(today: str) -> dict:
     students_count = await db.students.count_documents({"status": "active"})
     classes_count = await db.classes.count_documents({"is_active": True})
     educators_count = await db.educators.count_documents({"status": "active"})
-    invoices = await db.invoices.find(not_deleted(), {"_id": 0}).to_list(2000)
-    outstanding = sum(i.get("balance_due", 0) for i in invoices if i["status"] != "paid")
-    payments = await db.payments.find({}, {"_id": 0}).to_list(2000)
-    revenue_this_month = sum(p["amount"] for p in payments if (p.get("paid_at") or "")[:7] == today[:7])
-    overdue_count = sum(
-        1 for i in invoices
-        if i["status"] == "overdue" or (i["status"] in ("unpaid", "partial") and i["due_date"] < today)
-    )
+    # Aggregate inside Mongo instead of loading every invoice/payment into memory.
+    inv = await db.invoices.aggregate([
+        {"$match": not_deleted()},
+        {"$group": {
+            "_id": None,
+            "outstanding": {"$sum": {"$cond": [{"$ne": ["$status", "paid"]}, {"$ifNull": ["$balance_due", 0]}, 0]}},
+            "overdue": {"$sum": {"$cond": [{"$or": [
+                {"$eq": ["$status", "overdue"]},
+                {"$and": [{"$in": ["$status", ["unpaid", "partial"]]}, {"$lt": ["$due_date", today]}]},
+            ]}, 1, 0]}},
+        }},
+    ]).to_list(1)
+    inv = inv[0] if inv else {"outstanding": 0, "overdue": 0}
+    outstanding, overdue_count = inv["outstanding"], inv["overdue"]
+    rev = await db.payments.aggregate([
+        {"$match": {"paid_at": {"$regex": "^" + today[:7]}}},
+        {"$group": {"_id": None, "total": {"$sum": "$amount"}}},
+    ]).to_list(1)
+    revenue_this_month = rev[0]["total"] if rev else 0
     return {
         "active_students": students_count,
         "active_classes": classes_count,

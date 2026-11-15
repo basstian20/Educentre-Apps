@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, Btn, Input, Select, Modal, Empty, ErrorState, SkeletonRows, StatusBadge } from "@/components/UI";
-import { ConfirmModal, NoMatches, Pagination, RowActions, SearchBox, SortTh, useTable } from "@/components/TableTools";
+import { ConfirmModal, NoMatches, Pagination, RowActions, SearchBox, SortTh, useServerTable } from "@/components/TableTools";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
-import { useLoadState } from "@/lib/useLoadState";
 import { api, fmtIDR, fmtDate, formatApiError } from "@/lib/api";
 import { Link } from "react-router-dom";
 import { Download, Plus, Printer, Receipt } from "lucide-react";
@@ -15,7 +14,6 @@ import { fireConfetti } from "../lib/confetti";
 export default function Invoices() {
   const { t } = useLang();
   const { user } = useAuth();
-  const [list, setList] = useState([]);
   const [students, setStudents] = useState([]);
   const [open, setOpen] = useState(false);
   const [payOpen, setPayOpen] = useState(null);
@@ -27,28 +25,13 @@ export default function Invoices() {
   const [payForm, setPayForm] = useState({ amount: 0, method: "cash" });
   const isAdmin = user?.role === "admin";
 
-  const [state, track] = useLoadState();
-  const load = () => track(api.get("/invoices").then((r) => setList(r.data || [])));
+  const table = useServerTable("/invoices", { filters: { status: statusFilter }, defaultSort: "due" });
+  const load = table.reload;
   useEffect(() => {
-    load();
     if (isAdmin) api.get("/students").then((r) => setStudents(r.data || []));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin]);
 
   const studentName = (sid) => students.find((s) => s.id === sid)?.full_name || sid?.slice(0, 8);
-
-  const table = useTable(list, {
-    searchKeys: ["invoice_number", (i) => studentName(i.student_id), (i) => (i.items || []).map((x) => x.description).join(" ")],
-    sorters: {
-      number: (i) => i.invoice_number,
-      student: (i) => studentName(i.student_id),
-      amount: (i) => i.total_amount,
-      due: (i) => i.due_date,
-      status: (i) => i.status,
-    },
-    defaultSort: "due",
-    filter: useCallback((i) => !statusFilter || i.status === statusFilter, [statusFilter]),
-  });
 
   // Amounts are locked once money was received, or when the invoice has several line items.
   const amountLocked = !!editing && (editing.amount_paid > 0 || (editing.items || []).length !== 1);
@@ -102,7 +85,7 @@ export default function Invoices() {
     }
   };
 
-  const exportInvoices = () =>
+  const exportInvoices = async () =>
     exportCsv("invoices.csv", [
       { label: t.invoiceNumber, value: (i) => i.invoice_number },
       { label: t.student, value: (i) => studentName(i.student_id) },
@@ -112,7 +95,7 @@ export default function Invoices() {
       { label: t.balanceDue, value: (i) => i.balance_due },
       { label: t.dueDate, value: (i) => i.due_date },
       { label: t.status, value: (i) => i.status },
-    ], table.all);
+    ], await table.fetchAll());
 
   const remove = async () => {
     try {
@@ -128,10 +111,10 @@ export default function Invoices() {
   return (
     <Layout
       title={user?.role === "parent" ? t.fees : t.invoices}
-      subtitle={`${list.length} ${t.unitInvoices}`}
+      subtitle={`${table.total} ${t.unitInvoices}`}
       actions={isAdmin && (
         <>
-          <Btn variant="outline" size="sm" onClick={exportInvoices} testid="export-invoices-btn" ariaLabel={t.exportCsv} disabled={list.length === 0}><Download className="w-4 h-4" /><span className="hidden sm:inline">{t.exportCsv}</span></Btn>
+          <Btn variant="outline" size="sm" onClick={exportInvoices} testid="export-invoices-btn" ariaLabel={t.exportCsv} disabled={table.total === 0}><Download className="w-4 h-4" /><span className="hidden sm:inline">{t.exportCsv}</span></Btn>
           <Btn onClick={openAdd} size="sm" testid="new-invoice-btn"><Plus className="w-4 h-4" />{t.newInvoice}</Btn>
         </>
       )}
@@ -153,7 +136,7 @@ export default function Invoices() {
             className="md:w-48"
           />
         </div>
-        {state.loading ? <SkeletonRows /> : state.error ? <ErrorState onRetry={load} /> : list.length === 0 ? (
+        {table.loading && table.rows.length === 0 ? <SkeletonRows /> : table.error ? <ErrorState onRetry={load} /> : table.total === 0 && !table.filtered ? (
           <Empty message={t.noData} icon={Receipt} action={isAdmin && <Btn size="sm" onClick={openAdd}><Plus className="w-4 h-4" />{t.newInvoice}</Btn>} />
         ) : table.total === 0 ? (
           <NoMatches onClear={() => { table.setQuery(""); setStatusFilter(""); }} />
@@ -164,7 +147,7 @@ export default function Invoices() {
               <thead>
                 <tr className="text-left">
                   <SortTh label={t.invoiceNumber} k="number" table={table} />
-                  {isAdmin && <SortTh label={t.student} k="student" table={table} />}
+                  {isAdmin && <th className="px-5 py-3">{t.student}</th>}
                   <th className="px-5 py-3">{t.description}</th>
                   <SortTh label={t.amount} k="amount" table={table} />
                   <SortTh label={t.dueDate} k="due" table={table} />
