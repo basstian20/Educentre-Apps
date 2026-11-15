@@ -46,7 +46,7 @@ Wajib duluan karena fase lain bergantung padanya. Satu branch per fungsi, merge 
 | F0-7 | `refactor/storage-service` | Abstraksi penyimpanan file (Mongo → S3/R2) | **Selesai** (2026-11-15) — merge `a69c7ad` ke `develop`. 9 tes unit lulus (termasuk S3 via moto); tes integrasi penuh belum bisa dijalankan lokal (Atlas tak terjangkau), diserahkan ke CI |
 | F0-8 | `perf/pagination-indexes` | Paginasi sisi server + indeks Mongo | **Selesai** (2026-11-15) — merge `f469ba2` ke `develop`. Lihat catatan hasil di bawah |
 | F0-9 | `chore/observability` | Log terstruktur, health check, Sentry | **Selesai** (2026-11-15) — lihat hasil di bawah |
-| F0-10 | `test/e2e-playwright` | Tes E2E frontend di CI | Belum mulai |
+| F0-10 | `test/e2e-playwright` | Tes E2E frontend di CI | **Selesai** (2026-11-15) — lihat hasil di bawah |
 
 ### Hasil F0-1 s.d. F0-3 (ringkas)
 - **F0-1:** route/OpenAPI identik (63 route), 129 respons GET empat peran identik dengan versi lama, 47 pytest lulus.
@@ -120,6 +120,12 @@ Verifikasi: tes untuk header `X-Request-ID` dan `/health`; tanpa DSN aplikasi be
 
 ### F0-10 `test/e2e-playwright` — tes E2E frontend
 Playwright untuk alur kritis: login (termasuk kunci), absensi pengajar, buat invoice + catat pembayaran, ganti password (F0-4). Berjalan di CI sebagai job ketiga melawan backend (service `mongo:7`, DB uji) + build frontend. Dependensi: F0-2 dan F0-4. Risiko: tes E2E rentan flakiness; gunakan `data-testid` yang sudah ada.
+
+**Hasil F0-10 (2026-11-15):**
+- Playwright (`@playwright/test` 1.49.1) di `frontend/`: `playwright.config.js` menyalakan backend sendiri (:8001, DB `edu_e2e_test`, nama wajib mengandung "test") dan server statis `e2e/serve.js` untuk `build/` (:3000, sudah ada di CORS). Jalankan: `REACT_APP_BACKEND_URL=http://localhost:8001 yarn build` lalu `yarn e2e`.
+- 7 tes: login/logout, password salah, redirect saat belum login, kunci login setelah 5 gagal (`auth.spec.js`); absensi pengajar (`attendance.spec.js`); buat invoice + bayar lunas (`invoices.spec.js`); lupa → reset → login password baru (`password-reset.spec.js`). Tiap spec memakai akun demo berbeda agar tidak saling mengganggu; `workers: 1`.
+- CI: job ketiga `e2e` (mongo:7, build frontend, Chromium, laporan diunggah bila gagal), berjalan setelah job backend dan frontend.
+- Verifikasi: 7/7 lulus lokal (38 dtk) pada backend mock (mongomock) + Chromium; `CI=true yarn build` lulus. Belum diuji: job `e2e` di GitHub Actions dengan MongoDB sungguhan (belum di-push). Env `E2E_CHROMIUM_PATH` memakai browser yang sudah ada bila `playwright install` tak bisa mengunduh.
 
 ### Urutan & ketergantungan Fase 0
 F0-4 → F0-5 → F0-6 → F0-7 (independen, bisa paralel dengan F0-6) → F0-8 → F0-9 → F0-10. Fase 1 dimulai setelah F0-5 dan F0-6 minimal (soft delete + audit dibutuhkan keuangan); F0-7 s.d. F0-10 boleh berjalan paralel dengan Fase 1 bila diinginkan.
