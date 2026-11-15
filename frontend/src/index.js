@@ -8,6 +8,9 @@ import "@/dashboard.css";
 import "@/login.css";
 import "@/motion.css";
 import App from "@/App";
+import { initSentry } from "@/lib/sentry";
+
+initSentry();
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

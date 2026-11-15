@@ -32,6 +32,9 @@ from routers import (
 )
 import audit
 import login_guard
+import observability
+
+observability.init_sentry()
 
 app = FastAPI(title="EduCentre API")
 api = APIRouter(prefix="/api")
@@ -63,6 +66,8 @@ async def remember_client_ip(request, call_next):
 
 
 app.include_router(api)
+# Added last so it is the outermost layer: every response (CORS preflight, errors) gets a request id and a log line.
+app.add_middleware(observability.RequestContextMiddleware)
 
 
 async def ensure_perf_indexes() -> None:

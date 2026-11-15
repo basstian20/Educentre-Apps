@@ -15,13 +15,14 @@ from fastapi import Response
 from pymongo import ReturnDocument
 from pymongo.errors import DuplicateKeyError
 
+import observability
 from database import get_db
 
 # ── DB ──
 db = get_db()
 
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+observability.configure_logging()
 logger = logging.getLogger("educentre")
 
 # ── Helpers ──
