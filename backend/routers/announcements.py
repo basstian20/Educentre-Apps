@@ -1,5 +1,6 @@
 """announcements routes."""
 from fastapi import APIRouter, Depends, HTTPException
+import audit
 from auth import get_current_user, require_roles
 from core import _resolve_educator_id, db, deleted_fields, new_id, not_deleted, now_iso
 from models import AnnouncementCreate, AnnouncementUpdate
@@ -17,6 +18,8 @@ async def create_announcement(payload: AnnouncementCreate, current=Depends(requi
     doc["created_at"] = now_iso()
     await db.announcements.insert_one(doc)
     doc.pop("_id", None)
+    await audit.record(current, "create", "announcement", doc["id"], f"Posted announcement {doc.get('title')}",
+                       audit.diff(None, doc, payload.model_dump().keys()))
     return doc
 
 
@@ -31,17 +34,20 @@ async def _own_announcement_or_403(aid: str, current: dict) -> dict:
 
 @router.patch("/announcements/{aid}")
 async def update_announcement(aid: str, payload: AnnouncementUpdate, current=Depends(require_roles("admin", "educator"))):
-    await _own_announcement_or_403(aid, current)
+    before = await _own_announcement_or_403(aid, current)
     update = {k: v for k, v in payload.model_dump().items() if v is not None}
     update["updated_at"] = now_iso()
     await db.announcements.update_one({"id": aid}, {"$set": update})
-    return await db.announcements.find_one({"id": aid}, {"_id": 0})
+    after = await db.announcements.find_one({"id": aid}, {"_id": 0})
+    await audit.record(current, "update", "announcement", aid, f"Updated announcement {after.get('title')}", audit.diff(before, after, update.keys()))
+    return after
 
 
 @router.delete("/announcements/{aid}")
 async def delete_announcement(aid: str, current=Depends(require_roles("admin", "educator"))):
-    await _own_announcement_or_403(aid, current)
+    doc = await _own_announcement_or_403(aid, current)
     await db.announcements.update_one({"id": aid}, {"$set": deleted_fields(current["id"])})
+    await audit.record(current, "delete", "announcement", aid, f"Moved announcement {doc.get('title')} to the trash")
     return {"ok": True}
 
 

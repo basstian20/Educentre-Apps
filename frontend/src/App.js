@@ -24,6 +24,7 @@ import Invoices from "@/pages/Invoices";
 import Announcements from "@/pages/Announcements";
 import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
+import AuditLog from "@/pages/AuditLog";
 import PrintInvoice from "@/pages/PrintInvoice";
 import ReportCard from "@/pages/ReportCard";
 import DeveloperCredit from "@/components/DeveloperCredit";
@@ -79,6 +80,7 @@ export default function App() {
             <Route path="/announcements" element={<Protected><Announcements /></Protected>} />
             <Route path="/reports" element={<Protected><Reports /></Protected>} />
             <Route path="/settings" element={<Protected><Settings /></Protected>} />
+            <Route path="/audit-log" element={<Protected roles={["admin"]}><AuditLog /></Protected>} />
             <Route path="/invoices/:id/print" element={<Protected roles={["admin", "parent"]}><PrintInvoice /></Protected>} />
             <Route path="/students/:sid/report" element={<Protected><ReportCard /></Protected>} />
             <Route path="*" element={<Navigate to="/login" replace />} />

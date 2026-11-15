@@ -28,7 +28,10 @@ from routers import (
     notifications,
     dashboard,
     trash,
+    audit_logs,
 )
+import audit
+import login_guard
 
 app = FastAPI(title="EduCentre API")
 api = APIRouter(prefix="/api")
@@ -36,7 +39,7 @@ api = APIRouter(prefix="/api")
 # Order matters only for overlapping paths; keep it identical to the pre-split server.py.
 for _module in (
     health, auth, users, students, educators, parents, classes, enrollments, attendance,
-    invoices, grades, materials, announcements, uploads, settings, reports, notifications, dashboard, trash,
+    invoices, grades, materials, announcements, uploads, settings, reports, notifications, dashboard, trash, audit_logs,
 ):
     api.include_router(_module.router)
 
@@ -51,6 +54,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def remember_client_ip(request, call_next):
+    """Make the caller's address available to audit.record() without threading Request through every route."""
+    audit.set_client_ip(login_guard.client_ip(request))
+    return await call_next(request)
+
 
 app.include_router(api)
 
@@ -75,6 +85,7 @@ async def on_startup():
     await db.login_attempts.create_index("expires_at", expireAfterSeconds=0)
     await db.password_resets.create_index("purge_at", expireAfterSeconds=0)
     await db.password_resets.create_index([("user_id", 1), ("created_at", -1)])
+    await audit.ensure_indexes()
 
     # seed
     from seed import seed_all

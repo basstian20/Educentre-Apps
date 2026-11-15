@@ -1,5 +1,6 @@
 """parents routes."""
 from fastapi import APIRouter, Depends, HTTPException
+import audit
 from auth import hash_password, require_roles
 from core import _sync_user, db, deleted_fields, new_id, not_deleted, now_iso
 from models import ParentCreate, ParentUpdate
@@ -40,6 +41,8 @@ async def create_parent(payload: ParentCreate, current=Depends(require_roles("ad
     if payload.children_ids:
         await db.students.update_many({"id": {"$in": payload.children_ids}}, {"$set": {"parent_id": user_id}})
     parent_doc.pop("_id", None)
+    await audit.record(current, "create", "parent", parent_doc["id"], f"Created parent {parent_doc['full_name']}",
+                       audit.diff(None, parent_doc, ("full_name", "email", "phone", "occupation", "children_ids")))
     return parent_doc
 
 
@@ -66,7 +69,9 @@ async def update_parent(pid: str, payload: ParentUpdate, current=Depends(require
         await db.students.update_many(
             {"id": {"$in": update["children_ids"]}}, {"$set": {"parent_id": parent["user_id"]}}
         )
-    return await db.parents.find_one({"id": pid}, {"_id": 0})
+    after = await db.parents.find_one({"id": pid}, {"_id": 0})
+    await audit.record(current, "update", "parent", pid, f"Updated parent {after['full_name']}", audit.diff(parent, after, update.keys()))
+    return after
 
 
 @router.delete("/parents/{pid}")
@@ -78,4 +83,5 @@ async def delete_parent(pid: str, current=Depends(require_roles("admin"))):
     await db.students.update_many({"parent_id": parent["user_id"]}, {"$set": {"parent_id": None}})
     await db.users.update_one({"id": parent["user_id"]}, {"$set": {"is_active": False}})
     await db.parents.update_one({"id": pid}, {"$set": deleted_fields(current["id"])})
+    await audit.record(current, "delete", "parent", pid, f"Moved parent {parent['full_name']} to the trash")
     return {"ok": True}

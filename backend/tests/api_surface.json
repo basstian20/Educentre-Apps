@@ -13,6 +13,7 @@
   "GET /api/announcements",
   "GET /api/assessments",
   "GET /api/attendance",
+  "GET /api/audit-logs",
   "GET /api/auth/lockouts",
   "GET /api/auth/me",
   "GET /api/classes",

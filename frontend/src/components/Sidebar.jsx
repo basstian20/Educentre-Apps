@@ -20,6 +20,7 @@ import {
   User as UserIcon,
   BookOpen,
   Heart,
+  ScrollText,
 } from "lucide-react";
 
 const ROLE_TITLES = {
@@ -60,6 +61,7 @@ export function getNav(role, t) {
       ]},
       { section: t.system, items: [
         { label: t.announcements, to: "/announcements", icon: Megaphone, testid: "nav-announcements" },
+        { label: t.auditLog, to: "/audit-log", icon: ScrollText, testid: "nav-audit-log" },
       ]},
     ];
   if (role === "educator")

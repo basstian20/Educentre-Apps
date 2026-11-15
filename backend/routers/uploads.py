@@ -1,6 +1,7 @@
 """uploads routes."""
 from typing import Optional
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
+import audit
 from auth import get_current_user, require_roles
 from core import db, new_id, now_iso
 from routers.materials import list_materials
@@ -50,6 +51,8 @@ async def upload_material(
     }
     await db.materials.insert_one(doc)
     doc.pop("_id", None)
+    await audit.record(current, "create", "material", doc["id"], f"Uploaded file material {title}",
+                       audit.diff(None, doc, ("title", "class_id", "file_name", "file_size")))
     return doc
 
 

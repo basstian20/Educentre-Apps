@@ -4,6 +4,7 @@ import os
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
 from auth import create_access_token, create_refresh_token, get_current_user, hash_password, require_roles, verify_password
 from core import _clear_cookies, _set_auth_cookies, db, new_id, now_iso
+import audit
 import login_guard
 import mailer
 import password_reset
@@ -22,11 +23,17 @@ async def login(payload: LoginInput, request: Request, response: Response):
     if not user or not verify_password(payload.password, user["password_hash"]):
         locked_for = await login_guard.register_failure(ip, email)
         if locked_for:
+            await audit.record(
+                {"id": user["id"], "full_name": user.get("full_name"), "email": email, "role": user["role"]} if user else {"email": email},
+                "login_locked", "auth", user["id"] if user else None,
+                f"Sign-in locked for {email} after repeated failures", ip=ip,
+            )
             raise login_guard.locked_error(locked_for)
         raise HTTPException(status_code=401, detail="Invalid email or password")
     await login_guard.register_success(ip, email)
     if not user.get("is_active", True):
         raise HTTPException(status_code=403, detail="Account disabled")
+    await audit.record(user, "login_success", "auth", user["id"], f"{user.get('full_name') or email} signed in", ip=ip)
     access = create_access_token(user["id"], user["email"], user["role"])
     refresh = create_refresh_token(user["id"])
     _set_auth_cookies(response, access, refresh)
@@ -65,6 +72,8 @@ async def register(payload: RegisterInput, response: Response, current=Depends(r
     await db.users.insert_one(user_doc)
     user_doc.pop("password_hash", None)
     user_doc.pop("_id", None)
+    await audit.record(current, "create", "user", user_doc["id"], f"Created {user_doc['role']} account {email}",
+                       audit.diff(None, user_doc, ("email", "full_name", "role", "phone")))
     return user_doc
 
 
@@ -77,7 +86,9 @@ async def list_lockouts(current=Depends(require_roles("admin"))):
 @router.delete("/auth/lockouts/{email}")
 async def clear_lockout(email: str, current=Depends(require_roles("admin"))):
     """Admin: lift the lock and reset the failure counters for an email address."""
-    cleared = await login_guard.clear_email(email.lower().strip())
+    email = email.lower().strip()
+    cleared = await login_guard.clear_email(email)
+    await audit.record(current, "unlock", "auth", None, f"Lifted sign-in lock for {email}")
     return {"ok": True, "cleared": cleared}
 
 
@@ -88,6 +99,7 @@ async def forgot_password(payload: ForgotPasswordInput, background: BackgroundTa
     response = {"ok": True}
     if issued:
         user, link = issued
+        await audit.record(user, "password_reset_requested", "auth", user["id"], f"Password reset link issued for {user['email']}")
         subject, body = password_reset.email_body(user.get("full_name") or user["email"], link)
         background.add_task(mailer.send_email, user["email"], subject, body)
         # Development/demo convenience only: the console mailer has no inbox, so the link can be returned.
@@ -99,5 +111,6 @@ async def forgot_password(payload: ForgotPasswordInput, background: BackgroundTa
 
 @router.post("/auth/reset-password")
 async def reset_password(payload: ResetPasswordInput):
-    await password_reset.reset_password(payload.token.strip(), payload.new_password)
+    user = await password_reset.reset_password(payload.token.strip(), payload.new_password)
+    await audit.record(user, "password_reset", "auth", user.get("id"), f"Password reset completed for {user.get('email')}")
     return {"ok": True}

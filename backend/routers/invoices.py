@@ -2,6 +2,7 @@
 from datetime import date
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
+import audit
 from auth import get_current_user, require_roles
 from core import _gen_invoice_number, db, deleted_fields, new_id, not_deleted, now_iso
 from models import InvoiceCreate, InvoiceUpdate, PaymentRecord
@@ -33,6 +34,8 @@ async def create_invoice(payload: InvoiceCreate, current=Depends(require_roles("
     }
     await db.invoices.insert_one(inv)
     inv.pop("_id", None)
+    await audit.record(current, "create", "invoice", inv["id"], f"Created invoice {inv['invoice_number']}",
+                       audit.diff(None, inv, ("invoice_number", "student_id", "billing_month", "total_amount", "due_date")))
     return inv
 
 
@@ -126,7 +129,9 @@ async def update_invoice(iid: str, payload: InvoiceUpdate, current=Depends(requi
         update.update({"items": items, "subtotal": subtotal, "total_amount": subtotal, "balance_due": subtotal})
     update["updated_at"] = now_iso()
     await db.invoices.update_one({"id": iid}, {"$set": update})
-    return await db.invoices.find_one({"id": iid}, {"_id": 0})
+    after = await db.invoices.find_one({"id": iid}, {"_id": 0})
+    await audit.record(current, "update", "invoice", iid, f"Updated invoice {inv['invoice_number']}", audit.diff(inv, after, update.keys()))
+    return after
 
 
 @router.delete("/invoices/{iid}")
@@ -137,6 +142,7 @@ async def delete_invoice(iid: str, current=Depends(require_roles("admin"))):
     if inv.get("amount_paid", 0) > 0 or await db.payments.count_documents({"invoice_id": iid}):
         raise HTTPException(400, "This invoice has payments and can't be deleted")
     await db.invoices.update_one({"id": iid}, {"$set": deleted_fields(current["id"])})
+    await audit.record(current, "delete", "invoice", iid, f"Moved invoice {inv['invoice_number']} to the trash")
     return {"ok": True}
 
 
@@ -164,6 +170,11 @@ async def record_payment(payload: PaymentRecord, current=Depends(require_roles("
         {"$set": {"amount_paid": paid, "balance_due": max(0, balance), "status": status, "payment_method": payload.method}},
     )
     p.pop("_id", None)
+    await audit.record(
+        current, "create", "payment", p["id"], f"Recorded payment of {payload.amount:,.0f} on invoice {inv['invoice_number']}",
+        {**audit.diff(None, p, ("invoice_id", "amount", "method", "reference_number")),
+         "status": {"from": inv.get("status"), "to": status}},
+    )
     return p
 
 

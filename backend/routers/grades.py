@@ -1,6 +1,7 @@
 """grades routes."""
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
+import audit
 from auth import get_current_user, require_roles
 from core import db, new_id, now_iso
 from models import AssessmentCreate, AssessmentPublish, GradeBulkSave
@@ -18,6 +19,8 @@ async def create_assessment(payload: AssessmentCreate, current=Depends(require_r
     doc["created_at"] = now_iso()
     await db.assessments.insert_one(doc)
     doc.pop("_id", None)
+    await audit.record(current, "create", "assessment", doc["id"], f"Created assessment {doc.get('title') or doc.get('name') or ''}".strip(),
+                       audit.diff(None, doc, payload.model_dump().keys()))
     return doc
 
 
@@ -35,7 +38,16 @@ async def save_grades(payload: GradeBulkSave, current=Depends(require_roles("adm
     a = await db.assessments.find_one({"id": payload.assessment_id})
     if not a:
         raise HTTPException(404, "Assessment not found")
+    previous = {
+        g["student_id"]: g
+        async for g in db.grades.find({"assessment_id": payload.assessment_id}, {"_id": 0, "student_id": 1, "score": 1, "remark": 1, "is_absent": 1})
+    }
+    changes = {}
     for e in payload.entries:
+        old = previous.get(e.student_id) or {}
+        for field, value in (("score", e.score), ("remark", e.remark), ("is_absent", e.is_absent)):
+            if old.get(field) != value:
+                changes[f"{e.student_id}.{field}"] = {"from": old.get(field), "to": value}
         grade_doc = {
             "id": new_id(),
             "assessment_id": payload.assessment_id,
@@ -55,6 +67,8 @@ async def save_grades(payload: GradeBulkSave, current=Depends(require_roles("adm
             {"$set": grade_doc},
             upsert=True,
         )
+    await audit.record(current, "update", "grades", payload.assessment_id,
+                       f"Saved grades for {len(payload.entries)} students ({len(changes)} fields changed)", changes)
     return {"ok": True, "count": len(payload.entries)}
 
 
@@ -106,4 +120,6 @@ async def publish_assessment(payload: AssessmentPublish, current=Depends(require
         {"id": payload.assessment_id},
         {"$set": {"is_published": True, "published_at": now_iso(), "published_by": current["id"]}},
     )
+    await audit.record(current, "publish", "assessment", payload.assessment_id, "Published assessment results",
+                       {"is_published": {"from": False, "to": True}})
     return {"ok": True}
