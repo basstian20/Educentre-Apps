@@ -23,6 +23,7 @@
   "GET /api/enrollments",
   "GET /api/files/{file_id}",
   "GET /api/grades",
+  "GET /api/health",
   "GET /api/invoices",
   "GET /api/invoices/{iid}",
   "GET /api/invoices/{iid}/document",

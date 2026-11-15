@@ -45,7 +45,7 @@ Wajib duluan karena fase lain bergantung padanya. Satu branch per fungsi, merge 
 | F0-6 | `feat/audit-log` | Audit log + halaman viewer admin | **Selesai** (2026-11-15) — merge `58b9b70` ke `develop` |
 | F0-7 | `refactor/storage-service` | Abstraksi penyimpanan file (Mongo → S3/R2) | **Selesai** (2026-11-15) — merge `a69c7ad` ke `develop`. 9 tes unit lulus (termasuk S3 via moto); tes integrasi penuh belum bisa dijalankan lokal (Atlas tak terjangkau), diserahkan ke CI |
 | F0-8 | `perf/pagination-indexes` | Paginasi sisi server + indeks Mongo | **Selesai** (2026-11-15) — merge `f469ba2` ke `develop`. Lihat catatan hasil di bawah |
-| F0-9 | `chore/observability` | Log terstruktur, health check, Sentry | Belum mulai |
+| F0-9 | `chore/observability` | Log terstruktur, health check, Sentry | **Selesai** (2026-11-15) — lihat hasil di bawah |
 | F0-10 | `test/e2e-playwright` | Tes E2E frontend di CI | Belum mulai |
 
 ### Hasil F0-1 s.d. F0-3 (ringkas)
@@ -111,6 +111,12 @@ Dependensi: F0-5 (filter `deleted_at` ikut di query). Risiko: perubahan bentuk r
 2. `GET /api/health` (cek koneksi DB) untuk health check Railway; handler galat global dengan format JSON konsisten.
 3. Sentry opsional (`SENTRY_DSN`; `sentry-sdk[fastapi]`) dengan penyamaran PII (email, password, token); Sentry frontend opsional.
 Verifikasi: tes untuk header `X-Request-ID` dan `/health`; tanpa DSN aplikasi berjalan normal. Risiko: kecil; semua opsional via env.
+
+**Hasil F0-9 (2026-11-15):**
+- `backend/observability.py`: log JSON satu baris per permintaan (`method`, `path`, `status`, `duration_ms`, `user_id`, `request_id`; 5xx=ERROR, 4xx=WARNING, `/api/health` hanya DEBUG). `LOG_LEVEL`, `LOG_FORMAT=text` untuk dev. Middleware ASGI terluar memberi `X-Request-ID` (header masuk dipakai ulang bila aman, selain itu UUID) pada semua respons, termasuk galat; `user_id` dibaca dari token (tanda tangan diverifikasi, tanpa DB). Galat tak tertangani → log + traceback, klien menerima `{"detail": "Internal server error", "request_id": ...}` (tanpa detail internal). Procfile memakai `--no-access-log` agar tidak ganda dengan log kita.
+- `GET /api/health`: ping MongoDB (batas 3 dtk), 200 `ok` atau 503 `degraded`; tanpa auth, tanpa bocoran detail. Pakai ini sebagai health check Railway.
+- Sentry backend opsional (`SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_TRACES_SAMPLE_RATE`): email/password/token/cookie disamarkan, user hanya `id`. Sentry frontend opsional (`REACT_APP_SENTRY_DSN`, dimuat lazy lewat `src/lib/sentry.js`, penyamaran sama).
+- Verifikasi: 12 tes baru (`test_observability.py`) + seluruh suite 203 lulus/2 skip pada server mock (mongomock); pyflakes bersih; `CI=true yarn build` lulus; init Sentry dengan DSN palsu berhasil. Belum diuji: pengiriman event ke Sentry sungguhan dan health check di Railway (perlu DSN/konfigurasi).
 
 ### F0-10 `test/e2e-playwright` — tes E2E frontend
 Playwright untuk alur kritis: login (termasuk kunci), absensi pengajar, buat invoice + catat pembayaran, ganti password (F0-4). Berjalan di CI sebagai job ketiga melawan backend (service `mongo:7`, DB uji) + build frontend. Dependensi: F0-2 dan F0-4. Risiko: tes E2E rentan flakiness; gunakan `data-testid` yang sudah ada.
